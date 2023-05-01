@@ -1,6 +1,6 @@
-import storeFactory from '~/components/store/data/store.factory'
+import storeFactory from '~/lib/store/data/store.factory'
 import { IDBFactory, IDBKeyRange } from "fake-indexeddb";
-import indexedEngine from '~/components/store/data/engines/indexedEngine'
+import indexedEngine from '~/lib/store/data/engines/indexedEngine'
 import { v4 } from 'uuid'
 
 describe('storeFactory', () => {

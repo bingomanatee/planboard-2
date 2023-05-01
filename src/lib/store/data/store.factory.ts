@@ -2,8 +2,8 @@ import { Forest } from '@wonderlandlabs/forest'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { v4 } from 'uuid'
 import { c } from '@wonderlandlabs/collect'
-import { Engine, FieldDef, StoreRecord } from '~/components/store/types';
-import validateData from '~/components/store/validateData'
+import { Engine, FieldDef, StoreRecord } from '~/lib/store/types';
+import validateData from '~/lib/store/validateData'
 
 const storeFactory = (engine: Engine) => {
   const store = new Forest({

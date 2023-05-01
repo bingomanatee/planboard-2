@@ -1,8 +1,7 @@
 import Dexie from 'dexie'
-import { AsyncResponse, Engine, FieldDef } from '../../types'
 import { c } from '@wonderlandlabs/collect'
-import { type } from '@wonderlandlabs/walrus';
-import validateData from '~/components/store/validateData'
+import validateData from '~/lib/store/validateData'
+import { AsyncResponse, Engine, FieldDef } from '~/lib/store/types'
 
 const indexedEngine = (version = 1, config = {}): Engine => {
   const db = new Dexie('Planboard', config);

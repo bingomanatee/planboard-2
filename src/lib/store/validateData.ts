@@ -1,6 +1,6 @@
 import { c } from '@wonderlandlabs/collect'
 import { type } from '@wonderlandlabs/walrus'
-import { FieldDef } from '~/components/store/types'
+import { FieldDef } from '~/lib/store/types'
 
 function str (val) {
   try {
