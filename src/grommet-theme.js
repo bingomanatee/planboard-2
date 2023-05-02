@@ -53,6 +53,7 @@ const theme = deepMerge(base, {
         light: 'hsla(0,0%,100%,0.8)',
         dark: 'hsla(0,0%,0%,0.8)'
       },
+      'card-header': 'hsla(0,50%,0%, 0.05)',
       'text-weak': {
         dark: 'hsla(0,0%,100%,0.8)',
         light: 'hsla(0,0%,0%,0.8)'
@@ -127,8 +128,8 @@ const theme = deepMerge(base, {
         dark: 'hsl(0,0%,25%)',
       },
       'text-reverse': {
-        light: '#EEEEEE',
-        dark: '#333333',
+        light: 'hsla(0,0%,100%, 80%)',
+        dark: 'hsla(0,0%,0%, 80%)',
       },
       'modal-background': {
         light: 'rgba(0,0,0,0.25)',
@@ -373,5 +374,5 @@ const theme = deepMerge(base, {
     }
   }
 })
-console.log('theme:', theme)
+
 export default theme

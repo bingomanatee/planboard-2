@@ -11,6 +11,7 @@ const LoginPage = () => {
   const user = useUser();
   const router = useRouter();
 
+  // may not be necessary - no state management on this page
   const { globalState } = useContext(GlobalStateContext);
   useEffect(() => {
     globalState.do.set_user(user);

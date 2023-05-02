@@ -5,20 +5,17 @@ import { createStore } from '~/lib/store/data/createStore'
 
 const dataStoreFactory = (engine: Engine) => {
   const store = new Forest({
-    $value: new Map(),
+    $value: new Map([['user', null]]),
+    selectors: {
+      userId(leaf: leafI) {
+        const { user } = leaf.value;
+        return user?.id || '';
+      }
+    },
     actions: {
       createStore(leaf: leafI, collectionName: string, schema?: FieldDef[], actions = {}, selectors = {}) {
         createStore(leaf, engine, collectionName, schema, actions, selectors);
       },
-      async loadProjectsFor(leaf: leafI, userId: string) {
-        const { data, error } = await engine.query('projects', [{ field: 'user_id', value: userId }]);
-        if (error) {
-          throw error;
-        }
-        if (data.projects) {
-          leaf.child('projects')!.do.addMany(data.projects, true);
-        }
-      }
     }
   });
   store.do.createStore('projects', [
@@ -26,21 +23,34 @@ const dataStoreFactory = (engine: Engine) => {
     { name: 'name', type: 'string' },
     { name: 'created_at', type: 'string', optional: true },
     { name: 'user_id', type: 'string', optional: true },
-  ], {}, {
-    getCurrentProjectId(_leaf: leafI, user_id: string = '') {
-      if (typeof localStorage !== 'undefined') {
-        const projectId = localStorage.getItem('currentProject_for_' + user_id);
-        return projectId || null
-      } else {
-        return null;
-      }
-    },
-    setCurrentProjectId(_leaf: leafI, user_id: string = '', projectId) {
-      if (typeof localStorage !== 'undefined') {
-        if (typeof projectId !== 'string') {
-          projectId = '';
+  ], {
+    actions: {
+      async loadProjects(leaf: leafI) {
+        const userId = leaf.parent!.$.userId();
+        const { data, error } = await engine.query('projects', [{ field: 'user_id', value: userId }]);
+        if (error) {
+          throw error;
         }
-        localStorage.setItem('currentProjectFor_' + user_id, projectId || '');
+        if (data) {
+          leaf.do.addMany(data, true);
+        }
+      },
+    }, selectors: {
+      getCurrentProjectId(_leaf: leafI, user_id: string = '') {
+        if (typeof localStorage !== 'undefined') {
+          const projectId = localStorage.getItem('currentProject_for_' + user_id);
+          return projectId || null
+        } else {
+          return null;
+        }
+      },
+      setCurrentProjectId(_leaf: leafI, user_id: string = '', projectId) {
+        if (typeof localStorage !== 'undefined') {
+          if (typeof projectId !== 'string') {
+            projectId = '';
+          }
+          localStorage.setItem('currentProjectFor_' + user_id, projectId || '');
+        }
       }
     }
   });

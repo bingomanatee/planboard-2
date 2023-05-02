@@ -1,10 +1,13 @@
 import { FieldDef, StoreRecord } from '~/lib/store/types'
-import { leafI } from '@wonderlandlabs/forest/lib/types'
+import { leafConfig, leafI } from '@wonderlandlabs/forest/lib/types'
 import { c } from '@wonderlandlabs/collect'
 import validateData from '~/lib/store/validateData'
 import { v4 } from 'uuid'
 
-export function createStore(leaf, engine, collectionName, schema?: FieldDef[], actions = {}, selectors = {}) {
+export function createStore(leaf, engine, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
+  const actions = config?.actions || {};
+  const selectors = config?.selectors || {};
+
   engine.addStore(collectionName, schema || []);
   leaf.addChild({
     $value: new Map(),
@@ -81,14 +84,14 @@ export function createStore(leaf, engine, collectionName, schema?: FieldDef[], a
           saved,
         };
         leaf.do.mutateValue((map) => map.set(id, record));
-        return id;
+        return record;
       },
       addMany(leaf: leafI, data: any[], exclusive = false) {
         let saved = true;
         data.forEach(content => validateData(content, leaf.getMeta('schema'), collectionName)) ;
         const ids = [];
         leaf.do.mutateValue((map) => {
-          if (exclusive) map = new Map();
+          if (exclusive) map.clear();
           data.forEach((content) => {
            let id = leaf.$.primaryFromValue(content);
             if (!id) {
@@ -101,8 +104,9 @@ export function createStore(leaf, engine, collectionName, schema?: FieldDef[], a
               content,
               saved,
             };
-            map.set(id, record)
-          })
+            map.set(id, record);
+          });
+          return map;
         });
         return ids;
       },

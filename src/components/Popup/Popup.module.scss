@@ -1,0 +1,21 @@
+
+.cover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  backdrop-filter:  blur(4px);
+  background-color: rgba(128, 128, 128,0.1);
+}
+
+.header {
+  h2, h3 {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.popupCard {
+  box-shadow: var(--shadow-elevation-medium)!important;
+}

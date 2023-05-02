@@ -37,7 +37,8 @@ const indexedEngine = (version = 1, config = {}): Engine => {
       }
 
       if (!conditions?.length) {
-        return { data: db[collection].toArray() }
+        const data = await db[collection].toArray();
+        return { data }
       }
 
       const query = conditions.reduce((q, fQuery) => {
@@ -45,8 +46,7 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         return q;
       }, {})
 
-      console.log(collection, 'querying ', query, 'from conditions', conditions);
-      const data = db[collection].where(query).toArray();
+      const data = await db[collection].where(query).toArray();
       return { data };
     },
 

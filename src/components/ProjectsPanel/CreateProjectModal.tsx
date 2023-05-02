@@ -1,0 +1,68 @@
+import { leafI } from '@wonderlandlabs/forest/lib/types'
+import { useContext } from 'react'
+import { PopupContext } from '~/components/Popup/Popup'
+import { DataStateContext } from '~/components/GlobalState/GlobalState'
+import useForest from '~/lib/useForest'
+import useForestInput from '~/lib/useForestInput'
+import { Card, CardBody, CardFooter, Heading, ResponsiveContext, TextInput } from 'grommet'
+import { BoxColumn } from '~/components/BoxVariants'
+import styles from '~/components/Popup/Popup.module.scss'
+import PopupCardHeader from '~/components/Popup/PopupCardHeader'
+import FormEntry from '~/components/FormEntry/FormEntry'
+import GoArrow from '~/components/GoArrow/GoArrow'
+
+function createProjectState(dataState, popupState) {
+  return {
+    $value: {
+      name: '',
+      saving: false,
+    },
+    actions: {
+      commit(leaf: leafI) {
+        leaf.do.set_saving(true);
+        leaf.do.save();
+      },
+      async save(leaf: leafI) {
+        const user_id = dataState.value.user?.id || '';
+        const project = { name: leaf.value.name, user_id };
+        const projects = dataState.child('projects');
+        const projectRecord = await projects.do.add(project);
+        await projects.do.save(projectRecord.id);
+        popupState.do.hideModal();
+        leaf.do.set_saving(false);
+      }
+    }
+  }
+}
+
+const pad = { horizontal: 'small', vertical: 'xsmall' };
+
+export function CreateProjectModal() {
+  const { popupState, popupValue } = useContext(PopupContext);
+  const { dataState } = useContext(DataStateContext);
+  const [value, state] = useForest([createProjectState, dataState, popupState]);
+
+  const [name, handleName] = useForestInput(state, 'name');
+  const size = useContext(ResponsiveContext);
+  return (
+    <BoxColumn fill align="center" justify="center">
+      <Card margin="large" background="background-back"
+            width={size === 'large' ? { max: '800px', min: '50vw' } : '100%'}
+            className={styles.popupCard}
+      >
+        <PopupCardHeader>
+          <Heading justify="stretch" textAlign="center" color="text-reverse" level={2}>Create Project</Heading>
+        </PopupCardHeader>
+        <CardBody pad={pad} fill="horizontal">
+          <FormEntry label="Project Name">
+            <TextInput name="name" value={name} onChange={handleName}/>
+          </FormEntry>
+        </CardBody>
+        <CardFooter justify="between">
+          <span>&nbsp;</span>
+          <GoArrow onClick={state.do.commit}>Add Project</GoArrow>
+        </CardFooter>
+      </Card>
+    </BoxColumn>
+  )
+}
