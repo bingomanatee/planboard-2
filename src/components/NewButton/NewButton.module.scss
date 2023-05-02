@@ -1,0 +1,10 @@
+
+.button {
+    border-radius: 1em 0 0 1em;
+    text-transform: uppercase;
+    box-shadow: var(--shadow-elevation-low-green);
+
+   &:hover {
+         box-shadow: var(--shadow-elevation-medium-green);
+     }
+}

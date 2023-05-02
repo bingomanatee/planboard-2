@@ -1,9 +1,9 @@
-import storeFactory from '~/lib/store/data/store.factory'
+import dataStoreFactory from '~/lib/store/data/dataStore.factory'
 import { IDBFactory, IDBKeyRange } from "fake-indexeddb";
 import indexedEngine from '~/lib/store/data/engines/indexedEngine'
 import { v4 } from 'uuid'
 
-describe('storeFactory', () => {
+describe('dataStoreFactory', () => {
 
   describe('basic i/o', () => {
 
@@ -11,7 +11,7 @@ describe('storeFactory', () => {
       describe('projects', () => {
         describe('add, save', () => {
           it('should let you add new projects', () => {
-            const store = storeFactory(indexedEngine());
+            const store = dataStoreFactory(indexedEngine());
             const projects = store.child('projects')!;
 
             const id = projects.do.add({ name: "test-project" });
@@ -21,7 +21,7 @@ describe('storeFactory', () => {
           });
 
           it('throw on bad new projects', async () => {
-            const store = storeFactory(indexedEngine());
+            const store = dataStoreFactory(indexedEngine());
             const projects = store.child('projects')!;
             let error = null;
             try {
@@ -34,7 +34,7 @@ describe('storeFactory', () => {
           });
 
           it('should let you add existing projects', () => {
-            const store = storeFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
+            const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
             const projects = store.child('projects')!;
             const id = v4();
 
@@ -47,7 +47,7 @@ describe('storeFactory', () => {
           });
 
           it('should let you save new projects', async () => {
-            const store = storeFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
+            const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
             const projects = store.child('projects')!;
 
             const id = projects.do.add({ name: "test-project" });
@@ -59,7 +59,7 @@ describe('storeFactory', () => {
 
           it('should let you save (over) existing projects', async () => {
             const engine = indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange });
-            const store = storeFactory(engine);
+            const store = dataStoreFactory(engine);
             const projects = store.child('projects')!;
             const id = v4();
 
@@ -76,7 +76,7 @@ describe('storeFactory', () => {
         describe('fetch', () => {
           it('should fetch existing projects', async () => {
             const engine = indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange });
-            const store = storeFactory(engine);
+            const store = dataStoreFactory(engine);
             const projects = store.child('projects')!;
             const id = v4();
 
@@ -92,7 +92,7 @@ describe('storeFactory', () => {
       describe('frames', () => {
         describe('add, save', () => {
           it('should let you add new frames', () => {
-            const store = storeFactory(indexedEngine());
+            const store = dataStoreFactory(indexedEngine());
             const frames = store.child('frames')!;
 
             const id = frames.do.add({
@@ -112,7 +112,7 @@ describe('storeFactory', () => {
           });
 
           it('throw on bad new frames', async () => {
-            const store = storeFactory(indexedEngine());
+            const store = dataStoreFactory(indexedEngine());
             const projects = store.child('frames')!;
             let error = null;
             try {
@@ -125,7 +125,7 @@ describe('storeFactory', () => {
           });
 
           it('should let you add existing frames', () => {
-            const store = storeFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
+            const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
             const frames = store.child('frames')!;
             const id = v4();
 
@@ -148,7 +148,7 @@ describe('storeFactory', () => {
           });
 
           it('should let you save new frames', async () => {
-            const store = storeFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
+            const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
             const frames = store.child('frames')!;
 
             const id = frames.do.add({
@@ -174,7 +174,7 @@ describe('storeFactory', () => {
               indexedDB: new IDBFactory(),
               IDBKeyRange
             });
-            const store = storeFactory(engine);
+            const store = dataStoreFactory(engine);
             const frames = store.child('frames')!;
             const id = v4();
 
@@ -206,7 +206,7 @@ describe('storeFactory', () => {
         describe('fetch', () => {
           it('should fetch existing frames', async () => {
             const engine = indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange });
-            const store = storeFactory(engine);
+            const store = dataStoreFactory(engine);
             const frames = store.child('frames')!;
             const id = v4();
 

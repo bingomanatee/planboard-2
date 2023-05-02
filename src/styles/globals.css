@@ -1,76 +1,44 @@
 :root {
-  --max-width: 1100px;
-  --border-radius: 12px;
-  --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
-    'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
-    'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+  --shadow-color: 0deg 0% 56%;
+  --shadow-color-green: 110deg 50% 36%;
 
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+    --shadow-elevation-low:
+            0.6px 0.7px 0.9px hsl(var(--shadow-color) / 0.67),
+            1px 1.2px 1.4px -1.9px hsl(var(--shadow-color) / 0.51),
+            5.1px 6.1px 7.3px -2.6px hsl(var(--shadow-color) / 0.46);
+    --shadow-elevation-medium:
+            0.6px 0.7px 0.9px hsl(var(--shadow-color) / 0.7),
+            1.6px 2px 2.4px -1.3px hsl(var(--shadow-color) / 0.58),
+            5.1px 6.1px 7.3px -2.6px hsl(var(--shadow-color) / 0.46),
+            14.1px 16.9px 20.3px -3.8px hsl(var(--shadow-color) / 0.33);
+    --shadow-elevation-high:
+            0.6px 0.7px 0.9px hsl(var(--shadow-color) / 0.65),
+            2.5px 3px 3.6px -0.5px hsl(var(--shadow-color) / 0.6),
+            5.2px 6.2px 7.5px -1.1px hsl(var(--shadow-color) / 0.54),
+            10px 12px 14.4px -1.6px hsl(var(--shadow-color) / 0.48),
+            18.5px 22.1px 26.6px -2.2px hsl(var(--shadow-color) / 0.42),
+            31.8px 38.1px 45.8px -2.7px hsl(var(--shadow-color) / 0.37),
+            51.3px 61.5px 73.9px -3.3px hsl(var(--shadow-color) / 0.31),
+            78.5px 94.1px 113px -3.8px hsl(var(--shadow-color) / 0.25);
 
-  --primary-glow: conic-gradient(
-    from 180deg at 50% 50%,
-    #16abff33 0deg,
-    #0885ff33 55deg,
-    #54d6ff33 120deg,
-    #0071ff33 160deg,
-    transparent 360deg
-  );
-  --secondary-glow: radial-gradient(
-    rgba(255, 255, 255, 1),
-    rgba(255, 255, 255, 0)
-  );
-
-  --tile-start-rgb: 239, 245, 249;
-  --tile-end-rgb: 228, 232, 233;
-  --tile-border: conic-gradient(
-    #00000080,
-    #00000040,
-    #00000030,
-    #00000020,
-    #00000010,
-    #00000010,
-    #00000080
-  );
-
-  --callout-rgb: 238, 240, 241;
-  --callout-border-rgb: 172, 175, 176;
-  --card-rgb: 180, 185, 188;
-  --card-border-rgb: 131, 134, 135;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-
-    --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
-    --secondary-glow: linear-gradient(
-      to bottom right,
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0.3)
-    );
-
-    --tile-start-rgb: 2, 13, 46;
-    --tile-end-rgb: 2, 5, 19;
-    --tile-border: conic-gradient(
-      #ffffff80,
-      #ffffff40,
-      #ffffff30,
-      #ffffff20,
-      #ffffff10,
-      #ffffff10,
-      #ffffff80
-    );
-
-    --callout-rgb: 20, 20, 20;
-    --callout-border-rgb: 108, 108, 108;
-    --card-rgb: 100, 100, 100;
-    --card-border-rgb: 200, 200, 200;
-  }
+    --shadow-elevation-low-green:
+            0.6px 0.7px 0.9px hsl(var(--shadow-color-green) / 0.67),
+            1px 1.2px 1.4px -1.9px hsl(var(--shadow-color-green) / 0.51),
+            5.1px 6.1px 7.3px -2.6px hsl(var(--shadow-color-green) / 0.46);
+    --shadow-elevation-medium-green:
+            0.6px 0.7px 0.9px hsl(var(--shadow-color-green) / 0.7),
+            1.6px 2px 2.4px -1.3px hsl(var(--shadow-color-green) / 0.58),
+            5.1px 6.1px 7.3px -2.6px hsl(var(--shadow-color-green) / 0.46),
+            14.1px 16.9px 20.3px -3.8px hsl(var(--shadow-color-green) / 0.33);
+    --shadow-elevation-high-green:
+            0.6px 0.7px 0.9px hsl(var(--shadow-color-green) / 0.65),
+            2.5px 3px 3.6px -0.5px hsl(var(--shadow-color-green) / 0.6),
+            5.2px 6.2px 7.5px -1.1px hsl(var(--shadow-color-green) / 0.54),
+            10px 12px 14.4px -1.6px hsl(var(--shadow-color-green) / 0.48),
+            18.5px 22.1px 26.6px -2.2px hsl(var(--shadow-color-green) / 0.42),
+            31.8px 38.1px 45.8px -2.7px hsl(var(--shadow-color-green) / 0.37),
+            51.3px 61.5px 73.9px -3.3px hsl(var(--shadow-color-green) / 0.31),
+            78.5px 94.1px 113px -3.8px hsl(var(--shadow-color-green) / 0.25);
 }
 
 * {

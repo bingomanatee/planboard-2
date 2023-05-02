@@ -2,7 +2,7 @@ import { base } from 'grommet'
 import { deepMerge } from "grommet/utils"
 
 const baselineFontSizes = [
-  12, // text,
+  14, // text,
   18, // l1,
   16, // l2,
   14, // l3,
@@ -51,15 +51,15 @@ const theme = deepMerge(base, {
       },
       'nav-background': {
         light: 'hsla(0,0%,100%,0.8)',
-        dark:'hsla(0,0%,0%,0.8)'
+        dark: 'hsla(0,0%,0%,0.8)'
       },
       'text-weak': {
         dark: 'hsla(0,0%,100%,0.8)',
-        light:'hsla(0,0%,0%,0.8)'
+        light: 'hsla(0,0%,0%,0.8)'
       },
       'text-xweak': {
         dark: 'hsla(0,0%,100%,0.6)',
-        light:'hsla(0,0%,0%,0.6)'
+        light: 'hsla(0,0%,0%,0.6)'
       },
       'tab-color': {
         light: 'hsl(227,90%,40%)',
@@ -198,9 +198,31 @@ const theme = deepMerge(base, {
     },
   },
   button: {
+    padding: { horizontal: '1em', vertical: '2px' },
     border: {
       width: '1px',
+      radius: '3px'
     },
+    size: {
+      small: {
+        border: {
+          radius: '4px'
+        }
+      },
+      medium: {
+        border: {
+          radius: '5px'
+        }
+      },
+      large: {
+        pad: {
+          horizontal: '1.5em', vertical: '0.5em'
+        },
+        border: {
+          radius: '10px'
+        }
+      }
+    }
   },
   chart: {},
   diagram: {
@@ -245,8 +267,8 @@ const theme = deepMerge(base, {
   }, {}),
   text: 'xxsmall,xxsmall,small,medium,large,xlarge'.split(',')
     .reduce((memo, size) => {
-    return { ...memo, [size]: fontSize(0, size) }
-  }, {}),
+      return { ...memo, [size]: fontSize(0, size) }
+    }, {}),
   breakpoints: {
     small: {
       value: 768,
@@ -351,5 +373,5 @@ const theme = deepMerge(base, {
     }
   }
 })
-
+console.log('theme:', theme)
 export default theme

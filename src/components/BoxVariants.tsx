@@ -1,18 +1,18 @@
 import { Box, ResponsiveContext } from 'grommet'
-import { GenericPageProps } from '~/types'
+import { GenericProps } from '~/types'
 import { useContext, useMemo } from 'react'
 import { DirectionType } from 'grommet/utils'
 import { generalObj } from '@wonderlandlabs/collect/lib/types'
 
 
-export const BoxRow = ({ children, ...rest }: generalObj & GenericPageProps) => (<Box direction="row" {...rest}>{children}</Box>)
-export const BoxColumn = ({ children, ...rest }: generalObj & GenericPageProps) => (
+export const BoxRow = ({ children, ...rest }: generalObj & GenericProps) => (<Box direction="row" {...rest}>{children}</Box>)
+export const BoxColumn = ({ children, ...rest }: generalObj & GenericProps) => (
   <Box direction="column" {...rest}>{children}</Box>)
 
 const sizes = ['small', 'medium', 'large']
 export const BoxFlip = ({ direction, flip='medium', children, ...rest }: {
   direction: DirectionType, flip?: string
-} & generalObj & GenericPageProps) => {
+} & generalObj & GenericProps) => {
   const size = useContext(ResponsiveContext);
   const realDirection: DirectionType = useMemo(() => {
     const index = sizes.indexOf(size);

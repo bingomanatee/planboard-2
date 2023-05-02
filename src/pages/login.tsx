@@ -2,7 +2,7 @@ import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import React, { useContext, useEffect, useState } from 'react'
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react'
-import { BoxColumn, BoxRow } from '~/BoxVariants'
+import { BoxColumn, BoxRow } from '~/components/BoxVariants'
 import { useRouter } from 'next/router'
 import { GlobalStateContext } from '~/components/GlobalState/GlobalState'
 

@@ -1,11 +1,11 @@
 import Dexie from 'dexie'
 import { c } from '@wonderlandlabs/collect'
 import validateData from '~/lib/store/validateData'
-import { AsyncResponse, Engine, FieldDef } from '~/lib/store/types'
+import { AsyncResponse, Engine, FieldDef, FieldQuery } from '~/lib/store/types'
 
 const indexedEngine = (version = 1, config = {}): Engine => {
   const db = new Dexie('Planboard', config);
-  const tables = {}
+  const tables = {}; // the string definition of fields
   const schemas = {};
   let init = false;
 
@@ -30,6 +30,26 @@ const indexedEngine = (version = 1, config = {}): Engine => {
   }
 
   return {
+    async query(collection: string, conditions: FieldQuery[]): Promise<AsyncResponse> {
+      initialize();
+      if (!(collection in db)) {
+        return { error: new Error(`no table "${collection}"`) };
+      }
+
+      if (!conditions?.length) {
+        return { data: db[collection].toArray() }
+      }
+
+      const query = conditions.reduce((q, fQuery) => {
+        q[fQuery.field] = fQuery.value;
+        return q;
+      }, {})
+
+      console.log(collection, 'querying ', query, 'from conditions', conditions);
+      const data = db[collection].where(query).toArray();
+      return { data };
+    },
+
     addStore(collection: string, schema: FieldDef[] | undefined): void {
       if (!collection) {
         throw new Error('bad/empty store collection');
@@ -79,4 +99,4 @@ const indexedEngine = (version = 1, config = {}): Engine => {
     }
   }
 }
-export default  indexedEngine;
+export default indexedEngine;

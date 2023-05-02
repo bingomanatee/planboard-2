@@ -6,7 +6,7 @@ function GlobalFactory(dataStore: leafI) {
   return new Forest({
     $value: {
         user: null,
-    }
+    },
 
   });
 }
