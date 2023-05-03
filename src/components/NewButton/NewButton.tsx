@@ -6,8 +6,8 @@ import Img from '~/components/Img'
 import styles from './NewButton.module.scss';
 
 export function NewButton(props: { onClick: triggerFn, icon: string, children: ReactNode }) {
-  return <Button size="large" plain elevation="large">
-    <BoxRow background="light-2"
+  return <Button focusIndicator={false}  size="large" plain elevation="large">
+    <BoxRow focusIndicator={false}  background="light-2"
             align="center"
             gap="medium"
             size="large"

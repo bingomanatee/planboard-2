@@ -1,0 +1,44 @@
+.item {
+  border-top-right-radius: 1.5em;
+  border-bottom-right-radius: 1.5em;
+  padding: 0.125em;
+  margin-bottom: 2px;
+  position: relative;
+
+  &:hover {
+    background-color: white;
+    box-shadow: var(--shadow-elevation-medium);
+    .id {
+      display: block;
+    }
+    .name {
+      color: rgb(4,25,167);
+    }
+    .action {
+      visibility: visible;
+    }
+  }
+  .name {
+    padding-left: 2em;
+  }
+  .id {
+    position: absolute;
+    left: 0;
+    top: -1.5em;
+    background: white;
+    padding: 2px 1em;
+    display: none;
+    pointer-events: none;
+  }
+  .action {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0.5em;
+    visibility: hidden;
+  }
+}

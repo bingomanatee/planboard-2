@@ -10,7 +10,7 @@
     bottom: 0;
     overflow: hidden;
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     align-items: center;
     align-content: end;
     z-index: 10;
@@ -38,7 +38,7 @@
     position: relative;
     z-index: 100;
     padding: 1em;
-    padding-right: 3em;
+    padding-left: 3em;
     &:hover {
       color: rgba(0,0,0,0.5);
     }

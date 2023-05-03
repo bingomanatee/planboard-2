@@ -10,6 +10,7 @@ import styles from '~/components/Popup/Popup.module.scss'
 import PopupCardHeader from '~/components/Popup/PopupCardHeader'
 import FormEntry from '~/components/FormEntry/FormEntry'
 import GoArrow from '~/components/GoArrow/GoArrow'
+import BackArrow from '~/components/BackArrow/BackArrow'
 
 function createProjectState(dataState, popupState) {
   return {
@@ -18,6 +19,9 @@ function createProjectState(dataState, popupState) {
       saving: false,
     },
     actions: {
+      cancel() {
+        popupState.do.hideModal();
+      },
       commit(leaf: leafI) {
         leaf.do.set_saving(true);
         leaf.do.save();
@@ -59,7 +63,7 @@ export function CreateProjectModal() {
           </FormEntry>
         </CardBody>
         <CardFooter justify="between">
-          <span>&nbsp;</span>
+          <BackArrow onClick={state.do.cancel}>Cancel</BackArrow>
           <GoArrow onClick={state.do.commit}>Add Project</GoArrow>
         </CardFooter>
       </Card>
