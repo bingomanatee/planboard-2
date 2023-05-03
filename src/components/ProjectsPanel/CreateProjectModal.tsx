@@ -27,10 +27,11 @@ function createProjectState(dataState, popupState) {
         leaf.do.save();
       },
       async save(leaf: leafI) {
-        const user_id = dataState.value.user?.id || '';
+        const user_id = dataState.$.userId();
         const project = { name: leaf.value.name, user_id };
         const projects = dataState.child('projects');
         const projectRecord = await projects.do.add(project);
+        console.log('saving project', projectRecord);
         await projects.do.save(projectRecord.id);
         popupState.do.hideModal();
         leaf.do.set_saving(false);

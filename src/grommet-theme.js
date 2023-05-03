@@ -55,12 +55,12 @@ const theme = deepMerge(base, {
       },
       'card-header': 'hsla(0,50%,0%, 0.05)',
       'text-weak': {
-        dark: 'hsla(0,0%,100%,0.8)',
+        dark: 'hsla(0,0%,100%,0.75)',
         light: 'hsla(0,0%,0%,0.8)'
       },
       'text-xweak': {
-        dark: 'hsla(0,0%,100%,0.6)',
-        light: 'hsla(0,0%,0%,0.6)'
+        dark: 'hsla(0,0%,100%,0.5)',
+        light: 'hsla(0,0%,0%,0.5)'
       },
       'tab-color': {
         light: 'hsl(227,90%,40%)',

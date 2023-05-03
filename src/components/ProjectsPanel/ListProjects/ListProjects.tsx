@@ -21,7 +21,7 @@ function ProjectItem(props: { project: NameId }) {
 
 const ListProjects = () => {
   const { dataState, dataValue } = useContext(DataStateContext)
-
+  const user = dataValue.get('user');
   const [projects, setProjects] = useState(new Map())
   const projectStore = dataState.child('projects')!;
 
@@ -29,7 +29,7 @@ const ListProjects = () => {
     projectStore.do.loadProjects();
     const sub = projectStore.subscribe(setProjects);
     return () => sub.unsubscribe();
-  }, [projectStore]);
+  }, [projectStore, user]);
 
   return projects.size ? <BoxColumn gap="xsmall">
       {

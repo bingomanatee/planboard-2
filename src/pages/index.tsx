@@ -14,7 +14,7 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   const supabaseClient = useSupabaseClient()
   const user = useUser()
-
+  console.log('user is ', user);
   const { globalState } = useContext(GlobalStateContext);
   const { dataState } = useContext(DataStateContext);
   useEffect(() => {

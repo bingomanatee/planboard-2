@@ -7,7 +7,7 @@ export default function DashboardCard({ label, children, headContent }) {
     <header>
       <BoxRow justify="between" pad="small">
         {headContent}
-        <Text size="small">{label}</Text>
+        <Text size="small" color="text-xweak">{label}</Text>
       </BoxRow>
     </header>
     <div>

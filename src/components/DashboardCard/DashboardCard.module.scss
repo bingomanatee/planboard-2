@@ -1,15 +1,19 @@
-
+@import "~/styles/utils";
 .card {
-  --shadow-color: hsla(0, 0%, 0%, 0.3);
+  --shadow-color: hsla(0, 0%, 0%, 0.5);
+  --shadow-blur: 20px;
   background-color: hsla(0, 0%, 50%, 0.05);
-  padding: 0 0.5em;
+  padding: 0 0.15em;
   width: 100%;
-  box-shadow: 0px 10px 30px -10px var(--shadow-color) inset;
-  -webkit-box-shadow: 0px 10px 30px -10px var(--shadow-color) inset;
-  -moz-box-shadow: 0px 10px 30px -10px var(--shadow-color) inset;
+  box-shadow: 0px 10px var(--shadow-blur) -10px var(--shadow-color) inset;
+  -webkit-box-shadow: 0px 10px var(--shadow-blur) -10px var(--shadow-color) inset;
+  -moz-box-shadow: 0px 10px var(--shadow-blur) -10px var(--shadow-color) inset;
 
   > header {
     text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    @include no-select;
   }
   > div {
     padding: 0.5em;

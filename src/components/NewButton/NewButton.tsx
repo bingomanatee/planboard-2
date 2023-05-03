@@ -14,7 +14,7 @@ export function NewButton(props: { onClick: triggerFn, icon: string, children: R
             onClick={props.onClick}
             className={styles.button}
             pad={{ horizontal: '3px', top: '3px', bottom: '3px', right: '1em' }}>
-      <Img width={32} height={32} src={props.icon}/>
+      <Img width={24} height={24} src={props.icon}/>
       <Text weight="bold" as="span">{props.children}</Text>
     </BoxRow>
   </Button>

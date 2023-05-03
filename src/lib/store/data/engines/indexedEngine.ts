@@ -41,12 +41,14 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         return { data }
       }
 
-      const query = conditions.reduce((q, fQuery) => {
-        q[fQuery.field] = fQuery.value;
-        return q;
-      }, {})
-
-      const data = await db[collection].where(query).toArray();
+      const coll = conditions.reduce((db: Dexie.Table | Dexie.Collection, condition, index) => {
+        if (index === 0) {
+          return db.where(condition.field).equals(condition.value);
+        }
+        return db.and().where(condition.field).equals(condition.value);
+      }, db[collection])
+      const data = await coll.toArray();
+      console.log(conditions, 'result = ', data);
       return { data };
     },
 
@@ -59,10 +61,11 @@ const indexedEngine = (version = 1, config = {}): Engine => {
       }
       const coll = c(schema);
       tables[collection] = coll.getReduce((schema: string[], fieldDef: FieldDef) => {
-        schema.push(fieldDef.name);
+        schema.push(fieldDef.indexed ? '&' + fieldDef.name : fieldDef.name);
         return schema;
       }, []).join(',');
       schemas[collection] = schema
+      console.log('tables:', tables);
     },
     async fetch(collection: string, id: any): Promise<AsyncResponse> {
       initialize();

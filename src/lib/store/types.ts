@@ -2,6 +2,7 @@ export type FieldDef = {
   name: string,
   type?: string | string[],
   optional?: boolean,
+  indexed?: boolean,
   default?: any,
   test?: (value: any) => boolean,
   primary?: boolean

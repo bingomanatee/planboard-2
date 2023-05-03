@@ -8,7 +8,7 @@ const dataStoreFactory = (engine: Engine) => {
     $value: new Map([['user', null]]),
     selectors: {
       userId(leaf: leafI) {
-        const { user } = leaf.value;
+        const user = leaf.value.get('user');
         return user?.id || '';
       }
     },
@@ -27,7 +27,13 @@ const dataStoreFactory = (engine: Engine) => {
     actions: {
       async loadProjects(leaf: leafI) {
         const userId = leaf.parent!.$.userId();
+        console.log('loading projects for user id ', userId);
         const { data, error } = await engine.query('projects', [{ field: 'user_id', value: userId }]);
+        if (userId !== leaf.parent!.$.userId()) {
+          console.log('--- user id changed -- not loading')
+          return;
+        }
+        console.log('data for user id ', userId, data);
         if (error) {
           throw error;
         }
