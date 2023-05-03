@@ -14,7 +14,7 @@ describe('dataStoreFactory', () => {
             const store = dataStoreFactory(indexedEngine());
             const projects = store.child('projects')!;
 
-            const id = projects.do.add({ name: "test-project" });
+            const { id } = projects.do.add({ name: "test-project" });
             const { content, saved } = projects.value.get(id)
             expect(content.name).toBe('test-project');
             expect(saved).toBeFalsy();
@@ -38,7 +38,7 @@ describe('dataStoreFactory', () => {
             const projects = store.child('projects')!;
             const id = v4();
 
-            const addId = projects.do.add({ name: "existing-test-project" }, id);
+            const { id: addId } = projects.do.add({ name: "existing-test-project" }, id);
             expect(addId).toBe(id);
 
             const { content, saved } = projects.value.get(id)
@@ -50,7 +50,7 @@ describe('dataStoreFactory', () => {
             const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
             const projects = store.child('projects')!;
 
-            const id = projects.do.add({ name: "test-project" });
+            const { id } = projects.do.add({ name: "test-project" });
             await projects.do.save(id);
             const { content, saved } = projects.value.get(id)
             expect(content.name).toBe('test-project');
@@ -87,6 +87,36 @@ describe('dataStoreFactory', () => {
             expect(content.name).toBe("existing-test-project");
           });
         });
+
+        describe('query', () => {
+          it('should pull users with no id ', async () => {
+
+            const engine = indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange });
+            const store = dataStoreFactory(engine);
+            const projects = store.child('projects')!;
+
+            const records = [
+              { id: 'first', name: 'First Project', user_id: '' },
+            { id: 'second', name: 'Second Project', user_id: '' },
+            { id: 'third', name: 'Third Project', user_id: '' },
+
+            { id: 'fourth', name: 'Dave First Project', user_id: 'dave' },
+            { id: 'fifth', name: 'Dave Second Project', user_id: 'dave' },
+            { id: 'sixth', name: 'Dave Third Project', user_id: 'dave' }
+            ]
+            for (const record of records) {
+              await projects.do.add(record, record.id);
+              await projects.do.save(record.id);
+            }
+
+            const { data } = await engine.query('projects', [{ field: 'user_id', value: '' }]);
+            expect(new Set(data.map(p => p.id))).toEqual(new Set(['first', 'second', 'third']));
+
+
+            const { data: data2 } = await engine.query('projects', [{ field: 'user_id', value: 'dave' }]);
+            expect(new Set(data2.map(p => p.id))).toEqual(new Set(['fourth', 'fifth', 'sixth']));
+          })
+        })
       });
 
       describe('frames', () => {
@@ -95,7 +125,7 @@ describe('dataStoreFactory', () => {
             const store = dataStoreFactory(indexedEngine());
             const frames = store.child('frames')!;
 
-            const id = frames.do.add({
+            const { id } = frames.do.add({
               name: "test-frame",
               left: 100,
               top: 150,
@@ -124,19 +154,20 @@ describe('dataStoreFactory', () => {
             expect(projects.$.size()).toBe(0);
           });
 
-          it('should let you add existing frames', () => {
+          it('should let you add existing frames', async () => {
             const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
             const frames = store.child('frames')!;
             const id = v4();
 
-            const addId = frames.do.add({
+            const record = await frames.do.add({
               name: "existing-test-frame",
               left: 100,
               top: 150,
               width: 200,
               height: 300,
             }, id);
-            expect(addId).toBe(id);
+
+            expect(record.id).toBe(id);
 
             const { content, saved } = frames.value.get(id)
             expect(content.name).toBe('existing-test-frame');
@@ -151,13 +182,14 @@ describe('dataStoreFactory', () => {
             const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
             const frames = store.child('frames')!;
 
-            const id = frames.do.add({
+            const { id } = frames.do.add({
               name: "test-frame",
               left: 100,
               top: 150,
               width: 200,
               height: 300,
             });
+
             await frames.do.save(id);
             const { content, saved } = frames.value.get(id)
             expect(content.name).toBe('test-frame');

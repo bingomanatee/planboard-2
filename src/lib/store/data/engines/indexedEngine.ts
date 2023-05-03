@@ -48,7 +48,7 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         return db.and().where(condition.field).equals(condition.value);
       }, db[collection])
       const data = await coll.toArray();
-      console.log(conditions, 'result = ', data);
+
       return { data };
     },
 
@@ -64,8 +64,7 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         schema.push(fieldDef.indexed ? '&' + fieldDef.name : fieldDef.name);
         return schema;
       }, []).join(',');
-      schemas[collection] = schema
-      console.log('tables:', tables);
+      schemas[collection] = schema;
     },
     async fetch(collection: string, id: any): Promise<AsyncResponse> {
       initialize();
