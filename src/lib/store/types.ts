@@ -18,9 +18,9 @@ export type Engine = {
   query: (collection: string, conditions: FieldQuery[]) => Promise<AsyncResponse>
 }
 
-export type StoreRecord = {
-  id: any,
-  content: any,
+export type StoreRecord<IdType = string, ContentType = any> = {
+  id: IdType,
+  content: ContentType,
   saved: boolean
 }
 

@@ -56,16 +56,16 @@ export function CreateProjectModal() {
             className={styles.popupCard}
       >
         <PopupCardHeader>
-          <Heading justify="stretch" textAlign="center" color="text-reverse" level={2}>Create Project</Heading>
+          <Heading justify="stretch" textAlign="center" color="text-reverse" level={2}>Create Project_id</Heading>
         </PopupCardHeader>
         <CardBody pad={pad} fill="horizontal">
-          <FormEntry label="Project Name">
+          <FormEntry label="Project_id Name">
             <TextInput name="name" value={name} onChange={handleName}/>
           </FormEntry>
         </CardBody>
         <CardFooter justify="between">
           <BackArrow onClick={state.do.cancel}>Cancel</BackArrow>
-          <GoArrow onClick={state.do.commit}>Add Project</GoArrow>
+          <GoArrow onClick={state.do.commit}>Add Project_id</GoArrow>
         </CardFooter>
       </Card>
     </BoxColumn>

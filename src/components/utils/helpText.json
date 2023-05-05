@@ -1,0 +1,3 @@
+{
+  "startProjectText": "Projects are made of \"Frames\" of information (text, images, maps) connected by links. \nTo create a frame, hold down the \"F\" key and drag a rectangle on the screen. \n\nFrames can be linked by holding down the \"C\" key and clicking on two frames.\nOr, click a frame then double-click a blank space on the map \nto create and link to a new Frame. \n\nSome Frames, such as images or maps, have links that target a specific spot on the frame.\nHold down the mouse to drag the start point of the link to the desired coordinate  \nthen click the target.  \n\nTo review this information, click \"help\" on the menu at the top-right corner of the screen. "
+}

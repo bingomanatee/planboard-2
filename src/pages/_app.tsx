@@ -1,4 +1,4 @@
-import '~/styles/globals.css'
+import '~/styles/globals.scss'
 import type { AppProps } from 'next/app'
 import PageFrame from '~/components/PageFrame'
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'

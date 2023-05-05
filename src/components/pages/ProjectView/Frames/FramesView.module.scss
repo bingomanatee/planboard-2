@@ -1,0 +1,15 @@
+
+.container {
+  position: relative;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+}
+
+.frame {
+  position: absolute;
+  overflow: hidden;
+  background-color: white;
+}

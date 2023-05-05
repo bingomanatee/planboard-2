@@ -8,12 +8,13 @@ import {
 } from './types'
 import indexedEngine from '~/lib/store/data/engines/indexedEngine'
 import dataStoreFactory from '~/lib/store/data/dataStore.factory'
+import { typedLeaf } from '@wonderlandlabs/forest/lib/types'
 
 
 // @ts-ignore
 export const GlobalStateContext = createContext<GlobalProvided>(null);
 export const DataStateContext = createContext<DataProvided>(null);
-
+export type DataStateContextValue = {dataState: typedLeaf<DataStateValue>, dataValue: DataStateValue}
 export default function GlobalState({ children }: GenericProps) {
   const { globalState, dataState } = useMemo(() => {
     const engine = indexedEngine(1, {});

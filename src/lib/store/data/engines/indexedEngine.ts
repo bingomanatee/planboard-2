@@ -41,15 +41,31 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         return { data }
       }
 
-      const coll = conditions.reduce((db: Dexie.Table | Dexie.Collection, condition, index) => {
-        if (index === 0) {
-          return db.where(condition.field).equals(condition.value);
-        }
-        return db.and().where(condition.field).equals(condition.value);
-      }, db[collection])
-      const data = await coll.toArray();
+      try {
+        const table = db[collection];
+        if (!table) throw new Error('no table ' + collection)
+        const coll = conditions.reduce((
+          db: Dexie.Table | Dexie.Collection,
+          condition, index
+        ) => {
+          try {
+            if (index === 0) {
+              return db.where(condition.field).equals(condition.value);
+            }
+             db.and((item) => item[condition.field] === condition.value);
+            return db;
+          } catch (err) {
+            console.warn('query error with condition', condition, ':', err);
+            throw err;
+          }
+        }, table)
+        const data = await coll.toArray();
+        return { data };
+      } catch (err) {
+        console.warn('query error:', err);
+        return { error: err }
+      }
 
-      return { data };
     },
 
     addStore(collection: string, schema: FieldDef[] | undefined): void {

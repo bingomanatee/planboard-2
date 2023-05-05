@@ -1,21 +1,24 @@
 import { BoxColumn } from '~/components/BoxVariants'
 import { DataStateContext, GlobalStateContext } from '~/components/GlobalState/GlobalState'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import styles from './ListProjects.module.scss';
 import NoData from '~/components/NoData'
 import { c } from '@wonderlandlabs/collect'
 import { NameId } from '~/types'
 import { Text } from 'grommet'
 import Img from '~/components/Img'
+import { Router, useRouter } from 'next/router'
 
-function ProjectItem(props: { project: NameId }) {
+function ProjectItem(props: { project: NameId, router: Router }) {
   console.log('props:', props);
-  const {name, id}= props.project;
-  console.log('id/name:', id, name)
-  return <div className={styles.item}>
+  const { name, id } = props.project;
+  const go = useCallback(() => {
+    props.router.push('/project/' + id);
+  }, [props.router, id]);
+  return <div className={styles.item} onClick={go}>
     <div className={styles.id}><Text size={'xxsmall'}>{id}</Text></div>
     <div className={styles.name}><Text weight="bold">{name}</Text></div>
-    <div className={styles.action}><Img src="/img/icons/list-go-arrow.svg" /></div>
+    <div className={styles.action}><Img src="/img/icons/list-go-arrow.svg"/></div>
   </div>
 }
 
@@ -24,6 +27,7 @@ const ListProjects = () => {
   const user = dataValue.get('user');
   const [projects, setProjects] = useState(new Map())
   const projectStore = dataState.child('projects')!;
+  const router = useRouter();
 
   useEffect(() => {
     projectStore.do.loadProjects();
@@ -34,7 +38,7 @@ const ListProjects = () => {
   return projects.size ? <BoxColumn gap="xsmall">
       {
         c(projects).getReduce((list, project) => {
-          list.push (<ProjectItem project={project.content} key={project.id}/>);
+          list.push(<ProjectItem project={project.content} router={router} key={project.id}/>);
           return list;
         }, [])
       }

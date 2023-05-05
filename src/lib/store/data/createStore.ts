@@ -10,6 +10,7 @@ export function createStore(leaf, engine, collectionName, schema?: FieldDef[], c
 
   engine.addStore(collectionName, schema || []);
   leaf.addChild({
+    id: collectionName,
     $value: new Map(),
     meta: { schema: schema || [] },
     selectors: {

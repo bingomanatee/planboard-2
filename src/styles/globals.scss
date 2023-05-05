@@ -73,3 +73,10 @@ a {
     color-scheme: dark;
   }
 }
+
+.markdown, article {
+  padding: 0.5em 1em;
+  p {
+    margin-bottom: 1em;
+  }
+}
