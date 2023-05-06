@@ -16,6 +16,7 @@ export type Engine = {
   addStore: (collection: string, schema?: FieldDef[]) => void
   fetch: (collection: string, id: any) => Promise<AsyncResponse>
   query: (collection: string, conditions: FieldQuery[]) => Promise<AsyncResponse>
+  initialize() : void
 }
 
 export type StoreRecord<IdType = string, ContentType = any> = {
@@ -28,3 +29,5 @@ export type FieldQuery = {
   field: string,
   value: any,
 }
+
+export type Filter = ((value: StoreRecord) => boolean) | FieldQuery[]

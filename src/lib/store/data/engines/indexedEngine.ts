@@ -9,14 +9,6 @@ const indexedEngine = (version = 1, config = {}): Engine => {
   const schemas = {};
   let init = false;
 
-  function initialize() {
-    if (init) {
-      return;
-    }
-    db.version(version).stores(tables);
-    init = true;
-  }
-
   function validate(collection: string, value: any, id: any) {
     if (!(collection in schemas)) {
       console.log('missing schema --- ', collection, schemas)
@@ -30,8 +22,14 @@ const indexedEngine = (version = 1, config = {}): Engine => {
   }
 
   return {
+    initialize() {
+      if (init) {
+        return;
+      }
+      db.version(version).stores(tables);
+      init = true;
+    },
     async query(collection: string, conditions: FieldQuery[]): Promise<AsyncResponse> {
-      initialize();
       if (!(collection in db)) {
         return { error: new Error(`no table "${collection}"`) };
       }
@@ -67,7 +65,10 @@ const indexedEngine = (version = 1, config = {}): Engine => {
       }
 
     },
-
+    async deleteIds(collection: string, ids: any[]) {
+      console.log('deleting ', collection, 'ids:', ids);
+      await db[collection].bulkDelete(ids);
+    },
     addStore(collection: string, schema: FieldDef[] | undefined): void {
       if (!collection) {
         throw new Error('bad/empty store collection');
@@ -83,7 +84,6 @@ const indexedEngine = (version = 1, config = {}): Engine => {
       schemas[collection] = schema;
     },
     async fetch(collection: string, id: any): Promise<AsyncResponse> {
-      initialize();
       if (!(collection in tables)) {
         return { error: new Error(`no ${collection} collection`) }
       }
@@ -102,7 +102,6 @@ const indexedEngine = (version = 1, config = {}): Engine => {
       }
     },
     async save(collection: string, value: any, id: any): Promise<AsyncResponse> {
-      initialize();
       if (!(collection in tables)) {
         return { error: new Error(`no ${collection} collection`) }
       }

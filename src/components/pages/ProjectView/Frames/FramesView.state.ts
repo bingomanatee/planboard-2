@@ -1,8 +1,19 @@
+import { leafI } from '@wonderlandlabs/forest/lib/types'
+
 const FramesViewState = (props) => {
   return {
-    $value: {},
+    $value: {floatId: null},
     selectors: {},
-    actions: {}
+    actions: {
+      float(leaf: leafI, id) {
+        const toggleFloat = leaf.getMeta('toggleFloat');
+        if (typeof toggleFloat === 'function') {
+          toggleFloat();
+          leaf.setMeta('toggleFloat', null, true);
+        }
+        leaf.do.set_floatId(id || null);
+      }
+    }
   };
 };
 

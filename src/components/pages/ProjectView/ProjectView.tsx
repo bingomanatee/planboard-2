@@ -29,8 +29,8 @@ export default function ProjectView(props: ProjectViewProps) {
       }
     });
 
-  const { projectState, loadState } = value;
-  console.log('loadState', loadState);
+  const { projectState, loadState, loadError } = value;
+  console.log('loadState', loadState, loadError);
   return (<div className={styles.container} ref={containerRef}>
     {loadState === 'finished'? <FramesView projectId={props.id} /> : null}
     {projectState === 'drawing-frame' ? <NewFrame projectState={state}/> : null}

@@ -24,7 +24,8 @@ const validateData = (value, schema: FieldDef[], collection: string) => {
       }
     } else {
       if (!(field.optional || field.primary)) {
-        throw new Error(`missing required field ${field.name} for ${collection}`);
+        console.warn('bad', collection, value, field);
+        throw new Error(`missing required field "${field.name}" for ${collection}`);
       }
     }
   }

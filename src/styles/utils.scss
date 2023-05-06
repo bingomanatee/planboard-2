@@ -6,3 +6,10 @@
   -ms-user-select: none;
   user-select: none;
 }
+
+@mixin button-hover {
+  &:hover {
+    box-shadow: var(--shadow-elevation-high-green);
+  }
+}
+

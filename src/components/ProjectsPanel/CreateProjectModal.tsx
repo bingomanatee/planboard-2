@@ -65,7 +65,7 @@ export function CreateProjectModal() {
         </CardBody>
         <CardFooter justify="between">
           <BackArrow onClick={state.do.cancel}>Cancel</BackArrow>
-          <GoArrow onClick={state.do.commit}>Add Project_id</GoArrow>
+          <GoArrow onClick={state.do.commit}>Create Project</GoArrow>
         </CardFooter>
       </Card>
     </BoxColumn>

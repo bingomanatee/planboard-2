@@ -9,10 +9,10 @@ export default function Navigation() {
   return <Nav background="nav-background"
               align="center"
               pad={{ horizontal: 'small' }}
-
+              style={{zIndex: 20000000}}
               direction="row" className={style.nav}>
     <Link href="/"><Img src="/img/icons/menu-anchor.svg"/></Link>
-    <Heading level={1}>Planboard</Heading>
+    <Link href="/"><Heading level={1}>Planboard</Heading></Link>
     <UserMenuItem />
   </Nav>
 

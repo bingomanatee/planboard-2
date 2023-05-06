@@ -1,0 +1,35 @@
+@import "~/styles/utils.scss";
+
+$hoverIconColor: hsl(120, 100%, 75%);
+$baseIconColor: hsl(120, 50%, 33%);
+
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: hsla(0, 0%, 50%, 0.2);
+
+  img {
+    border-radius: 50%;
+    @include button-hover();
+  }
+  @include no-select();
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 50px 50px;
+  grid-auto-rows: 50px;
+  align-content: center;
+  justify-items: center;
+}
+
+.icon {
+  &:hover .iconWrapper {
+    color: $hoverIconColor
+  }
+  .iconWrapper {
+    width: 32px;
+    height: 32px;
+    color: $baseIconColor
+  }
+}

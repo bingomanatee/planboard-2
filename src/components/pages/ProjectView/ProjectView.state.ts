@@ -126,7 +126,7 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
       async doLoad(state: leafI) {
         try {
           const loaded = await dataState.do.loadProject(id);
-          const { project, frames } = loaded;
+          const { project, frames, content } = loaded;
           state.do.set_project(project);
           state.do.set_frames(frames);
           state.do.set_loadState('loaded');

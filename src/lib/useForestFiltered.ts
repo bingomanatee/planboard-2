@@ -14,6 +14,10 @@ export default function useForestFiltered<InputElement = HTMLInputElement>(
 ): any {
 
   const pick = useCallback((value) => {
+    if (!value) {
+      console.warn('cannot get value for leaf ', leaf);
+      return {};
+    }
     return (Array.isArray(filter)) ?
       c(value)
         .getReduce((data, value, field) => {
@@ -29,9 +33,6 @@ export default function useForestFiltered<InputElement = HTMLInputElement>(
     let sub = leaf.select((summary)=> {
       if (!isEqual(summary, result)) setResult(summary);
     }, (value) => {
-      if (typeof filter === 'function') {
-        console.log('passing value to picker for ', leaf, value);
-      }
       return pick(value);
     });
 

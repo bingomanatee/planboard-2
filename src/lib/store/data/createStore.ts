@@ -1,12 +1,13 @@
-import { FieldDef, StoreRecord } from '~/lib/store/types'
+import { FieldDef, FieldQuery, Filter, StoreRecord } from '~/lib/store/types'
 import { leafConfig, leafI } from '@wonderlandlabs/forest/lib/types'
 import { c } from '@wonderlandlabs/collect'
 import validateData from '~/lib/store/validateData'
 import { v4 } from 'uuid'
 
-export function createStore(leaf, engine, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
+export function createStore(leaf, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
   const actions = config?.actions || {};
   const selectors = config?.selectors || {};
+  const engine = leaf.getMeta('engine');
 
   engine.addStore(collectionName, schema || []);
   leaf.addChild({
@@ -89,12 +90,14 @@ export function createStore(leaf, engine, collectionName, schema?: FieldDef[], c
       },
       addMany(leaf: leafI, data: any[], exclusive = false) {
         let saved = true;
-        data.forEach(content => validateData(content, leaf.getMeta('schema'), collectionName)) ;
+        data.forEach(content => validateData(content, leaf.getMeta('schema'), collectionName));
         const ids = [];
         leaf.do.mutateValue((map) => {
-          if (exclusive) map.clear();
+          if (exclusive) {
+            map.clear();
+          }
           data.forEach((content) => {
-           let id = leaf.$.primaryFromValue(content);
+            let id = leaf.$.primaryFromValue(content);
             if (!id) {
               id = v4();
               saved = false;
@@ -110,6 +113,36 @@ export function createStore(leaf, engine, collectionName, schema?: FieldDef[], c
           return map;
         });
         return ids;
+      },
+      find(leaf: leafI, filter: Filter, single: true) {
+        if (typeof filter === 'function') {
+          return c(leaf.value).getReduce((data: any[], record) => {
+            if (filter(record)) {
+              if (single) {
+                throw { $STOP: true, value: record }
+              }
+              data.push(record);
+            }
+            return data;
+          }, []);
+        } else {
+          const fieldSpec: FieldQuery[] = filter;
+          return c(leaf.value).getReduce((data: any[], record: StoreRecord) => {
+            const coll = c(record.content);
+            for (const q of fieldSpec) {
+              const { value, field } = q;
+              if (coll.get(field) !== value) {
+                return data;
+              }
+            }
+
+            if (single) {
+              throw { $STOP: true, value: record }
+            }
+            data.push(record);
+            return data;
+          }, []);
+        }
       },
       async save(leaf: leafI, id: string) {
         if (leaf.value.has(id)) {
