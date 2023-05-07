@@ -19,7 +19,7 @@ type ContentPromptProps = {
 const iconMap = new Map([
   ['markdown', {
     icon: MarkdownIcon,
-    label: 'Markdown/Text'
+    label: 'MarkdownContent/Text'
   }],
   ['image', {
     icon: ImageIcon,

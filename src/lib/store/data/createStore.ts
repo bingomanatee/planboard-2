@@ -69,7 +69,7 @@ export function createStore(leaf, collectionName, schema?: FieldDef[], config?: 
         mutator(newValue);
         leaf.value = newValue;
       },
-      add(leaf: leafI, content: any, id?: string) {
+      add(leaf: leafI, content: any, id?: string) : StoreRecord {
         let saved = true;
         validateData(content, leaf.getMeta('schema'), collectionName);
 
@@ -156,7 +156,7 @@ export function createStore(leaf, collectionName, schema?: FieldDef[], config?: 
           if (error) {
             throw error;
           }
-          leaf.do.add(data, id);
+          return leaf.do.add(data, id);
         } else {
           throw new Error(`no record found for ${id}`);
         }

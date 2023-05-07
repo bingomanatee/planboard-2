@@ -9,7 +9,7 @@ import BackArrow from '~/components/BackArrow/BackArrow'
 
 const pad = { horizontal: 'small', vertical: 'xsmall' };
 
-export function MessageModal({heading, children, cancelLabel = 'Close'}) {
+export default function MessageModal({heading, children, cancelLabel = 'Close'}) {
   const { popupState } = useContext(PopupContext);
   const size = useContext(ResponsiveContext);
   return (

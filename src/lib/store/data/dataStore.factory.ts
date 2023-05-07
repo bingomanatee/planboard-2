@@ -8,6 +8,7 @@ import { c } from '@wonderlandlabs/collect'
 import projectsFactory from '~/lib/store/data/stores/projects.factory'
 import framesFactory from '~/lib/store/data/stores/frames.factory'
 import contentFactory from '~/lib/store/data/stores/content.factory'
+import markdownFactory from '~/lib/store/data/stores/markdown.factory'
 
 const dataStoreFactory = (engine: Engine) => {
   const store = new Forest({
@@ -29,6 +30,7 @@ const dataStoreFactory = (engine: Engine) => {
         }
 
         const contentStore = leaf.child('content')!;
+        console.log('---- content store: ', contentStore);
         await contentStore.do.deleteContentForFrame(frameId);
 
         const content = {
@@ -46,7 +48,6 @@ const dataStoreFactory = (engine: Engine) => {
         }
       },
       async loadProject(leaf: leafI, id: string) {
-        console.log('---------- loading project ', id);
         const engine = leaf.getMeta('engine');
         const { data, error } = await engine.query('projects', [
           { field: 'id', value: id },
@@ -78,7 +79,6 @@ const dataStoreFactory = (engine: Engine) => {
         if (errorC) {
           throw errorC;
         }
-        console.log('========= content data:', dataContent);
         leaf.child('content')!.do.addMany(dataContent, true);
         return { project, frames: dataFrames, content: dataContent };
       },
@@ -87,6 +87,7 @@ const dataStoreFactory = (engine: Engine) => {
   projectsFactory(store);
   framesFactory(store);
   contentFactory(store);
+  markdownFactory(store);
   engine.initialize();
   return store;
 }

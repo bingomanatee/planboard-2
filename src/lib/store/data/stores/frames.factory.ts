@@ -18,7 +18,6 @@ const framesFactory = (store) => {
   ], {
     actions: {
       createFrame(state: leafI, project_id, start: Vector2, end: Vector2) {
-        console.log('creating frame', project_id, start.clone(), end);
         if (project_id && start && end) {
           const order = c(state.value).getReduce((ord, store: StoreRecord<string, Frame>) => {
             if (store.content.order > ord) {
@@ -38,7 +37,6 @@ const framesFactory = (store) => {
 
           const record = state.do.add(newFrame);
           state.do.save(record.id);
-          console.log('record is', record);
         } else {
           console.log('missing data:', project_id, start, end);
         }

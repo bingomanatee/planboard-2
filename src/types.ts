@@ -25,4 +25,5 @@ export type NameId = {
 
 export type Project = {} & NameId;
 export type Frame = {project_id: string, order: number } & NameId;
+export type Content = {frame_id: string, project_id: string, type: string, id: string}
 export type generalObj = Record<string, any>
