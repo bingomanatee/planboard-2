@@ -5,7 +5,7 @@ import { Card, CardBody, CardFooter, Heading, Paragraph, ResponsiveContext, Text
 import { BoxColumn } from '~/components/BoxVariants'
 import styles from '~/components/Popup/Popup.module.scss'
 import PopupCardHeader from '~/components/Popup/PopupCardHeader'
-import BackArrow from '~/components/BackArrow/BackArrow'
+import BackButton from '~/components/ActionButton/BackButton'
 
 const pad = { horizontal: 'small', vertical: 'xsmall' };
 
@@ -25,7 +25,7 @@ export default function MessageModal({heading, children, cancelLabel = 'Close'})
           {children}
         </CardBody>
         <CardFooter justify="center">
-          <BackArrow onClick={popupState.do.hideModal}>{cancelLabel}</BackArrow>
+          <BackButton onClick={popupState.do.hideModal}>{cancelLabel}</BackButton>
         </CardFooter>
       </Card>
     </BoxColumn>

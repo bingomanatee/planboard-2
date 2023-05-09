@@ -30,11 +30,10 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
       </BoxColumn>
     </Layer>
   }
-
+  if (!MessageModal) {
+    MessageModal = dynamic(() => import('~/components/utils/MessageModal'), { suspense: true })
+  }
   if (loadState === 'error') {
-    if (!MessageModal) {
-      MessageModal = dynamic(() => import('~/components/utils/MessageModal'), { suspense: true })
-    }
     return (
       <Popup>
         <Suspense fallback={<Spinner/>}>
@@ -53,9 +52,6 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
 
   if (loadState === 'loaded') {
     if (!state.value.frames.length) {
-      if (!MessageModal) {
-        MessageModal = dynamic(() => import('~/components/utils/MessageModal'), { suspense: true })
-      }
       return (
         <Popup observer={(showing) => {
           if (!showing) {
@@ -78,18 +74,14 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
         </Popup>
       )
     } else {
-      state.do.set_loadState('finished');
-    }
-  }
-
-  if (loadState === 'finished') {
-    if (keyData) {
-      switch (keyData.key) {
-        case  'f':
-          return (<FooterPrompt>
-            Mouse drag to create a Frame
-          </FooterPrompt>)
-          break;
+      if (keyData) {
+        switch (keyData.key) {
+          case  'f':
+            return (<FooterPrompt>
+              Mouse drag to create a Frame
+            </FooterPrompt>)
+            break;
+        }
       }
     }
   }

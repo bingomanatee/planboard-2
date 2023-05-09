@@ -3,6 +3,7 @@ import { leafConfig, leafI } from '@wonderlandlabs/forest/lib/types'
 import { c } from '@wonderlandlabs/collect'
 import validateData from '~/lib/store/validateData'
 import { v4 } from 'uuid'
+import { isEqual } from 'lodash'
 
 export function createStore(leaf, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
   const actions = config?.actions || {};
@@ -46,6 +47,18 @@ export function createStore(leaf, collectionName, schema?: FieldDef[], config?: 
           return undefined;
         }
         return c(value).get(field);
+      },
+      watchId(leaf: leafI, id: string, onChange, skipCurrent = false) {
+        let lastRecord = leaf.value.get(id);
+        if (!skipCurrent) {
+          onChange(lastRecord);
+        }
+        return leaf.select((record) => {
+          if (!isEqual(lastRecord?.content, record?.content)) {
+            onChange(record);
+          }
+          lastRecord = record;
+        }, (value: Map<string, StoreRecord>) => value.get(id));
       }
     },
     actions: {
@@ -69,7 +82,7 @@ export function createStore(leaf, collectionName, schema?: FieldDef[], config?: 
         mutator(newValue);
         leaf.value = newValue;
       },
-      add(leaf: leafI, content: any, id?: string) : StoreRecord {
+      add(leaf: leafI, content: any, id?: string): StoreRecord {
         let saved = true;
         validateData(content, leaf.getMeta('schema'), collectionName);
 

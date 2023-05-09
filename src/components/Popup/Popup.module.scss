@@ -5,8 +5,9 @@
   right: 0;
   top: 0;
   bottom: 0;
-  backdrop-filter:  blur(4px);
+  backdrop-filter:  blur(8px);
   background-color: rgba(128, 128, 128,0.1);
+  z-index: 10000000000;
 }
 
 .header {
@@ -14,6 +15,7 @@
     width: 100%;
     text-align: center;
   }
+  position: relative;
 }
 
 .popupCard {

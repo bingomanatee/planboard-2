@@ -14,3 +14,7 @@ export function numToPx(value: number | string): string {
 export function propsToPx(obj: generalObj) {
   return c(obj).getMap(numToPx);
 }
+
+export const terminate = (e) => {
+  e.stopPropagation();
+}

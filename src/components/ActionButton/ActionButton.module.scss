@@ -2,7 +2,7 @@
 .container {
   position: relative;
 
-  .arrow-container {
+  .icon {
     position: absolute;
     left: 0;
     top: 0;
@@ -12,7 +12,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    align-content: end;
+    align-content: flex-end;
     z-index: 10;
     padding: 1em;
     min-width: 100px;
@@ -20,14 +20,14 @@
   }
 
   &:hover {
-    .arrow-blur {
+    .blur-layer {
       backdrop-filter: blur(2px);
     }
     .label {
       color: inherit;
     }
   }
-  .arrow-blur {
+  .blur-layer {
     position: absolute;
     left: 0;
     top: 0;

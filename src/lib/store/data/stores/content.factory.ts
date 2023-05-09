@@ -14,15 +14,18 @@ const contentFactory = (store) => {
         const engine = store.parent!.getMeta('engine');
         try {
           const { data } = await engine.query('content', [{ field: 'frame_id', value: frameId }]);
-          console.log('--- items to delete:', data);
           if (data?.length) {
             const ids = data.map((item) => item.id);
-            console.log('oldContent:', ids);
             await engine.deleteIds('content', ids);
           }
         } catch (err) {
           console.warn('error deleting content for ', frameId, err);
         }
+      },
+      forFrame(store: leafI, frameId: string) {
+       // assumes content has been loaded
+        // AND that there is only one.
+        return store.do.find([{field: 'frame_id', value: frameId}], true)
       }
     }
   });

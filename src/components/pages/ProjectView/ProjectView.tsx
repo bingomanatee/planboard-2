@@ -1,4 +1,4 @@
-import { memo, useContext, Suspense, useRef } from 'react';
+import { memo, useContext, Suspense, useRef, createContext } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './ProjectView.module.scss';
 import stateFactory, { ProjectViewValue } from './ProjectView.state.ts';
@@ -7,9 +7,12 @@ import { DataStateContext } from '~/components/GlobalState/GlobalState'
 import LoadStatePrompt from '~/components/pages/ProjectView/LoadStatePrompt/LoadStatePrompt'
 import FramesView from '~/components/pages/ProjectView/Frames/FramesView'
 import { Spinner } from 'grommet'
+import { typedLeaf } from '@wonderlandlabs/forest/lib/types'
 
 let NewFrame = null;
 type ProjectViewProps = { id: string }
+export const ProjectViewStateContext = createContext(null);
+export type ProjectViewStateContextProvider = typedLeaf<ProjectViewValue>;
 
 export default memo(function ProjectView(props: ProjectViewProps) {
   const { dataState } = useContext(DataStateContext);
@@ -35,15 +38,18 @@ export default memo(function ProjectView(props: ProjectViewProps) {
     NewFrame = dynamic(() => import('./NewFrame/NewFrame'), { suspense: true })
   }
 
-  console.log('loadState', loadState, loadError);
-  return (<div className={styles.container} ref={containerRef}>
-    {loadState === 'finished' ? <FramesView projectId={props.id}/> : null}
-    {projectState === 'drawing-frame' ? (
-      <Suspense loading={<Spinner/>}>
-        <NewFrame projectState={state}/>
-      </Suspense>
-    ) : null
-    }
-    <LoadStatePrompt state={state}/>
-  </div>);
+  return (
+    <ProjectViewStateContext.Provider value={state}>
+      <div className={styles.container} ref={containerRef}>
+        {loadState === 'finished' || loadState === 'loaded' ? <FramesView projectId={props.id}/> : null}
+        {projectState === 'drawing-frame' ? (
+          <Suspense loading={<Spinner/>}>
+            <NewFrame projectState={state}/>
+          </Suspense>
+        ) : null
+        }
+        <LoadStatePrompt state={state}/>
+      </div>
+    </ProjectViewStateContext.Provider>
+  );
 });

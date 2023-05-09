@@ -25,7 +25,7 @@ export default function PageFrame({ children }: GenericProps) {
         height="100vh"
       >
         <Navigation/>
-        <Main gridArea="main">
+        <Main gridArea="main" style={{zIndex: 1}}>
           {children}
         </Main>
       </Grid>

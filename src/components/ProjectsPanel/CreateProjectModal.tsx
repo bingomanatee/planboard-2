@@ -9,8 +9,9 @@ import { BoxColumn } from '~/components/BoxVariants'
 import styles from '~/components/Popup/Popup.module.scss'
 import PopupCardHeader from '~/components/Popup/PopupCardHeader'
 import FormEntry from '~/components/FormEntry/FormEntry'
-import GoArrow from '~/components/GoArrow/GoArrow'
-import BackArrow from '~/components/BackArrow/BackArrow'
+import GoButton from '~/components/ActionButton/GoButton'
+import BackButton from '~/components/ActionButton/BackButton'
+import { pad } from '~/components/utils/constants'
 
 function createProjectState(dataState, popupState) {
   return {
@@ -40,8 +41,6 @@ function createProjectState(dataState, popupState) {
   }
 }
 
-const pad = { horizontal: 'small', vertical: 'xsmall' };
-
 export function CreateProjectModal() {
   const { popupState, popupValue } = useContext(PopupContext);
   const { dataState } = useContext(DataStateContext);
@@ -64,8 +63,8 @@ export function CreateProjectModal() {
           </FormEntry>
         </CardBody>
         <CardFooter justify="between">
-          <BackArrow onClick={state.do.cancel}>Cancel</BackArrow>
-          <GoArrow onClick={state.do.commit}>Create Project</GoArrow>
+          <BackButton onClick={state.do.cancel}>Cancel</BackButton>
+          <GoButton onClick={state.do.commit}>Create Project</GoButton>
         </CardFooter>
       </Card>
     </BoxColumn>

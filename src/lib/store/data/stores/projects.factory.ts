@@ -13,13 +13,11 @@ const projectsFactory = (store) => {
       async loadProjects(leaf: leafI) {
         const userId = leaf.parent!.$.userId();
         const engine = leaf.parent!.getMeta('engine');
-        console.log('loading projects for user id ', userId);
         const { data, error } = await engine.query('projects', [{ field: 'user_id', value: userId }]);
         if (userId !== leaf.parent!.$.userId()) {
-          console.log('--- user id changed -- not loading')
+          console.warn('--- user id changed -- not loading')
           return;
         }
-        console.log('data for user id ', userId, data);
         if (error) {
           throw error;
         }

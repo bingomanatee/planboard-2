@@ -5,4 +5,18 @@
   background-color: lightyellow;
   height: 100%;
   overflow: auto;
+
+  article {
+    h1, h2, h3, ul, li, ol, p, div, span {
+      font-size: 0.8rem;
+      line-height: 1rem;
+    }
+    ol, ul {
+      padding-left: 1.5rem;
+      margin: 0.25rem 0;
+    }
+    p {
+      margin: 0.25rem 0;
+    }
+  }
 }

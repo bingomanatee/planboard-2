@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, Suspense, memo } from 'react';
 import { Text, Box, Spinner } from 'grommet';
 import styles from './FrameContent.module.scss';
 import stateFactory from './FrameContent.state.ts';
@@ -13,7 +13,7 @@ function Unknownn() {
   return <p>Uknown Content Type</p>;
 }
 
-export default function FrameContent(props: FrameContentProps) {
+export default memo(function FrameContent(props: FrameContentProps) {
   const { frame, content } = props;
   const [state, value] = useForest([stateFactory, frame, content],
     (localState) => {
@@ -21,7 +21,6 @@ export default function FrameContent(props: FrameContentProps) {
 
   const {} = value;
 
-  console.log('========= FrameContent: content ', content, 'frame:', frame)
   const InnerComponent = useMemo(() => {
     switch (content.type) {
       case 'markdown':
@@ -40,9 +39,9 @@ export default function FrameContent(props: FrameContentProps) {
   return (<div className={styles.container}>
     <header>
       <Text size="xxsmall">
-        {content.type} frame {frame.id}
+        {frame.name || `${content.type} -${frame.id}`}
       </Text>
     </header>
     <InnerComponent content={content} />
   </div>);
-}
+});

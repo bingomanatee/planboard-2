@@ -38,10 +38,24 @@ const framesFactory = (store) => {
           const record = state.do.add(newFrame);
           state.do.save(record.id);
         } else {
-          console.log('missing data:', project_id, start, end);
+          console.warn('missing data:', project_id, start, end);
+        }
+      },
+      async updateFrame(frState: leafI, frame: Frame) {
+        const currentFrameRecord = frState.value.get(frame.id);
+        if (!currentFrameRecord) {
+          console.warn('cannot find frame', frame.id, 'in', store.value);
+          throw new Error('cannot find frame ', frame);
+        }
+        const currentFrame: Frame = currentFrameRecord.content;
+        // check difference of new data -- currently only updating name field
+        if (currentFrame.name !== frame.name) {
+          const newFrameContent = { ...currentFrame, name: frame.name };
+          console.log('saving frame data:', newFrameContent, 'over', currentFrame);
+          frState.do.add(newFrameContent);
+          return frState.do.save(frame.id);
         }
       }
-
     }
   });
 }

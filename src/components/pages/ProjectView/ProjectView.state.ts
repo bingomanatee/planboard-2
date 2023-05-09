@@ -24,9 +24,11 @@ export type ProjectViewValue = {
   loadState: LoadState,
   projectState: ProjectState,
   startPoint: Vector2 | null,
-  endPoint: Vector2 | null
+  endPoint: Vector2 | null,
+  editItem
 }
 
+export type EditItem = {type: string, id: string};
 const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
   const initial: ProjectViewValue = {
     loadError: null,
@@ -37,9 +39,8 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
     projectState: '',
     startPoint: null,
     endPoint: null,
+    editType: null
   };
-
-  console.log('dataState:', dataState, 'backRef: ', backRef);
 
   return {
     $value: initial,
@@ -48,6 +49,12 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
       id,
     },
     actions: {
+      editItem(state: typedLeaf<ProjectViewValue>, editType) {
+        state.do.set_editType(editType || null);
+      },
+      cancelEdit(state: typedLeaf<ProjectViewValue>) {
+        state.do.set_editType(null);
+      },
       finishFrame(state: typedLeaf<ProjectViewValue>) {
         console.log('finishing frame');
         const { startPoint, endPoint } = state.value;
@@ -57,26 +64,19 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
         state.do.set_startPoint(null);
         state.do.set_projectState('');
         dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
-        console.log('finished frame');
       },
       mouseDown(state: leafI, e: MouseEvent) {
         e.stopPropagation();
         const { loadState, projectState, keyData } = state.value;
         if ((loadState !== 'finished') || (projectState) || (keyData?.key !== 'f') || (!backRef.current)) {
-          console.log('--- skipping mousedown: loadState ', loadState,
-            'projectState:', projectState,
-            'keyData.key', keyData?.key,
-            'backRef', backRef);
           return;
         }
-        console.log('mouseDown with backRef:', backRef, e);
 
         state.do.set_projectState('drawing-frame');
         const startPoint = toPoint(e);
         state.do.set_startPoint(startPoint);
 
         const mouseUpListener = (e2) => {
-          console.log('--- end of drag');
           window.removeEventListener('mouseup', mouseUpListener);
           window.removeEventListener('mousemove', mouseMoveListener);
 
@@ -87,7 +87,6 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
         }
 
         const mouseMoveListener = (e2) => {
-          console.log('mouse moving', toPoint(e2));
           if (isEqual(startPoint, state.value.startPoint)) {
             state.do.set_endPoint(toPoint(e2));
             console.log('--- endPoint set to', state.value.endPoint);

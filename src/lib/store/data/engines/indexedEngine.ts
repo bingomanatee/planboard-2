@@ -11,7 +11,7 @@ const indexedEngine = (version = 1, config = {}): Engine => {
 
   function validate(collection: string, value: any, id: any) {
     if (!(collection in schemas)) {
-      console.log('missing schema --- ', collection, schemas)
+      console.warn('missing schema --- ', collection, schemas)
       throw new Error('no schema record for ' + collection)
     }
     let schema: FieldDef[] = schemas[collection];
@@ -66,7 +66,6 @@ const indexedEngine = (version = 1, config = {}): Engine => {
 
     },
     async deleteIds(collection: string, ids: any[]) {
-      console.log('deleting ', collection, 'ids:', ids);
       await db[collection].bulkDelete(ids);
     },
     addStore(collection: string, schema: FieldDef[] | undefined): void {
@@ -110,7 +109,7 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         await db[collection].put(value, id);
         return { data: value }
       } catch (error) {
-        console.log('error putting: ', value, id, error);
+        console.warn('error saving: ', value, id, error);
         return { error };
       }
     }

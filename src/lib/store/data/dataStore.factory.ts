@@ -3,12 +3,18 @@ import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { Engine, FieldDef, StoreRecord } from '~/lib/store/types';
 import { createStore } from '~/lib/store/data/createStore'
 import { Vector2 } from 'three'
-import { Frame } from '~/types'
+import { Content, Frame } from '~/types'
 import { c } from '@wonderlandlabs/collect'
 import projectsFactory from '~/lib/store/data/stores/projects.factory'
 import framesFactory from '~/lib/store/data/stores/frames.factory'
 import contentFactory from '~/lib/store/data/stores/content.factory'
 import markdownFactory from '~/lib/store/data/stores/markdown.factory'
+
+export type FrameInfo = {
+  frame: Frame,
+  content: Content,
+  contentData: any | null
+}
 
 const dataStoreFactory = (engine: Engine) => {
   const store = new Forest({
@@ -23,14 +29,37 @@ const dataStoreFactory = (engine: Engine) => {
       }
     },
     actions: {
+      async frameInfo(leaf: leafI, frameId: string): FrameInfo {
+        // assumes that information has already been loaded locally;
+        const frameRecord = leaf.child('frames')!.value.get(frameId);
+        const contentRecord = leaf.child('content')!.do.forFrame(frameId);
+        let contentData = null;
+        if (contentRecord?.content) {
+          switch (contentRecord.content.type) {
+            case 'markdown':
+               const mkRecord = await leaf.child('markdown')!.do.forContent(contentRecord.id);
+               if(mkRecord) {
+                 contentData = mkRecord.content;
+               }
+              break;
+          }
+        } else {
+          console.warn('--- cannot get contentRecord for frame', frameId);
+        }
+        return {
+          frame: frameRecord.content,
+          content: contentRecord?.content,
+          contentData
+        };
+      },
       async setFrameContentType(leaf: leafI, frameId, type) {
         const frame = leaf.child('frames')!.value.get(frameId);
         if (!frame) {
-          console.log('setContentFrameType -- no frame for ', frameId);
+          console.warn('setContentFrameType -- no frame for ', frameId);
+          return;
         }
 
         const contentStore = leaf.child('content')!;
-        console.log('---- content store: ', contentStore);
         await contentStore.do.deleteContentForFrame(frameId);
 
         const content = {
@@ -38,7 +67,7 @@ const dataStoreFactory = (engine: Engine) => {
           type,
           project_id: frame.content.project_id
         };
-        console.log('creating content ', content);
+
         try {
           const record = contentStore.do.add(content);
           await contentStore.do.save(record.id);
@@ -68,7 +97,7 @@ const dataStoreFactory = (engine: Engine) => {
         ]);
 
         if (errorF) {
-          console.log('frame load error', errorF)
+          console.warn('frame load error', errorF)
           throw errorF;
         }
         leaf.child('frames')!.do.addMany(dataFrames, true);
@@ -82,6 +111,21 @@ const dataStoreFactory = (engine: Engine) => {
         leaf.child('content')!.do.addMany(dataContent, true);
         return { project, frames: dataFrames, content: dataContent };
       },
+      async updateFrame(leaf: leafI, frame: Frame, content: Content, contentData: any) {
+        const frameStore = leaf.child('frames')!;
+        const frameRecord = await frameStore.do.updateFrame(frame);
+        switch (content.type) {
+          case 'markdown':
+            const markdownStore = leaf.child('markdown')!;
+            const markdownRecord = await markdownStore.do.updateMarkdown(contentData, content);
+            return { frameRecord, markdownRecord }
+            break;
+
+          default:
+            console.warn('cannot find content updater for type ', content.type);
+            return { frameRecord }
+        }
+      }
     }
   });
   projectsFactory(store);

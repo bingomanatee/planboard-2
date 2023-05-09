@@ -8,9 +8,13 @@ import useForestFiltered from '~/lib/useForestFiltered'
 import { c } from '@wonderlandlabs/collect'
 import { Spinner } from 'grommet'
 import dynamic from 'next/dynamic';
+import EditButton from '~/components/pages/ProjectView/EditButton/EditButton'
 
 let ContentPrompt
 
+/**
+ * this is the component that displayes a SINGLE Frame (Frame singular).
+ */
 export function FrameItemView({ id, frame, frameState }) {
   const { dataState } = useContext<DataStateContextValue>(DataStateContext);
 
@@ -55,5 +59,8 @@ export function FrameItemView({ id, frame, frameState }) {
         {inner}
       </Suspense>
     </BoxColumn>
+    <EditButton type="frame"
+                onClick={(data) => frameState.do.edit(data)}
+                id={id}/>
   </div>
 }

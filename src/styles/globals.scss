@@ -1,3 +1,4 @@
+@import './utils.scss';
 :root {
   --shadow-color: 0deg 0% 56%;
   --shadow-color-green: 110deg 50% 36%;
@@ -79,4 +80,13 @@ a {
   p {
     margin-bottom: 1em;
   }
+}
+
+.note {
+  position:  absolute;
+  right: 0;
+  top: 0;
+  padding: 8px;
+  pointer-events: none;
+  @include no-select();
 }

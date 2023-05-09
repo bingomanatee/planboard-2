@@ -1,9 +1,7 @@
+import { terminate } from '~/lib/utils'
 
-const terminate = (e) => {
-  e.stopPropagation();
-}
 export default function MouseActionTerminator({children}) {
-  return (<div onMouseDown={terminate} onClick={terminate} onMouseUp={terminate}>
+  return (<span onMouseDown={terminate} onClick={terminate} onMouseUp={terminate}>
     {children}
-  </div>);
+  </span>);
 }

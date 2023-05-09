@@ -1,10 +1,20 @@
 import { leafI } from '@wonderlandlabs/forest/lib/types'
+import { EditItem } from '~/components/pages/ProjectView/ProjectView.state'
 
+/*
+this is the compoent that shows ALL the frames (Frames plural).
+ */
 const FramesViewState = (props) => {
   return {
-    $value: {floatId: null},
+    $value: {floatId: null, editItem: null},
     selectors: {},
     actions: {
+      edit(state: leafI, info: EditItem | null) {
+        state.do.set_editItem(info || null);
+      },
+      cancelEdit(state: leafI) {
+        state.do.set_editItem(null);
+      },
       float(leaf: leafI, id) {
         const toggleFloat = leaf.getMeta('toggleFloat');
         if (typeof toggleFloat === 'function') {
