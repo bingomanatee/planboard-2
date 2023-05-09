@@ -42,6 +42,16 @@ export default function EditFrame(props: EditFrameProps) {
       }
       DataEditorComponent = DataEditor.get('markdown');
       break;
+
+    case 'image':
+      if (!DataEditor.has('image')) {
+        DataEditor.set('image', dynamic(() => import ( './ImageEditor/ImageEditor'), {
+          suspense: true
+        }))
+      }
+      DataEditorComponent = DataEditor.get('image');
+      console.log('image editor sub-component:', DataEditorComponent)
+      break;
   }
 
   return (

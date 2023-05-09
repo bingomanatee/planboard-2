@@ -130,6 +130,7 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
           state.do.set_frames(frames);
           state.do.set_loadState('loaded');
         } catch (err) {
+          console.warn('load error:', err);
           state.do.set_loadError(err.message);
           state.do.set_loadState('error');
         }

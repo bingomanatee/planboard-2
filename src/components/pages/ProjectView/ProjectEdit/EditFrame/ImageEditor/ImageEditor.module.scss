@@ -1,0 +1,17 @@
+
+.container {
+  .image-frame {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}
+
+.image-upload-frame {
+  > div {
+    height: 200px;
+
+    input {
+      height: 200px;
+    }
+  }
+}

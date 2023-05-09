@@ -11,7 +11,7 @@ export default function MarkdownEditor(props: DataEditorProps) {
   const [title, handleTitle] = useForestInput(contentData!, 'title')
   const [text, handleText] = useForestInput(contentData, 'text')
   return (<div>
-    <Heading level={3}>Frame</Heading>
+    <Heading level={3}>Markdown</Heading>
     <FormEntry label="Title">
       <TextInput name="title" value={title} onChange={handleTitle}/>
     </FormEntry>
