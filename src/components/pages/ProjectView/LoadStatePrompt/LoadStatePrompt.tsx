@@ -73,18 +73,16 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
           </Suspense>
         </Popup>
       )
-    } else {
-      if (keyData) {
-        switch (keyData.key) {
-          case  'f':
-            return (<FooterPrompt>
-              Mouse drag to create a Frame
-            </FooterPrompt>)
-            break;
-        }
+    }
+    if (keyData) {
+      switch (keyData.key) {
+        case  'f':
+          return (<FooterPrompt>
+            Mouse drag to create a Frame
+          </FooterPrompt>)
+          break;
       }
     }
   }
-
   return null;
 }

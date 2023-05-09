@@ -10,6 +10,7 @@ export default function Navigation() {
               align="center"
               pad={{ horizontal: 'small' }}
               style={{zIndex: 20000000}}
+              justify="between"
               direction="row" className={style.nav}>
     <Link href="/"><Img src="/img/icons/menu-anchor.svg"/></Link>
     <Link href="/"><Heading level={1}>Planboard</Heading></Link>

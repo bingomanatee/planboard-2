@@ -16,5 +16,5 @@ export function propsToPx(obj: generalObj) {
 }
 
 export const terminate = (e) => {
-  e.stopPropagation();
+  e?.stopPropagation();
 }

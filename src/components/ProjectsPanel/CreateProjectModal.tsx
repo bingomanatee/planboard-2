@@ -12,6 +12,7 @@ import FormEntry from '~/components/FormEntry/FormEntry'
 import GoButton from '~/components/ActionButton/GoButton'
 import BackButton from '~/components/ActionButton/BackButton'
 import { pad } from '~/components/utils/constants'
+import MouseActionTerminator from '~/components/MouseActionTerminator'
 
 function createProjectState(dataState, popupState) {
   return {
@@ -50,6 +51,7 @@ export function CreateProjectModal() {
   const size = useContext(ResponsiveContext);
   return (
     <BoxColumn fill align="center" justify="center">
+      <MouseActionTerminator>
       <Card margin="large" background="background-back"
             width={size === 'large' ? { max: '800px', min: '50vw' } : '100%'}
             className={styles.popupCard}
@@ -67,6 +69,7 @@ export function CreateProjectModal() {
           <GoButton onClick={state.do.commit}>Create Project</GoButton>
         </CardFooter>
       </Card>
+    </MouseActionTerminator>
     </BoxColumn>
   )
 }

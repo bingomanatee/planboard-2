@@ -4,8 +4,8 @@ import styles from './FrameContent.module.scss';
 import stateFactory from './FrameContent.state.ts';
 import useForest from '~/lib/useForest';
 import { Content, Frame } from '~/types'
-import MarkdownContent from './MarkdownContent/MarkdownContent'
-import ImageContent from './ImageContent/ImageContent'
+import MarkdownContent from '../MarkdownContent/MarkdownContent'
+import ImageContent from '../ImageContent/ImageContent'
 
 type FrameContentProps = { frame: Frame, content: Content }
 

@@ -1,14 +1,12 @@
 import { Forest } from '@wonderlandlabs/forest'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
-import { Engine, FieldDef, StoreRecord } from '~/lib/store/types';
-import { createStore } from '~/lib/store/data/createStore'
-import { Vector2 } from 'three'
+import { Engine } from '~/lib/store/types';
 import { Content, Frame } from '~/types'
-import { c } from '@wonderlandlabs/collect'
 import projectsFactory from '~/lib/store/data/stores/projects.factory'
 import framesFactory from '~/lib/store/data/stores/frames.factory'
 import contentFactory from '~/lib/store/data/stores/content.factory'
 import markdownFactory from '~/lib/store/data/stores/markdown.factory'
+import imagesFactory from '~/lib/store/data/stores/images.factory'
 
 export type FrameInfo = {
   frame: Frame,
@@ -132,6 +130,7 @@ const dataStoreFactory = (engine: Engine) => {
   framesFactory(store);
   contentFactory(store);
   markdownFactory(store);
+  imagesFactory(store);
   engine.initialize();
   return store;
 }
