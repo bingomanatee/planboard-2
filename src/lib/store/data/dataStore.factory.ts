@@ -40,6 +40,13 @@ const dataStoreFactory = (engine: Engine) => {
                  contentData = mkRecord.content;
                }
               break;
+
+            case 'image':
+              const imgRecord = await leaf.child('images')!.do.forContent(contentRecord.id);
+              if (imgRecord) {
+                contentData = imgRecord.content;
+              }
+              break
           }
         } else {
           console.warn('--- cannot get contentRecord for frame', frameId);

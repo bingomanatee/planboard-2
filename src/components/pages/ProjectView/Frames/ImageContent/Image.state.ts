@@ -3,6 +3,7 @@ import axios from 'axios'
 
 const ImageState = (props, dataStore) => {
   const content = props.content
+  console.log('image state for content:', content);
   const { frame_id: frameId, id: contentId } = (content || {});
 
   return {
@@ -10,12 +11,11 @@ const ImageState = (props, dataStore) => {
     selectors: {},
     actions: {
       async checkImageUrl(store: leafI) {
-        const {image, id} = store.value;
+        const {id} = store.value;
 
         if (id) {
-          console.log('checking image url for', id);
           try {
-            const {data} = await axios.get(`/api/imageUrl/${id}`);
+            const {data} = await axios.get(`/api/imageUrl/${content.project_id}/${id}`);
             if (data.image_url) {
               store.do.set_imageUrl(data.image_url);
               store.do.set_stored(true);
@@ -31,8 +31,11 @@ const ImageState = (props, dataStore) => {
         }
       },
       async loadContent(store: leafI) {
+        if (!content?.id) {
+          throw new Error('loadContent -- no id in content', content);
+        }
         let imageRecord = await dataStore.child('images')!
-          .do.forContent(content.id);
+          .do.forContent(content.id); // upsterts -- there should  be no scenario in which it doesn't exist
         store.do.set_image(imageRecord.content);
         store.do.set_id(imageRecord.id);
         await store.do.checkImageUrl();

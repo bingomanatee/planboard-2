@@ -9,6 +9,7 @@ const contentFactory = (store) => {
     { name: 'name', type: 'string' , optional: true},
     { name: 'crop', type: 'string' , optional: true},
     { name: 'scale', type: 'number' , optional: true},
+    { name: 'syncSize', type: 'boolean' , optional: true},
     { name: 'content_id', type: 'string' },
     { name: 'project_id', type: 'string' }
   ], {

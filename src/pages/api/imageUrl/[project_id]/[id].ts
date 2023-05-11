@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import busboy from 'busboy'
+import { getSupabaseAnon } from '~/lib/api/utils'
 
 export default function handler(
   req: NextApiRequest,
@@ -20,18 +22,22 @@ export async function load(
   res: NextApiResponse
 ) {
 
-  const { id } = req.query;
-
+  const { id, project_id } = req.query;
+  console.log('imageUrl - getting ', id, 'for project', project_id);
   try {
     //@TODO: validate image product / user / etc.
     // @ts-ignore
-    const supabase = createServerSupabaseClient({ req, res })
+    const suabaseAnon = getSupabaseAnon();
 
-    const { data, error } = await (supabase
-        .storage
-        .from('images')
-        .createSignedUrl(`${id}`, 60 * 60 * 24) //@TODO: assert user id in url
-    );
+    const { data: testData } = await suabaseAnon.storage
+      .from('images')
+      .download(`${project_id}/${id}`);
+    console.log('---- downloaded image:', testData);
+
+    const { data, error } = await suabaseAnon.storage
+      .from('images')
+      .createSignedUrl(`${project_id}/${id}`, 60 * 60 * 24) //@TODO: assert user id in url
+
     if (error) {
       throw error;
     }

@@ -32,6 +32,7 @@ export async function create(
   let contentType = '';
   let image = null;
   try {
+    console.log('---- image/create');
     const supabase = createServerSupabaseClient({ req, res })
     // Check if we have a session
     const {

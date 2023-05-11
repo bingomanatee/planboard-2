@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { Text, Box, Paragraph } from 'grommet';
+import { Text, Box, Paragraph, Spinner } from 'grommet';
 import styles from './Image.module.scss';
 import stateFactory from './Image.state.ts';
 import useForest from '~/lib/useForest';
@@ -16,7 +16,7 @@ export default function ImageContent(props: ImageProps) {
       state.do.loadContent();
     });
 
-  const { imageUrlLoadError } = value;
+  const { imageUrlLoadError, imageUrl, id } = value;
 
   let content = null;
 
@@ -29,6 +29,10 @@ export default function ImageContent(props: ImageProps) {
         </Paragraph>
       </BoxColumn>
     )
+  } else if (imageUrl) {
+    content = <img src={imageUrl} alt={id}/>
+  } else {
+    content = <Spinner/>
   }
 
   return (<div className={styles.container}>

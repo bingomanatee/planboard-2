@@ -1,5 +1,5 @@
 import { leafI } from '@wonderlandlabs/forest/lib/types'
-import { RefObject } from 'react'
+import imageDataState from './ImageEditor/imageData.state';
 
 const EditFrameState = (dataState, onCancel) => {
     return {
@@ -30,40 +30,7 @@ const EditFrameState = (dataState, onCancel) => {
               break;
 
             case 'image':
-              $value = { width: 0, height: 0, fileName: '', ...(contentData || {}) };
-              state.addChild({
-                name: 'contentData', $value,
-                actions: {
-                  onFileChange(state: leafI,
-                               e: MouseEvent, { files }: { files: File[] }) {
-                    const file = files[0];
-                    console.log('onFileChange file:', file);
-                    if (!file) {
-                      return;
-                    }
-                    const displayImage: RefObject<HTMLImageElement> = state.getMeta('displayImage');
-                    const reader = new FileReader();
-                    //   leaf.do.set_name(file.name);
-                    //  leaf.do.set_fileName(file.name);
-                    console.log('existing content data:', state.value);
-
-                    reader.onload = function () {
-                      if (displayImage.current && reader.result) {
-                        // @ts-ignore
-                        displayImage.current.src = reader.result;
-                        setTimeout(() => {
-                          const box = displayImage.current!.getBoundingClientRect();
-                          const { width, height } = box;
-                          state.value = { ...state.value, width, height }; // @TODO: also set frame size
-                        });
-                      }
-                    };
-                    reader.readAsDataURL(file);
-                    state.setMeta('fileObj', file, true);
-                    state.setMeta('fileReader', reader, true);
-                  },
-                }
-              }, 'contentData');
+              state.addChild(imageDataState(dataState, contentData, content), 'contentData');
               break;
 
             default:
@@ -74,8 +41,16 @@ const EditFrameState = (dataState, onCancel) => {
           onCancel();
         },
         async commit(state: leafI) {
+          console.log('--- committing editFrame');
           const { frame, content, contentData } = state.value;
           const { markdownRecord, frameRecord } = await dataState.do.updateFrame(frame, content, contentData);
+          const contentDataState = state.child('contentData')!;
+          if (contentDataState.do.commit) {
+            console.log('committing contentData state')
+            await contentDataState.do.commit();
+          } else {
+            console.warn('no contentData commit', contentDataState);
+          }
           onCancel();
         }
       },

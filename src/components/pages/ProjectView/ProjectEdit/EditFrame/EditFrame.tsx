@@ -50,7 +50,6 @@ export default function EditFrame(props: EditFrameProps) {
         }))
       }
       DataEditorComponent = DataEditor.get('image');
-      console.log('image editor sub-component:', DataEditorComponent)
       break;
   }
 
