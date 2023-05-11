@@ -31,7 +31,9 @@ const EditFrameState = (dataState, onCancel) => {
 
             case 'image':
               state.addChild(imageDataState(dataState, contentData, content), 'contentData');
+              state.child('contentData')!.do.load();
               break;
+
 
             default:
               console.warn('cannot create contentData for type ', content.type)
@@ -41,7 +43,6 @@ const EditFrameState = (dataState, onCancel) => {
           onCancel();
         },
         async commit(state: leafI) {
-          console.log('--- committing editFrame');
           const { frame, content, contentData } = state.value;
           const { markdownRecord, frameRecord } = await dataState.do.updateFrame(frame, content, contentData);
           const contentDataState = state.child('contentData')!;
@@ -52,6 +53,12 @@ const EditFrameState = (dataState, onCancel) => {
             console.warn('no contentData commit', contentDataState);
           }
           onCancel();
+        },
+        delete(state: leafI) {
+          if (state.child('frame')?.value.id) {
+            dataState.do.deleteFrame(state.child('frame')?.value.id);
+            onCancel();
+          }
         }
       },
       children: {

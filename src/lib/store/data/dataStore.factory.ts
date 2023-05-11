@@ -15,7 +15,7 @@ export type FrameInfo = {
 }
 
 const dataStoreFactory = (engine: Engine) => {
-  const store = new Forest({
+  const dataStore = new Forest({
     $value: new Map([['user', null]]),
     meta: {
       engine
@@ -130,15 +130,34 @@ const dataStoreFactory = (engine: Engine) => {
             console.warn('cannot find content updater for type ', content.type);
             return { frameRecord }
         }
+      },
+      async setFrameSize(leaf: leafI, frameId: string, width: number, height : number) {
+        if (width > 10 && height > 10) {
+          const frameStore = leaf.child('frames')!;
+          const frameRecord = frameStore.value.get(frameId);
+          if (!frameRecord) {
+            console.warn('cannot find frame', frameId);
+            return;
+          }
+          const newContent = {...frameRecord.content, width, height};
+          frameStore.do.add(newContent, frameId);
+          return frameStore.do.save(frameId);
+        } else {
+          console.warn('width and height are too small -- not using on ', frameId);
+        }
+      },
+      async deleteFrame(leaf: leafI, frameId: string) {
+        await leaf.child('content')!.do.deleteContentForFrame(frameId);
+        await leaf.child('frames')!.do.deleteId(frameId);
       }
     }
   });
-  projectsFactory(store);
-  framesFactory(store);
-  contentFactory(store);
-  markdownFactory(store);
-  imagesFactory(store);
+  projectsFactory(dataStore);
+  framesFactory(dataStore);
+  contentFactory(dataStore);
+  markdownFactory(dataStore);
+  imagesFactory(dataStore);
   engine.initialize();
-  return store;
+  return dataStore;
 }
 export default dataStoreFactory;

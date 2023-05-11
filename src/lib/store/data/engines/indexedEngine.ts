@@ -41,7 +41,9 @@ const indexedEngine = (version = 1, config = {}): Engine => {
 
       try {
         const table = db[collection];
-        if (!table) throw new Error('no table ' + collection)
+        if (!table) {
+          throw new Error('no table ' + collection)
+        }
         const coll = conditions.reduce((
           db: Dexie.Table | Dexie.Collection,
           condition, index
@@ -50,7 +52,7 @@ const indexedEngine = (version = 1, config = {}): Engine => {
             if (index === 0) {
               return db.where(condition.field).equals(condition.value);
             }
-             db.and((item) => item[condition.field] === condition.value);
+            db.and((item) => item[condition.field] === condition.value);
             return db;
           } catch (err) {
             console.warn('query error with condition', condition, ':', err);
@@ -112,6 +114,9 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         console.warn('error saving: ', value, id, error);
         return { error };
       }
+    },
+    async deleteId(collection: string, id: any) {
+      return db[collection].delete(id);
     }
   }
 }

@@ -1,16 +1,15 @@
 import styles from './EditButton.module.scss';
 import Img from '~/components/Img'
-import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
-import { useContext } from 'react'
 import { EditItem } from '~/components/pages/ProjectView/ProjectView.state'
+import EditIcon from '~/components/svg/EditIcon'
 
-type EditButtonProps = {type: string, id:string, onClick: (item: EditItem) => null}
+type EditButtonProps = {type: string, id:string, onClick: (item: EditItem) => null, active}
 
 export default function EditButton(props: EditButtonProps) {
-  const projectViewState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
   return (<div className={styles.container}
+               style={{color: props.active ? 'rgb(0, 10, 102)' : 'rgba(0,10,102,0.2)'}}
                onClick={() => props.onClick({type: props.type, id: props.id})}
   >
-    <Img src="/img/icons/edit-icon.svg" width={25} height={25}/>
+    <EditIcon width={25} height={25}/>
   </div>);
 }

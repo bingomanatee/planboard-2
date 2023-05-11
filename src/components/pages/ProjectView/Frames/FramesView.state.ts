@@ -6,9 +6,15 @@ this is the compoent that shows ALL the frames (Frames plural).
  */
 const FramesViewState = (props) => {
   return {
-    $value: {floatId: null, editItem: null},
+    $value: {floatId: null, editItem: null, hover: null},
     selectors: {},
     actions: {
+      hover(state: leafI, hoverId) {
+        state.do.set_hover(hoverId);
+      },
+      unHover(state: leafI) {
+        state.do.set_hover(null);
+      },
       edit(state: leafI, info: EditItem | null) {
         state.do.set_editItem(info || null);
       },

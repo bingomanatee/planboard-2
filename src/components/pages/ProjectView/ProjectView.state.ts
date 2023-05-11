@@ -28,7 +28,7 @@ export type ProjectViewValue = {
   editItem
 }
 
-export type EditItem = {type: string, id: string};
+export type EditItem = { type: string, id: string };
 const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
   const initial: ProjectViewValue = {
     loadError: null,
@@ -68,7 +68,8 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
       mouseDown(state: leafI, e: MouseEvent) {
         e.stopPropagation();
         const { loadState, projectState, keyData } = state.value;
-        if ((loadState !== 'finished') || (projectState) || (keyData?.key !== 'f') || (!backRef.current)) {
+        if ((!['loaded', 'finished'].includes(loadState)) || (projectState) || (keyData?.key !== 'f') || (!backRef.current)) {
+          console.log('stopping mousedown - state = ', loadState, projectState, keyData?.key, backRef.current);
           return;
         }
 

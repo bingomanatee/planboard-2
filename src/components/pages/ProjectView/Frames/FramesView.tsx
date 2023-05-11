@@ -46,7 +46,11 @@ export default function FramesView(props: FramesViewProps) {
   return (<>
     {frames.map((frame) => <FrameItemView key={frame.id} frameState={state} id={frame.id} frame={frame}/>)}
     <ErrorTrapper boundry={"editItem"}>
-      {editItem ? <Suspense fallback={<Spinner/>}><ProjectEdit onCancel={() => state.do.cancelEdit()} editItem={editItem} /></Suspense> : null}
+      {editItem ? (
+        <Suspense fallback={<Spinner/>}>
+          <ProjectEdit onCancel={() => state.do.cancelEdit()} editItem={editItem}/>
+        </Suspense>
+      ) : null}
     </ErrorTrapper>
   </>);
 }

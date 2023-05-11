@@ -1,9 +1,10 @@
 import { createStore } from '~/lib/store/data/createStore'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
+import { Content } from '~/types'
 
 
-const contentFactory = (store) => {
-  createStore(store, 'content', [
+const contentFactory = (dataStore) => {
+  createStore(dataStore, 'content', [
     { name: 'id', type: 'string', primary: true },
     { name: 'type', type: 'string' },
     { name: 'frame_id', type: 'string' },
@@ -16,6 +17,18 @@ const contentFactory = (store) => {
           const { data } = await engine.query('content', [{ field: 'frame_id', value: frameId }]);
           if (data?.length) {
             const ids = data.map((item) => item.id);
+            for(const c of data) {
+              let content = c as Content;
+              switch (content.type){
+                case 'markdown':
+                  await dataStore.child('markdown')!.do.deleteForContent(content.id);
+                  break;
+
+                case 'image':
+                  await dataStore.child('images')!.do.deleteForContent(content.id);
+                  break;
+              }
+            }
             await engine.deleteIds('content', ids);
           }
         } catch (err) {

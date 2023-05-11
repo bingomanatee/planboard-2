@@ -5,13 +5,13 @@ import validateData from '~/lib/store/validateData'
 import { v4 } from 'uuid'
 import { isEqual } from 'lodash'
 
-export function createStore(leaf, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
+export function createStore(dataStore, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
   const actions = config?.actions || {};
   const selectors = config?.selectors || {};
-  const engine = leaf.getMeta('engine');
+  const engine = dataStore.getMeta('engine');
 
   engine.addStore(collectionName, schema || []);
-  leaf.addChild({
+  dataStore.addChild({
     id: collectionName,
     $value: new Map(),
     meta: { schema: schema || [] },
@@ -157,11 +157,12 @@ export function createStore(leaf, collectionName, schema?: FieldDef[], config?: 
           }, []);
         }
       },
-      async save(leaf: leafI, id: string) {
-        if (leaf.value.has(id)) {
-          const { content, saved } = leaf.value.get(id);
+      async save(store: leafI, id: string) {
+        const engine = dataStore.getMeta('engine');
+        if (store.value.has(id)) {
+          const { content, saved } = store.value.get(id);
           const coll = c(content);
-          const pk = leaf.$.primaryField();
+          const pk = store.$.primaryField();
           if (!coll.hasKey(pk)) {
             coll.set(pk, id);
           }
@@ -169,9 +170,20 @@ export function createStore(leaf, collectionName, schema?: FieldDef[], config?: 
           if (error) {
             throw error;
           }
-          return leaf.do.add(data, id);
+          return store.do.add(data, id);
         } else {
           throw new Error(`no record found for ${id}`);
+        }
+      },
+      async deleteId(store: leafI, id: string) {
+        const engine = dataStore.getMeta('engine');
+        // delete remotely
+        await engine.deleteId(collectionName, id);
+        // delete Locally
+        if (store.value.has(id)) {
+          store.do.mutateValue((value) => {
+            value.delete(id);
+          });
         }
       }
     }

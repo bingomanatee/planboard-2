@@ -18,3 +18,7 @@ export function propsToPx(obj: generalObj) {
 export const terminate = (e) => {
   e?.stopPropagation();
 }
+
+export const without = (itemA, fieldList: any[]) => {
+  return (c(itemA)).clone().filter((_value, field) => !fieldList.includes(field)).value;
+}

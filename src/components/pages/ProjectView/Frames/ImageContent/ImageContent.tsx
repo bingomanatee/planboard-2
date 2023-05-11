@@ -14,6 +14,7 @@ export default function ImageContent(props: ImageProps) {
   const [value, state] = useForest([stateFactory, props, dataState],
     (localState) => {
       state.do.loadContent();
+      //@TODO: watch for changes
     });
 
   const { imageUrlLoadError, imageUrl, id } = value;

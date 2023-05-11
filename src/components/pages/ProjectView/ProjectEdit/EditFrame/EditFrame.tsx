@@ -74,7 +74,7 @@ export default function EditFrame(props: EditFrameProps) {
         </CardBody>
         <CardFooter justify="between">
           <BackButton onClick={state.do.cancel}>Cancel</BackButton>
-          <DeleteButton layout="square" onClick={state.do.cancel}>Delete Frame</DeleteButton>
+          <DeleteButton layout="square" onClick={state.do.delete}>Delete Frame</DeleteButton>
           <GoButton onClick={state.do.commit}>Update Frame</GoButton>
         </CardFooter>
       </Card>

@@ -30,8 +30,8 @@ export default function TextCounter(props: TextCounterProps) {
   }, [ratio]);
   if (max <= 0) return null;
   return (<div className={styles.container}>
-    <Text size="xsmall" textAlign="center" color={color}>
-      {textLength}/{max} chars. {ratio > 1 ? <b>TOO LONG</b> : ''}
+    <Text weight={color === 'status-info' ? 'normal' : 'bold'}  size="xsmall" textAlign="center" color={color}>
+      {textLength}/{max} {ratio > 1 ? <i>TOO LONG</i> : ''}
     </Text>
   </div>);
 }

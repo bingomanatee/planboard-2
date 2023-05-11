@@ -1,5 +1,6 @@
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import axios from 'axios'
+import checkImageUrl from '~/components/utils/getImageUrl'
 
 const ImageState = (props, dataStore) => {
   const content = props.content
@@ -11,17 +12,13 @@ const ImageState = (props, dataStore) => {
     selectors: {},
     actions: {
       async checkImageUrl(store: leafI) {
-        const {id} = store.value;
+        const { id } = store.value;
 
         if (id) {
           try {
-            const {data} = await axios.get(`/api/imageUrl/${content.project_id}/${id}`);
-            if (data.image_url) {
-              store.do.set_imageUrl(data.image_url);
-              store.do.set_stored(true);
-            } else {
-              throw new Error('no image_url in data');
-            }
+            const imageUrl = await checkImageUrl(id, content.project_id);
+            store.do.set_imageUrl(imageUrl);
+            store.do.set_stored(true);
           } catch (error) {
             store.do.set_imageUrl('');
             store.do.set_imageUrlLoadError(error);

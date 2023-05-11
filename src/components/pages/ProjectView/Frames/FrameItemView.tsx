@@ -13,7 +13,7 @@ import EditButton from '~/components/pages/ProjectView/EditButton/EditButton'
 let ContentPrompt
 
 /**
- * this is the component that displayes a SINGLE Frame (Frame singular).
+ * this is the component that displays a SINGLE Frame (Frame singular).
  */
 export function FrameItemView({ id, frame, frameState }) {
   const { dataState } = useContext<DataStateContextValue>(DataStateContext);
@@ -29,7 +29,7 @@ export function FrameItemView({ id, frame, frameState }) {
       zIndex: floatId === id ? 10000000 : ((frame.order || 0) * 100 + 1)
     }
   }, [frame, floatId])
-
+  const {hover} = useForestFiltered(frameState, ['hover'])
 
   const content = useForestFiltered(dataState.child('content')!, (map) => {
     return c(map).getReduce((list, record) => {
@@ -53,13 +53,14 @@ export function FrameItemView({ id, frame, frameState }) {
     }
     inner = <ContentPrompt frameState={frameState} frame={frame} frameId={id}/>
   }
-  return <div className={styles.frame} style={style} id={`frame-${id}`}>
+  return <div className={styles.frame} style={style} id={`frame-${id}`} onMouseEnter={() => frameState.do.hover(id)} onMouseLeave={frameState.do.unHover}>
     <BoxColumn fill border={{ color: 'frame-border', size: '2px' }}>
       <Suspense fallback={<Spinner/>}>
         {inner}
       </Suspense>
     </BoxColumn>
     <EditButton type="frame"
+                active={hover === id}
                 onClick={(data) => frameState.do.edit(data)}
                 id={id}/>
   </div>

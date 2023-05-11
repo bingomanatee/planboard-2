@@ -1,4 +1,4 @@
-import { Button, CheckBox, FileInput, Heading, TextArea, TextInput } from 'grommet';
+import { Button, CheckBox, FileInput, Heading, Text } from 'grommet';
 import { DataEditorProps } from '~/components/pages/ProjectView/ProjectEdit/EditFrame/types'
 import { useRef } from 'react'
 import FormEntry from '~/components/FormEntry/FormEntry'
@@ -45,12 +45,18 @@ export default function ImageEditor(props: DataEditorProps) {
           <span>size: <b>{width} wide x {height} high</b></span>
         </Info>
         {width && height ? (
-          <FormEntry label="Sync Image Size and Frame Size">
-            <CheckBox label="Use the image's dimenstions as the frame dimensions" value={syncSize} onChange={handleSyncSize} />
+          <FormEntry label="Sync Image Size and Frame Size" tip={
+            <ul>
+              <li><Text>re-sizes the frame to the image's dimensions.</Text></li>
+              <li><Text>Requires an image with at greater than 10 x 10 pixels size, or the frame will not be re-sized.</Text>
+              </li>
+            </ul>
+          }>
+            <CheckBox label={<Text>Use the image's dimensions as the frame dimensions</Text>} value={syncSize} onChange={handleSyncSize} />
           </FormEntry>
         ) : null}
         <div className={styles['image-frame']}>
-          <img ref={displayImage} alt="display image"
+          <img ref={displayImage} alt="display image" id="image-editor-display-image"
                style={saved ? { backgroundSize: 'contain', height: '200px' } : null}/>
         </div>
       </BoxColumn>
