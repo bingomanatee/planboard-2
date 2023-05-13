@@ -8,6 +8,8 @@ import LoadStatePrompt from '~/components/pages/ProjectView/LoadStatePrompt/Load
 import FramesView from '~/components/pages/ProjectView/Frames/FramesView'
 import { Spinner } from 'grommet'
 import { typedLeaf } from '@wonderlandlabs/forest/lib/types'
+import MoveItem from '~/components/pages/ProjectView/MoveItem/MoveItem'
+import SizeItem from '~/components/pages/ProjectView/SizeItem/SizeItem'
 
 let NewFrame = null;
 type ProjectViewProps = { id: string }
@@ -32,22 +34,25 @@ export default memo(function ProjectView(props: ProjectViewProps) {
         containerRef.current?.removeEventListener('mousedown', localState.do.mouseDown);
       }
     });
-  const { projectState, loadState, loadError } = value;
+  const { projectMode, loadState, loadError, moveItem } = value;
 
-  if (projectState === 'drawing-frame' && !NewFrame) {
+  if (projectMode === 'drawing-frame' && !NewFrame) {
     NewFrame = dynamic(() => import('./NewFrame/NewFrame'), { suspense: true })
   }
 
+  console.log('project state:', projectMode, 'moveItem', moveItem);
   return (
     <ProjectViewStateContext.Provider value={state}>
       <div className={styles.container} ref={containerRef}>
         {loadState === 'finished' || loadState === 'loaded' ? <FramesView projectId={props.id}/> : null}
-        {projectState === 'drawing-frame' ? (
+        {projectMode === 'drawing-frame' ? (
           <Suspense loading={<Spinner/>}>
             <NewFrame projectState={state}/>
           </Suspense>
         ) : null
         }
+        { projectMode === 'moving-item' && moveItem? <MoveItem projectState={state} /> : null}
+        { projectMode === 'moving-item' && moveItem? <SizeItem projectState={state} /> : null}
         <LoadStatePrompt state={state}/>
       </div>
     </ProjectViewStateContext.Provider>

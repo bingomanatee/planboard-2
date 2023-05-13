@@ -9,9 +9,9 @@ import { c } from '@wonderlandlabs/collect'
 import { Spinner } from 'grommet'
 import dynamic from 'next/dynamic';
 import EditButton from '~/components/pages/ProjectView/EditButton/EditButton'
+import MoveButton from '~/components/pages/ProjectView/MoveButton/MoveButton'
 
 let ContentPrompt
-
 /**
  * this is the component that displays a SINGLE Frame (Frame singular).
  */
@@ -29,7 +29,7 @@ export function FrameItemView({ id, frame, frameState }) {
       zIndex: floatId === id ? 10000000 : ((frame.order || 0) * 100 + 1)
     }
   }, [frame, floatId])
-  const {hover} = useForestFiltered(frameState, ['hover'])
+  const { hover } = useForestFiltered(frameState, ['hover'])
 
   const content = useForestFiltered(dataState.child('content')!, (map) => {
     return c(map).getReduce((list, record) => {
@@ -49,11 +49,11 @@ export function FrameItemView({ id, frame, frameState }) {
       ContentPrompt = dynamic(() => import ( './ContentPrompt/ContentPrompt'), {
         suspense: true
       });
-      console.log('ContentPrompt sent to ', ContentPrompt);
     }
     inner = <ContentPrompt frameState={frameState} frame={frame} frameId={id}/>
   }
-  return <div className={styles.frame} style={style} id={`frame-${id}`} onMouseEnter={() => frameState.do.hover(id)} onMouseLeave={frameState.do.unHover}>
+  return <div className={styles.frame} style={style} id={`frame-${id}`} onMouseEnter={() => frameState.do.hover(id)}
+              onMouseLeave={frameState.do.unHover}>
     <BoxColumn fill border={{ color: 'frame-border', size: '2px' }}>
       <Suspense fallback={<Spinner/>}>
         {inner}
@@ -63,5 +63,9 @@ export function FrameItemView({ id, frame, frameState }) {
                 active={hover === id}
                 onClick={(data) => frameState.do.edit(data)}
                 id={id}/>
+    <MoveButton type="frame" active={hover === id}
+                onClick={(data) => frameState.do.move(data)}
+                id={id}
+    />
   </div>
 }

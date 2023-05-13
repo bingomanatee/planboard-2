@@ -1,0 +1,35 @@
+@import '~/styles/utils.scss';
+
+.container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: hidden;
+  @include no-select();
+  pointer-events: none;
+  z-index: 100000000;
+
+  .move-widget {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    overflow: visible;
+    .move-widget-icon-container {
+      pointer-events: all !important;
+      position: absolute;
+      img {
+        position: absolute;
+        user-drag: none;
+        -webkit-user-drag: none;
+        left: -15px;
+        top: -15px;
+      }
+    }
+  }
+}
+
+.overlay {
+  border: 2px solid orange;
+  background-color: rgba(255, 204, 102, 0.1);
+  position: absolute;
+}

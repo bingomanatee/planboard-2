@@ -3,7 +3,7 @@ import styles from './ProjectEdit.module.scss';
 import dynamic from 'next/dynamic'
 import { Spinner } from 'grommet'
 import Popup from '~/components/Popup/Popup'
-import { EditItem } from '~/components/pages/ProjectView/ProjectView.state'
+import { TargetData } from '~/components/pages/ProjectView/ProjectView.state'
 import { Mouse } from 'grommet-icons'
 import MouseActionTerminator from '~/components/MouseActionTerminator'
 import { triggerFn } from '~/types'
@@ -11,7 +11,7 @@ import { triggerFn } from '~/types'
 /**
  * ProjectEdit is a "generic" portal for displaying ANY edit popup -- ensuring they are displayed one at a time.
  */
-type ProjectEditProps = { editItem: EditItem | null, onCancel: triggerFn }
+type ProjectEditProps = { editItem: TargetData | null, onCancel: triggerFn }
 
 // this is a storage for compoennts used to edit various types of data, indexed by type,
 const projectEditorsMap = new Map();

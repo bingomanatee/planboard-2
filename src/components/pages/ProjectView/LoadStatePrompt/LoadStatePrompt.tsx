@@ -6,7 +6,8 @@ import useForestFiltered from '~/lib/useForestFiltered'
 import styles from './LoadStatePrompt.module.scss';
 import { BoxColumn } from '~/components/BoxVariants';
 import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
+import { Suspense, useContext } from 'react';
+import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
 
 type LoadStatePromptProps = { state: leafI }
 let MessageModal;
@@ -20,6 +21,9 @@ function FooterPrompt({ children }) {
 }
 
 export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
+  const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
+
+  const { projectMode, moveItem } = useForestFiltered(projectState, ['projectMode', 'moveItem']);
 
   const { loadState, keyData } = useForestFiltered(state, ['keyData', 'loadState']);
 
@@ -50,39 +54,50 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
     )
   }
 
-  if (loadState === 'loaded') {
-    if (!state.value.frames.length) {
-      return (
-        <Popup observer={(showing) => {
-          if (!showing) {
-            state.do.set_loadState('finished');
-          }
-        }}>
-          <Suspense fallback={<Spinner/>}>
-            <MessageModal heading="Loaded Project" cancelLabel="Proceed">
-              <Paragraph>
-                {`Loaded Project ${state.getMeta('id')}"`}
-              </Paragraph>
+  if (loadState !== 'loaded') {
+    return null;
+  }
+  if (!state.value.frames.length) {
+    return (
+      <Popup observer={(showing) => {
+        if (!showing) {
+          state.do.set_loadState('finished');
+        }
+      }}>
+        <Suspense fallback={<Spinner/>}>
+          <MessageModal heading="Loaded Project" cancelLabel="Proceed">
+            <Paragraph>
+              {`Loaded Project ${state.getMeta('id')}"`}
+            </Paragraph>
 
-              <article>
-                <Markdown>
-                  {helpText.startProjectText}
-                </Markdown>
-              </article>
-            </MessageModal>
-          </Suspense>
-        </Popup>
-      )
-    }
-    if (keyData) {
-      switch (keyData.key) {
-        case  'f':
-          return (<FooterPrompt>
-            Mouse drag to create a Frame
-          </FooterPrompt>)
-          break;
-      }
+            <article>
+              <Markdown>
+                {helpText.startProjectText}
+              </Markdown>
+            </article>
+          </MessageModal>
+        </Suspense>
+      </Popup>
+    )
+  }
+
+  if (keyData) {
+    switch (keyData.key) {
+      case  'f':
+        return (<FooterPrompt>
+          Mouse drag to create a Frame
+        </FooterPrompt>)
+        break;
     }
   }
+
+  switch (projectMode) {
+    case 'moving-item':
+      return <FooterPrompt>
+        Moving&nbsp;{moveItem?.type}&nbsp;{moveItem?.id}
+      </FooterPrompt>
+      break;
+  }
+
   return null;
 }

@@ -1,10 +1,10 @@
 import { leafI } from '@wonderlandlabs/forest/lib/types'
-import { EditItem } from '~/components/pages/ProjectView/ProjectView.state'
+import { TargetData } from '~/components/pages/ProjectView/ProjectView.state'
 
 /*
 this is the compoent that shows ALL the frames (Frames plural).
  */
-const FramesViewState = (props) => {
+const FramesViewState = (props, projectState) => {
   return {
     $value: {floatId: null, editItem: null, hover: null},
     selectors: {},
@@ -15,8 +15,16 @@ const FramesViewState = (props) => {
       unHover(state: leafI) {
         state.do.set_hover(null);
       },
-      edit(state: leafI, info: EditItem | null) {
+      edit(state: leafI, info: TargetData | null) {
+        if (projectState.value.projectMode) {
+          console.warn('ignoring edit click - project mode is ', projectState.value.projectMode);
+          return;
+        }
         state.do.set_editItem(info || null);
+      },
+      move(state: leafI, info: TargetData | null) {
+        console.log('initiating move')
+        projectState.do.initMove(info);
       },
       cancelEdit(state: leafI) {
         state.do.set_editItem(null);

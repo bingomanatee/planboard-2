@@ -1272,10 +1272,10 @@
     "@wonderlandlabs/walrus" "^0.0.2"
     lodash.clonedeep "^4.5.0"
 
-"@wonderlandlabs/forest@^2.0.12":
-  version "2.0.12"
-  resolved "https://registry.yarnpkg.com/@wonderlandlabs/forest/-/forest-2.0.12.tgz#ee40f0154edfcef9946dde9a1492317dbfaa0db4"
-  integrity sha512-6e/3hQ4/8A5UzDpCsHhxOcR7Q1Y9GGZOeZud3qYsj4a1/ziyC8lvx+FVutb+lQhWxsy/nc84JGPVA7gXQ/wRuA==
+"@wonderlandlabs/forest@^2.0.13":
+  version "2.0.13"
+  resolved "https://registry.yarnpkg.com/@wonderlandlabs/forest/-/forest-2.0.13.tgz#80653d3e9fe7042885cdda9298c89e1cc0ac9837"
+  integrity sha512-i9cKUSp3OHlMTav7u3GX1s1J9/zXJGu5H6/IecYWKucmMX1PAJhYGSbdaEsLgmtIkEZe8k8hypD7JJovB0bb9Q==
   dependencies:
     "@wonderlandlabs/collect" "^1.0.2"
     "@wonderlandlabs/transact" "^0.0.10"

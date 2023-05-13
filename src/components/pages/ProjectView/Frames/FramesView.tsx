@@ -10,6 +10,7 @@ import { FrameItemView } from '~/components/pages/ProjectView/Frames/FrameItemVi
 import { Spinner } from 'grommet'
 import dynamic from 'next/dynamic'
 import ErrorTrapper from '~/components/ErrorTrapper'
+import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
 
 let ProjectEdit;
 type FramesViewProps = {
@@ -17,7 +18,8 @@ type FramesViewProps = {
 }
 
 export default function FramesView(props: FramesViewProps) {
-  const [value, state] = useForest([stateFactory, props],
+  const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
+  const [value, state] = useForest([stateFactory, props, projectState],
     (localState) => {
     });
   const { dataState } = useContext<DataStateContextValue>(DataStateContext)

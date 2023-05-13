@@ -55,6 +55,38 @@ const framesFactory = (store) => {
           frState.do.add(newFrameContent);
           return frState.do.save(frame.id);
         }
+      },
+      setFrameSize(state: leafI, frameId: string, width: number, height: number) {
+        const frameRecord = state.value.get(frameId);
+        if (!frameRecord) {
+          console.warn('cannot find frame ', frameId);
+          return;
+        }
+        width = Math.round(width);
+        height = Math.round(height);
+        if (frameRecord.content.height === height && frameRecord.content.width === width) {
+          console.warn('no size change - not changing data')
+          return;
+        }
+        console.log('updating frame size', width, height);
+        const content = { ...frameRecord.content, width, height };
+        state.do.add(content, frameId);
+        return state.do.save(frameId);
+      },
+      setFramePos(state: leafI, frameId: string, left: number, top: number) {
+        const frameRecord = state.value.get(frameId);
+        if (!frameRecord) {
+          console.warn('cannot find frame ', frameId);
+          return;
+        }
+        top = Math.round(top);
+        left = Math.round(left);
+        if (frameRecord.content.left === left && frameRecord.content.top === top) {
+          return;
+        }
+        const content = { ...frameRecord.content, left, top };
+        state.do.add(content, frameId);
+        return state.do.save(frameId);
       }
     }
   });

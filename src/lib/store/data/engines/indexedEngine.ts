@@ -50,8 +50,10 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         ) => {
           try {
             if (index === 0) {
+              //@ts-ignore
               return db.where(condition.field).equals(condition.value);
-            }
+            } // else...
+            //@ts-ignore
             db.and((item) => item[condition.field] === condition.value);
             return db;
           } catch (err) {

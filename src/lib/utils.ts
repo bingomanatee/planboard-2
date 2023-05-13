@@ -1,5 +1,6 @@
 import { generalObj } from '@wonderlandlabs/collect/lib/types'
 import { c } from '@wonderlandlabs/collect'
+import { Vector2 } from 'three'
 
 export function numToPx(value: number | string): string {
   if (typeof value === 'number') {
@@ -21,4 +22,20 @@ export const terminate = (e) => {
 
 export const without = (itemA, fieldList: any[]) => {
   return (c(itemA)).clone().filter((_value, field) => !fieldList.includes(field)).value;
+}
+
+export function toPoint(e: MouseEvent) {
+  return new Vector2(e.pageX, e.pageY);
+}
+
+export const isMouseResponder = (target: HTMLElement) => {
+  if (target.dataset.mouseResponder === 'responder') {
+    console.log('target IS a mouse responder:', target.dataset, target);
+    return true;
+  }
+  console.log('target IS NOT a mouse responder:', target.dataset, target);
+  if (target.parentElement) {
+    return isMouseResponder(target.parentElement);
+  }
+  return false;
 }

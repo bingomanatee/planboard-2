@@ -1,9 +1,9 @@
 import styles from './EditButton.module.scss';
 import Img from '~/components/Img'
-import { EditItem } from '~/components/pages/ProjectView/ProjectView.state'
+import { TargetData } from '~/components/pages/ProjectView/ProjectView.state'
 import EditIcon from '~/components/svg/EditIcon'
 
-type EditButtonProps = {type: string, id:string, onClick: (item: EditItem) => null, active}
+type EditButtonProps = {type: string, id:string, onClick: (item: TargetData) => null, active}
 
 export default function EditButton(props: EditButtonProps) {
   return (<div className={styles.container}
