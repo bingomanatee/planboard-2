@@ -23,7 +23,7 @@ function FooterPrompt({ children }) {
 export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
   const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
 
-  const { projectMode, moveItem } = useForestFiltered(projectState, ['projectMode', 'moveItem']);
+  const { mouseMode, moveItem } = useForestFiltered(projectState, ['mouseMode', 'moveItem']);
 
   const { loadState, keyData } = useForestFiltered(state, ['keyData', 'loadState']);
 
@@ -88,16 +88,29 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
           Mouse drag to create a Frame
         </FooterPrompt>)
         break;
+      case  ' ':
+        return (<FooterPrompt>
+          Mouse drag to move the diagram
+        </FooterPrompt>)
+        break;
     }
   }
 
-  switch (projectMode) {
+  switch (mouseMode) {
     case 'moving-item':
       return <FooterPrompt>
         Moving&nbsp;{moveItem?.type}&nbsp;{moveItem?.id}
       </FooterPrompt>
       break;
+
+    case '':
+      return null;
+      break;
+
+    default:
+      return <FooterPrompt>
+        Mode: {mouseMode}
+      </FooterPrompt>
   }
 
-  return null;
 }

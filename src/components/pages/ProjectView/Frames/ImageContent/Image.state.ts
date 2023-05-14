@@ -4,7 +4,6 @@ import checkImageUrl from '~/components/utils/getImageUrl'
 
 const ImageState = (props, dataStore) => {
   const content = props.content
-  console.log('image state for content:', content);
   const { frame_id: frameId, id: contentId } = (content || {});
 
   return {

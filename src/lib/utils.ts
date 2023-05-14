@@ -29,13 +29,12 @@ export function toPoint(e: MouseEvent) {
 }
 
 export const isMouseResponder = (target: HTMLElement) => {
-  if (target.dataset.mouseResponder === 'responder') {
-    console.log('target IS a mouse responder:', target.dataset, target);
-    return true;
-  }
-  console.log('target IS NOT a mouse responder:', target.dataset, target);
-  if (target.parentElement) {
-    return isMouseResponder(target.parentElement);
+  let current = target;
+  while (current) {
+    if (current.dataset.mouseResponder === 'responder') {
+      return true;
+    }
+    current = current.parentElement;
   }
   return false;
 }

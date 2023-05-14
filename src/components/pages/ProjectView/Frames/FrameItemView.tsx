@@ -10,14 +10,18 @@ import { Spinner } from 'grommet'
 import dynamic from 'next/dynamic';
 import EditButton from '~/components/pages/ProjectView/EditButton/EditButton'
 import MoveButton from '~/components/pages/ProjectView/MoveButton/MoveButton'
+import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
 
 let ContentPrompt
+
 /**
  * this is the component that displays a SINGLE Frame (Frame singular).
  */
 export function FrameItemView({ id, frame, frameState }) {
   const { dataState } = useContext<DataStateContextValue>(DataStateContext);
+  const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
 
+  const { mouseMode } = useForestFiltered(projectState, ['mouseMode']);
   const { floatId } = useForestFiltered(frameState, ['floatId']);
 
   const style = useMemo(() => {
@@ -52,20 +56,30 @@ export function FrameItemView({ id, frame, frameState }) {
     }
     inner = <ContentPrompt frameState={frameState} frame={frame} frameId={id}/>
   }
+
   return <div className={styles.frame} style={style} id={`frame-${id}`} onMouseEnter={() => frameState.do.hover(id)}
               onMouseLeave={frameState.do.unHover}>
-    <BoxColumn fill border={{ color: 'frame-border', size: '2px' }}>
-      <Suspense fallback={<Spinner/>}>
-        {inner}
-      </Suspense>
-    </BoxColumn>
-    <EditButton type="frame"
-                active={hover === id}
-                onClick={(data) => frameState.do.edit(data)}
-                id={id}/>
-    <MoveButton type="frame" active={hover === id}
-                onClick={(data) => frameState.do.move(data)}
-                id={id}
-    />
+    <div className={styles.frameInner}>
+      <BoxColumn fill border={{ color: 'frame-border', size: '2px' }}>
+        <Suspense fallback={<Spinner/>}>
+          <div className={styles['frame-clamp']}>
+            {inner}
+          </div>
+        </Suspense>
+      </BoxColumn>
+      {mouseMode ? null : (
+        <>
+          <EditButton type="frame"
+                      active={hover === id}
+                      onClick={(data) => frameState.do.edit(data)}
+                      id={id}/>
+          <MoveButton type="frame"
+                      active={hover === id}
+                      onClick={(data) => frameState.do.move(data)}
+                      id={id}
+          />
+        </>
+      )}
+    </div>
   </div>
 }

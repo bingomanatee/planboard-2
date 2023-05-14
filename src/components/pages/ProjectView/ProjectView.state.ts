@@ -20,12 +20,23 @@ export type ProjectViewValue = {
   frames: Frame[] | null,
   keyData: KeyData | null,
   loadState: LoadState,
-  projectMode: ProjectMode,
+  mouseMode: ProjectMode,
   startPoint: Vector2 | null,
   endPoint: Vector2 | null,
   editItem: TargetData | null;
   moveItem: TargetData | null;
+  screenOffset: Vector2;
+  screenOffsetDelta: Vector2 | null;
 }
+
+const META_MOVE = 'handleMouseMove';
+const META_UP = 'handleMouseUp';
+const META_DOWN_LISTENERS = 'downListeners';
+
+const MOUSE_MOVE = 'mousemove';
+const MOUSE_UP = 'mouseup';
+
+const MODE_DRAG_SCREEN = 'dragging-screen'
 
 const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
   const initial: ProjectViewValue = {
@@ -34,18 +45,51 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
     frames: null,
     loadState: 'start',
     keyData: null,
-    projectMode: '',
+    mouseMode: '',
     startPoint: null,
     endPoint: null,
     editType: null,
     moveItem: null,
+    screenOffset: new Vector2(0, 0),
+    screenOffsetDelta: null
   };
 
   return {
     $value: initial,
-    selectors: {},
+    selectors: {
+      // NOTE: it does NOT clear mouseMode.
+      clearMouseListeners(state: leafI, ...rest) {
+        const mouseUpListener = state.getMeta(META_UP);
+        state.setMeta(META_UP, null, true);
+        const mouseMoveListener = state.getMeta(META_MOVE);
+        state.setMeta(META_MOVE, null, true);
+        window.removeEventListener(MOUSE_UP, mouseUpListener);
+        window.removeEventListener(MOUSE_MOVE, mouseMoveListener);
+        state.$.clearListeners(mouseUpListener, mouseMoveListener, ...rest)
+      },
+      clearListeners(state: leafI, ...rest) {
+        // brute-force remove all other arguments from all possible hooks
+        rest.forEach((listener) => {
+          if (typeof listener === 'function') {
+            window.removeEventListener(MOUSE_UP, listener);
+            window.removeEventListener(MOUSE_MOVE, listener);
+          } else {
+            console.log('cannot un-listen ', listener);
+          }
+        })
+      },
+      addMouseListeners(state, mouseMoveListener, mouseUpListener) {
+        state.$.clearMouseListeners(mouseMoveListener, mouseUpListener);
+        // just for sanity's sake make sure the listeners are only queued once.
+        // May be done automatically by the DOM system, but it doesn't hurt to be sure.
+        window.addEventListener(MOUSE_UP, mouseUpListener);
+        window.addEventListener(MOUSE_MOVE, mouseMoveListener);
+        state.setMeta(META_UP, mouseUpListener, true);
+        state.setMeta(META_MOVE, mouseMoveListener, true);
+      }
+    },
     meta: {
-      id,
+      id, // id of the current project
     },
     actions: {
       editItem(state: typedLeaf<ProjectViewValue>, editType) {
@@ -54,20 +98,19 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
       cancelEdit(state: typedLeaf<ProjectViewValue>) {
         state.do.set_editType(null);
       },
-      finishFrame(state: typedLeaf<ProjectViewValue>) {
-        console.log('finishing frame');
+      finishFrame(state: typedLeaf<ProjectViewValue>, skipCreate) {
         const { startPoint, endPoint } = state.value;
-        window.removeEventListener('mouseup', state.getMeta('mouseUpListener'));
-        window.removeEventListener('mouseup', state.getMeta('mouseMoveListener'));
+        state.$.clearMouseListeners();
         state.do.set_startPoint(null);
-        state.do.set_startPoint(null);
+        state.do.set_endPoint(null);
         state.do.releaseProjectMode('drawing-frame');
-        dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
+        if (!skipCreate) {
+          dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
+        }
       },
       initMove(state: leafI, targetData: TargetData) {
-        const { loadState, projectMode, keyData } = state.value;
-        if ((!['loaded', 'finished'].includes(loadState)) || (projectMode)) {
-          console.log('interrupting initMove state = ', loadState, projectMode, keyData?.key, backRef.current);
+        const { loadState, mouseMode, keyData } = state.value;
+        if ((!['loaded', 'finished'].includes(loadState)) || (mouseMode)) {
           return;
         }
 
@@ -76,95 +119,110 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
 
           state.do.addDownListener((e) => {
             e.stopPropagation();
-            if (state.value.projectMode  === 'moving-item') {
+            if (state.value.mouseMode === 'moving-item') {
               state.do.completeMove('downListener');
             }
           });
-        } else {
-          console.log('cannot claim project mode:', state.value.projectMode);
         }
 
       },
       addDownListener(state: leafI, trigger: triggerFn) {
-        const listeners = state.getMeta('downListeners');
-        if(!listeners) {
-          state.setMeta('downListeners', new Set([trigger]), true);
+        const listeners = state.getMeta(META_DOWN_LISTENERS);
+        if (!listeners) {
+          state.setMeta(META_DOWN_LISTENERS, new Set([trigger]), true);
         } else {
           listeners.add(trigger);
         }
       },
       completeMove(state: leafI, e) {
-        console.log('completing move, ', e);
-        let listener = state.getMeta('mouseDownListener');
-        if (listener){
-          window.removeEventListener('mousedown', listener);
-          state.setMeta('mouseDownListener', null, true);
-        }
+        state.$.clearMouseListeners();
         state.do.releaseProjectMode('moving-item');
       },
+      // downListeners are any "extra hooks" that components may add to handle down conditions
       execDownListeners(state: leafI, e: MouseEvent) {
-        const listeners = state.getMeta('downListeners');
+        const listeners = state.getMeta(META_DOWN_LISTENERS);
         if (listeners) {
-          listeners.forEach((fn: triggerFn) =>{
-            if (typeof fn === 'function') fn(e);
+          listeners.forEach((fn: triggerFn) => {
+            if (typeof fn === 'function') {
+              fn(e);
+            }
           });
         }
-        state.setMeta('downListeners', null, true);
+        state.setMeta(META_DOWN_LISTENERS, null, true);
       },
       mouseDown(state: leafI, e: MouseEvent) {
-        const { loadState, projectMode, keyData } = state.value;
+        const { loadState, mouseMode, keyData } = state.value;
 
-        if (isMouseResponder(e.target)){
+        if (isMouseResponder(e.target)) {
+          // another process is going to handle the mouseDown event
           return;
         }
         e.stopPropagation();
-
         state.do.execDownListeners(e);
 
-        if (projectMode === 'moving-item') {
-          console.log('museDown in project -- completing move')
+        if (mouseMode === 'moving-item') {
           state.do.completeMove('projectView.mouseDown');
           return;
         }
 
-        if ((!['loaded', 'finished'].includes(loadState)) || (projectMode) || (keyData?.key !== 'f') || (!backRef.current)) {
-          console.log('stopping mousedown - state = ', loadState, projectMode, keyData?.key, backRef.current);
+        if ((!['loaded', 'finished'].includes(loadState)) || (mouseMode) || (!backRef.current)) {
+          console.log('stopping mousedown - state = ', loadState, mouseMode, keyData?.key, backRef.current);
           return;
         }
 
+        if (keyData?.key === 'f') {
+          return state.do.startDrawingFrame(e);
+        }
+        if (keyData?.key === ' ') {
+          return state.do.startDraggingScreen(e);
+        }
+        console.log('no mouse handler for ', keyData);
+      },
+      startDraggingScreen(state: leafI, e: MouseEvent) {
+        state.do.claimProjectMode(MODE_DRAG_SCREEN);
+        const startPoint = toPoint(e);
+        state.do.set_startPoint(startPoint);
+
+        const mouseUpListener = () => {
+          state.$.clearMouseListeners(mouseMoveListener, mouseUpListener);
+          state.do.set_screenOffset(
+            state.value.screenOffset
+              .clone()
+              .add(state.value.screenOffsetDelta)
+          )
+          state.do.set_screenOffsetDelta(null);
+          state.do.releaseProjectMode(MODE_DRAG_SCREEN)
+        }
+
+        const mouseMoveListener = (e2) => {
+          const endPoint = toPoint(e2);
+          state.do.set_endPoint(endPoint);
+          const delta = endPoint.clone().sub(state.value.startPoint);
+          state.do.set_screenOffsetDelta(delta);
+        }
+        window.addEventListener(MOUSE_MOVE, mouseMoveListener);
+        window.addEventListener(MOUSE_UP, mouseUpListener);
+      },
+      startDrawingFrame(state: leafI, e: MouseEvent) {
         state.do.claimProjectMode('drawing-frame');
         const startPoint = toPoint(e);
         state.do.set_startPoint(startPoint);
 
         const mouseUpListener = (e2) => {
-          window.removeEventListener('mouseup', mouseUpListener);
-          window.removeEventListener('mousemove', mouseMoveListener);
-
-          if (isEqual(startPoint, state.value.startPoint)) {
-            state.do.set_endPoint(toPoint(e2));
-            state.do.finishFrame();
-          }
+          state.do.set_endPoint(toPoint(e2));
+          // if for some reason the start point is not the same one that began this cycle,
+          // do not save the frame data / add a new frame based on the points
+          state.do.finishFrame(!isEqual(startPoint, state.value.startPoint));
         }
 
         const mouseMoveListener = (e2) => {
           if (isEqual(startPoint, state.value.startPoint)) {
             state.do.set_endPoint(toPoint(e2));
-            console.log('--- endPoint set to', state.value.endPoint);
-          } else {
-            console.log('--- startPoint changed -- aborting');
-            window.removeEventListener('mousemove', mouseMoveListener);
-            window.removeEventListener('mouseup', mouseUpListener)
+          } else { // some amodal error - stop the process.
+            state.$.clearListeners(mouseMoveListener, mouseUpListener);
           }
         }
-
-        window.removeEventListener('mouseup', state.getMeta('mouseUpListener'));
-        window.removeEventListener('mousemove', state.getMeta('mouseMoveListener'));
-        state.setMeta('mouseUpListener', mouseUpListener, true);
-        state.setMeta('mouseMoveListener', mouseMoveListener, true);
-
-        window.addEventListener('mouseup', mouseUpListener);
-        window.addEventListener('mousemove', mouseMoveListener);
-        console.log('finished mouseDown');
+        state.$.addMouseListeners(mouseMoveListener, mouseUpListener);
       },
       keyDown(state: leafI, e: KeyboardEvent) {
         const { key, shiftKey, altKey } = e;
@@ -183,13 +241,17 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
         state.do.doLoad();
       },
       claimProjectMode(state: leafI, token) {
-        if (state.value.projectMode || !token) return false;
-        state.do.set_projectMode(token);
+        if (state.value.mouseMode || !token) {
+          return false;
+        }
+        state.do.set_mouseMode(token);
         return token;
       },
-      releaseProjectMode(state: leafI, token: ProjectMode){
-        if (state.value.projectMode === token) {
-          state.do.set_projectMode('');
+      releaseProjectMode(state: leafI, token: ProjectMode) {
+        if (state.value.mouseMode === token) {
+          state.do.set_mouseMode('');
+        } else {
+          console.warn('releaseProjectMode:: mouseMode', state.value.mouseMode, ' !== ', token);
         }
       },
       async doLoad(state: leafI) {

@@ -16,8 +16,8 @@ const FramesViewState = (props, projectState) => {
         state.do.set_hover(null);
       },
       edit(state: leafI, info: TargetData | null) {
-        if (projectState.value.projectMode) {
-          console.warn('ignoring edit click - project mode is ', projectState.value.projectMode);
+        if (projectState.value.mouseMode) {
+          console.warn('ignoring edit click - project mode is ', projectState.value.mouseMode);
           return;
         }
         state.do.set_editItem(info || null);

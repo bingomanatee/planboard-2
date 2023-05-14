@@ -8,3 +8,11 @@ position: absolute;
   overflow: hidden;
   border: 1px solid cyan;
 }
+.frameAnchor {
+  position: relative;
+  overflow: visible;
+  width: 10px;
+  height: 10px;
+  background-color: magenta;
+  z-index: 10;
+}

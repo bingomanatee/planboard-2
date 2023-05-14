@@ -16,6 +16,7 @@ function MoveWidget({ state }: { state: leafI }) {
                 state.do.startMoveDrag(e);
               }}
   ><Img src="/img/icons/widget-move.svg"
+        data-role="widget-move-icon"
         data-mouse-responder="responder"
         width={30}
         height={30}/></div>

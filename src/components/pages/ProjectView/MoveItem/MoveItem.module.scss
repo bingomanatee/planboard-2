@@ -4,7 +4,7 @@
   width: 100%;
   height: 100%;
   position: absolute;
-  overflow: hidden;
+  overflow: visible;
   @include no-select();
   pointer-events: none;
   z-index: 100000000;
@@ -17,6 +17,8 @@
     .move-widget-icon-container {
       pointer-events: all !important;
       position: absolute;
+      width: 30px;
+      height: 30px;
       img {
         position: absolute;
         user-drag: none;

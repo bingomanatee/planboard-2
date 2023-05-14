@@ -1,16 +1,21 @@
 import { useContext, useMemo, Suspense, useEffect } from 'react';
-import stateFactory from './FramesView.state.ts';
-import useForest from '~/lib/useForest';
-import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
-import useForestFiltered from '~/lib/useForestFiltered'
-import { c } from '@wonderlandlabs/collect'
-import { StoreRecord } from '~/lib/store/types'
-import { sortBy } from 'lodash'
-import { FrameItemView } from '~/components/pages/ProjectView/Frames/FrameItemView'
-import { Spinner } from 'grommet'
 import dynamic from 'next/dynamic'
-import ErrorTrapper from '~/components/ErrorTrapper'
+import { c } from '@wonderlandlabs/collect'
+import { Spinner } from 'grommet'
+import { sortBy } from 'lodash'
+
+import useForestFiltered from '~/lib/useForestFiltered'
+import { StoreRecord } from '~/lib/store/types'
+import useForest from '~/lib/useForest';
+
+import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
 import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
+import { FrameItemView } from '~/components/pages/ProjectView/Frames/FrameItemView'
+import ErrorTrapper from '~/components/ErrorTrapper'
+
+import styles from './FramesView.module.scss'
+import stateFactory from './FramesView.state.ts';
+import { propsToPx } from '~/lib/utils'
 
 let ProjectEdit;
 type FramesViewProps = {

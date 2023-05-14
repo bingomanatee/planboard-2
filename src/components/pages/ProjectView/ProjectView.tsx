@@ -1,4 +1,4 @@
-import { memo, useContext, Suspense, useRef, createContext } from 'react';
+import { memo, useContext, Suspense, useRef, createContext, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './ProjectView.module.scss';
 import stateFactory, { ProjectViewValue } from './ProjectView.state.ts';
@@ -10,6 +10,7 @@ import { Spinner } from 'grommet'
 import { typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import MoveItem from '~/components/pages/ProjectView/MoveItem/MoveItem'
 import SizeItem from '~/components/pages/ProjectView/SizeItem/SizeItem'
+import { propsToPx } from '~/lib/utils'
 
 let NewFrame = null;
 type ProjectViewProps = { id: string }
@@ -34,27 +35,39 @@ export default memo(function ProjectView(props: ProjectViewProps) {
         containerRef.current?.removeEventListener('mousedown', localState.do.mouseDown);
       }
     });
-  const { projectMode, loadState, loadError, moveItem } = value;
+  const { mouseMode, loadState, screenOffset, screenOffsetDelta, moveItem } = value;
 
-  if (projectMode === 'drawing-frame' && !NewFrame) {
+  if (mouseMode === 'drawing-frame' && !NewFrame) {
     NewFrame = dynamic(() => import('./NewFrame/NewFrame'), { suspense: true })
   }
+  const anchorStyle = useMemo(() => {
+      if (!screenOffsetDelta) {
+        return propsToPx({ left: screenOffset.x, top: screenOffset.y })
+      }
+      const dynOffset = screenOffset.clone().add(screenOffsetDelta);
+      return propsToPx({ left: dynOffset.x, top: dynOffset.y })
+    }
+    , [screenOffset, screenOffsetDelta]);
 
-  console.log('project state:', projectMode, 'moveItem', moveItem);
+  const showMove = !!((mouseMode === 'moving-item') && moveItem);
+  console.log('showMove = ', showMove);
+
   return (
     <ProjectViewStateContext.Provider value={state}>
-      <div className={styles.container} ref={containerRef}>
-        {loadState === 'finished' || loadState === 'loaded' ? <FramesView projectId={props.id}/> : null}
-        {projectMode === 'drawing-frame' ? (
-          <Suspense loading={<Spinner/>}>
-            <NewFrame projectState={state}/>
-          </Suspense>
-        ) : null
-        }
-        { projectMode === 'moving-item' && moveItem? <MoveItem projectState={state} /> : null}
-        { projectMode === 'moving-item' && moveItem? <SizeItem projectState={state} /> : null}
-        <LoadStatePrompt state={state}/>
-      </div>
+        <div className={styles.container} ref={containerRef}>
+          <div className={styles.frameAnchor} style={anchorStyle}>
+          {loadState === 'finished' || loadState === 'loaded' ? <FramesView projectId={props.id}/> : null}
+          {mouseMode === 'drawing-frame' ? (
+            <Suspense loading={<Spinner/>}>
+              <NewFrame projectState={state}/>
+            </Suspense>
+          ) : null
+          }
+          {showMove ? <MoveItem projectState={state}/> : null}
+          {showMove ? <SizeItem projectState={state}/> : null}
+        </div>
+          <LoadStatePrompt state={state}/>
+        </div>
     </ProjectViewStateContext.Provider>
   );
 });

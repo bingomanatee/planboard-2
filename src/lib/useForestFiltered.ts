@@ -3,41 +3,63 @@ import { useCallback, useEffect, useState } from 'react'
 import { c } from '@wonderlandlabs/collect'
 import { isEqual } from 'lodash'
 
-type YfiConfig = {
-  filter?: (update: unknown) => unknown,
-  targetField?: string
-}
+export type oneParamFunction<Input, Output> = (input: Input) => Output;
+export type Filter = oneParamFunction<any, any> | any[] | any;
 
 export default function useForestFiltered<InputElement = HTMLInputElement>(
-  leaf: leafI,
-  filter: (value: any) => any | any[],
+  state: leafI,
+  filter: Filter,
 ): any {
 
+  /**
+   * returns an observer for a reduced/focused set of parameters
+   * of the state's value.
+   *  - if the filter is a function, it returns the output of the function
+   *    when fed (value, store).
+   *  - if the filter is an array, it 'picks' the fields
+   *    into an object and returns it.
+   *  - if neither condition is true it picks one parameter
+   *    using the filter as a field name.
+   *
+   *  -- in all cases it only emits a new value when the parameter values
+   *  are not equivalent to the previous edition.
+   *
+   *  the emitted values are objects, regardless of the state's type
+   *  unless you pass a filter in which case the filter's output type is used.
+   */
+
   const pick = useCallback((value) => {
-    if (!value) {
-      console.warn('cannot get value for leaf ', leaf);
-      return {};
-    }
-    return (Array.isArray(filter)) ?
-      c(value)
-        .getReduce((data, value, field) => {
-          if ((filter as any[]).includes(field)) {
-            data[field] = value;
-          }
-          return data;
-        }, {}) : filter(value);
-  }, [filter]);
-  const [result, setResult] = useState(pick(leaf.value));
+        if (!value) {
+          console.warn('cannot get value for leaf ', state);
+          return {};
+        }
+        if (Array.isArray(filter)) {
+          return c(value)
+            .getReduce((data, value, field) => {
+              if ((filter as any[]).includes(field)) {
+                data[field] = value;
+              }
+              return data;
+            }, {})
+        }
+        if (typeof filter === 'function') {
+          return filter(value, state);
+        }
+        return c(value).get(filter);
+      },
+      [filter]
+    );
+  const [result, setResult] = useState(pick(state.value));
 
   useEffect(() => {
-    let sub = leaf.select((summary)=> {
-      if (!isEqual(summary, result)) setResult(summary);
-    }, (value) => {
-      return pick(value);
-    });
+    let sub = state.select((summary) => {
+      if (!isEqual(summary, result)) {
+        setResult(summary);
+      }
+    }, pick);
 
     return () => sub.unsubscribe();
-  }, [leaf, filter])
+  }, [state, pick])
 
   return result;
 }

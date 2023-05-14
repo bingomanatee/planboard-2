@@ -34,7 +34,6 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
           return {overflow: 'auto'};
         }
         const { left, top } = state.value.position;
-        console.log('moveWidgetStyle based on ', state.value);
         return propsToPx({ left, top });
       }
     },
