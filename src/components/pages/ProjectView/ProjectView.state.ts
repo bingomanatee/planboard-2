@@ -79,8 +79,6 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
           if (typeof listener === 'function') {
             window.removeEventListener(MOUSE_UP, listener);
             window.removeEventListener(MOUSE_MOVE, listener);
-          } else {
-            console.log('cannot un-listen ', listener);
           }
         })
       },
@@ -121,7 +119,9 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
         state.do.set_editMode(null);
       },
       finishFrame(state: typedLeaf<ProjectViewValue>, skipCreate) {
-        const { startPoint, endPoint } = state.value;
+        const { startPoint, endPoint, screenOffset } = state.value;
+        startPoint.sub(screenOffset);
+        endPoint.sub(screenOffset);
         state.$.clearMouseListeners();
         state.do.set_startPoint(null);
         state.do.set_endPoint(null);
@@ -135,7 +135,6 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
         if ((!['loaded', 'finished'].includes(loadState)) || (mouseMode)) {
           return;
         }
-
         if (state.do.claimProjectMode('moving-item') === 'moving-item') {
           state.do.set_moveItem(targetData);
 
@@ -149,18 +148,22 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
 
       },
       addDownListener(state: leafI, trigger: triggerFn) {
-        const listeners = state.getMeta(META_DOWN_LISTENERS);
-        if (!listeners) {
-          state.setMeta(META_DOWN_LISTENERS, new Set([trigger]), true);
-        } else {
-          listeners.add(trigger);
-        }
+        setTimeout(() => {
+          const listeners = state.getMeta(META_DOWN_LISTENERS);
+          if (!listeners) {
+            state.setMeta(META_DOWN_LISTENERS, new Set([trigger]), true);
+          } else { // just add to the existing one
+            listeners.add(trigger);
+          }
+        }, 10);
       },
       completeMove(state: leafI, e) {
         state.$.clearMouseListeners();
         state.do.releaseProjectMode('moving-item');
       },
       // downListeners are any "extra hooks" that components may add to handle down conditions
+      // typically to close opened dialogs
+
       execDownListeners(state: leafI, e: MouseEvent) {
         const listeners = state.getMeta(META_DOWN_LISTENERS);
         if (listeners) {
@@ -179,8 +182,10 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
           // another process is going to handle the mouseDown event
           return;
         }
-        e.stopPropagation();
+
         state.do.execDownListeners(e);
+
+        e.stopPropagation();
 
         if (mouseMode === 'moving-item') {
           state.do.completeMove('projectView.mouseDown');
@@ -188,7 +193,6 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
         }
 
         if ((!['loaded', 'finished'].includes(loadState)) || (mouseMode) || (!backRef.current)) {
-          console.log('stopping mousedown - state = ', loadState, mouseMode, keyData?.key, backRef.current);
           return;
         }
 
@@ -198,7 +202,6 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
         if (keyData?.key === ' ') {
           return state.do.startDraggingScreen(e);
         }
-        console.log('no mouse handler for ', keyData);
       },
       startDraggingScreen(state: leafI, e: MouseEvent) {
         state.do.claimProjectMode(MODE_DRAG_SCREEN);

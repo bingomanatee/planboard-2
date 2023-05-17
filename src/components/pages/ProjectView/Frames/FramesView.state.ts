@@ -23,7 +23,6 @@ const FramesViewState = (props, projectState) => {
         state.do.set_editItem(info || null);
       },
       move(state: leafI, info: TargetData | null) {
-        console.log('initiating move')
         projectState.do.initMove(info);
       },
       closeEdit(state: leafI) {

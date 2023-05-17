@@ -15,15 +15,13 @@ const EditFrameState = (dataState, closeTrigger) => {
           if (content) {
             state.child('content')!.value = content;
           }
-          /*
-            console.log('EditFrameState: result = ', result);
+          /*  console.log('EditFrameState: result = ', result);
             console.log('EditFrameState: frame = ', frame);
             console.log('EditFrameState: content = ', content);
             console.log('EditFrameState: contentData = ', contentData);
-            */
-
+*/
           let $value;
-          switch (content.type) {
+          switch (content?.type) {
             case 'markdown':
               $value = { title: '', text: '', ...(contentData || {}) };
               state.addChild({ name: 'contentData', $value }, 'contentData');
@@ -36,7 +34,7 @@ const EditFrameState = (dataState, closeTrigger) => {
 
 
             default:
-              console.warn('cannot create contentData for type ', content.type)
+              console.warn('cannot create contentData for type ', content?.type)
           }
         },
         cancel(state: leafI) {
@@ -45,12 +43,9 @@ const EditFrameState = (dataState, closeTrigger) => {
         async commit(state: leafI) {
           const { frame, content, contentData } = state.value;
           const { markdownRecord, frameRecord } = await dataState.do.updateFrame(frame, content, contentData);
-          const contentDataState = state.child('contentData')!;
-          if (contentDataState.do.commit) {
-            console.log('committing contentData state')
+          const contentDataState = state.child('contentData');
+          if (contentDataState?.do.commit) {
             await contentDataState.do.commit();
-          } else {
-            console.warn('no contentData commit', contentDataState);
           }
           closeTrigger();
         },

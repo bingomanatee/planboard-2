@@ -2,7 +2,7 @@ import { MoveItemProps } from './types'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { SVG } from '@svgdotjs/svg.js'
 import { isEqual } from 'lodash'
-import { numToPx, propsToPx } from '~/lib/utils'
+import { numToPx, propsToPx, toPoint } from '~/lib/utils'
 import { Vector2 } from 'three'
 
 const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
@@ -29,7 +29,6 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
         return { ...propsToPx(style), ...size };
       },
       moveWidgetStyle(state: leafI) {
-        console.log('move-widget-loaded')
         if (!state.value.loaded) {
           return { overflow: 'auto' };
         }
@@ -45,11 +44,9 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
     },
     actions: {
       startMoveDrag(state: leafI, eFirst: MouseEvent) {
-        console.log('starting move drag');
         eFirst.stopPropagation();
 
         const moveListener = (e: MouseEvent) => {
-          console.log('moveDrag listener');
           e.stopPropagation();
           state.do.updateMove(e);
         }
@@ -72,8 +69,7 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
       },
       updateMove(state: leafI, e: MouseEvent) {
         e.stopPropagation();
-        console.log('updateMove: ', e)
-        state.do.set_movePosCurrent(new Vector2(e.x, e.y));
+        state.do.set_movePosCurrent(toPoint(e));
       },
 
       moveFrame(state: leafI) {

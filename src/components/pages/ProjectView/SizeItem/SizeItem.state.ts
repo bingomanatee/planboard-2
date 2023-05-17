@@ -1,8 +1,7 @@
 import { SizeItemProps } from './types'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
-import { SVG } from '@svgdotjs/svg.js'
 import { isEqual } from 'lodash'
-import { numToPx, propsToPx } from '~/lib/utils'
+import { propsToPx } from '~/lib/utils'
 import { Vector2 } from 'three'
 
 const SizeItemState = (props: SizeItemProps, dataState: leafI) => {
@@ -39,17 +38,13 @@ const SizeItemState = (props: SizeItemProps, dataState: leafI) => {
         });
 
         const size = propsToPx(state.$.size());
-        const style = { ...size, ...pos };
-        console.log('sizeWidgetStyle based on is', style, 'based on ', state.value);
-        return style;
+        return { ...size, ...pos };
       },
       sizeWidgetStyle(state: leafI) {
-        console.log('size-widget-loaded')
         if (!state.value.loaded) {
           return { overflow: 'auto' };
         }
         const { left, width, height, top } = state.value.position;
-        console.log('sizeWidgetStyle based on ', state.value);
         return propsToPx({ left: left + width, top: top + height });
       }
     },
@@ -61,11 +56,9 @@ const SizeItemState = (props: SizeItemProps, dataState: leafI) => {
     },
     actions: {
       startSizeDrag(state: leafI, eFirst: MouseEvent) {
-        console.log('starting size drag');
         eFirst.stopPropagation();
 
         const sizeListener = (e: MouseEvent) => {
-          console.log('moveDrag listener');
           e.stopPropagation();
           state.do.updateSize(e);
         }
@@ -88,14 +81,12 @@ const SizeItemState = (props: SizeItemProps, dataState: leafI) => {
       },
       updateSize(state: leafI, e: MouseEvent) {
         e.stopPropagation();
-        console.log('updateSize: ', e)
         state.do.set_sizePosCurrent(new Vector2(e.x, e.y));
       },
 
       updateFrameSize(state: leafI) {
         const { id } = state.value.target;
         const size = state.$.size();
-        console.log('sizing frame with ', size);
         dataState.child('frames')!.do.setFrameSize(id, size.width, size.height);
       },
       init(state: leafI, div: HTMLDivElement) {

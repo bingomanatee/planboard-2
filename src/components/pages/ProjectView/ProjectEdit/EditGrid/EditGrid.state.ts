@@ -47,10 +47,8 @@ const EditGridState = (props: EditGridProps, dataState, projectId) => {
       },
       async commit(store: typedLeaf<GridStateValue>) {
         const { resolution, active, gridColor } = store.value;
-        console.log('committing', resolution, active, gridColor);
         await dataState.child('settings')!.do.addSetting(projectId, 'grid',
           JSON.stringify({ resolution, active, gridColor }, 'string'));
-        console.log('closing with ', props.closeTrigger);
         props.closeTrigger();
       }
     }

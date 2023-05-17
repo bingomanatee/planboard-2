@@ -21,8 +21,8 @@ export default function NewFrame(props: NewFrameProps) {
 
     const {} = value;*/
 
-  const { projectState, startPoint, endPoint }: Partial<ProjectViewValue> = useForestFiltered(props.projectState,
-    ['startPoint', 'endPoint', 'projectState']);
+  const { screenOffset, startPoint, endPoint }: Partial<ProjectViewValue> = useForestFiltered(props.projectState,
+    ['startPoint', 'endPoint', 'projectState', 'screenOffset']);
 
   const style = useMemo(() => {
     if (!(startPoint && endPoint)) {
@@ -33,7 +33,7 @@ export default function NewFrame(props: NewFrameProps) {
     const first = new Vector2(Math.min(startPoint.x, endPoint.x), Math.min(startPoint.y, endPoint.y));
     const second = new Vector2(Math.max(startPoint.x, endPoint.x), Math.max(startPoint.y, endPoint.y));
 
-    const firstPx = propsToPx(first);
+    const firstPx = propsToPx(first.clone().sub(screenOffset));
     const sizePx = propsToPx(first.subVectors(second, first));
 
     return { top: firstPx.y, left: firstPx.x, width: sizePx.x, height: sizePx.y };

@@ -25,7 +25,6 @@ const ProjectGridState = (props) => {
         if (!setting) {
           return store.do.setDefault();
         }
-        console.log('grid setting', setting);
         const settingString = setting.value_s;
         try {
           const {

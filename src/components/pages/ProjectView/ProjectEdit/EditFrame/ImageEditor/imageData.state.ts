@@ -41,7 +41,7 @@ const imageDataState = (
   dataState: leafI,
   contentData: ImageData, // found from the image.forContent call made in the datastore.frameInfo() method;
   content: Content) => {
-  console.log('imageDataState: contentData = ', contentData, 'content = ', content);
+
   const $value = {
     width: 0,
     height: 0,
@@ -73,9 +73,8 @@ const imageDataState = (
         onFileChange(imageState: leafI,
                      e: MouseEvent, { files }: { files: File[] }) {
           const file = files[0];
-          console.log('onFileChanged: file is', file);
+
           if (!file) {
-            console.log('onFileChanged: no file');
             imageState.setMeta('fileObj', null, true);
             imageState.setMeta('fileReader', null, true);
             return;
@@ -131,7 +130,7 @@ const imageDataState = (
           try {
             const url = await getImageUrl(id, project_id);
             const displayImage = imageState.getMeta('displayImage');
-            console.log('displayImage: ', displayImage, 'url:', url, 'state: ', imageState);
+
             if (displayImage && url) {
               displayImage.current.src = url;
             }
@@ -157,7 +156,6 @@ const imageDataState = (
             saved
           };
           const imageStore = dataState.child('images')!;
-          console.log('saving ', newImageContent, 'to', id);
           imageStore.do.add(newImageContent, id);
           await imageStore.do.save(id);
           if (syncSize && width && height && saved) {

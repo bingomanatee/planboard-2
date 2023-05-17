@@ -37,7 +37,6 @@ export default memo(function ProjectView(props: ProjectViewProps) {
         localState.do.initNavMenu();
       });
       return () => {
-        console.log('--- ending listeners');
         window.removeEventListener('keydown', state.do.keyDown);
         window.removeEventListener('keyup', state.do.keyUp);
         containerRef.current?.removeEventListener('mousedown', localState.do.mouseDown);
@@ -65,30 +64,36 @@ export default memo(function ProjectView(props: ProjectViewProps) {
     )
   }
 
+  const ready = loadState === 'finished' || loadState === 'loaded';
   return (
     <ProjectViewStateContext.Provider value={state}>
-        <div className={styles.container} ref={containerRef}>
-          <div className={styles.frameAnchor} style={anchorStyle}>
-            {loadState === 'finished' || loadState === 'loaded' ? <ProjectGrid /> : null}
-          {loadState === 'finished' || loadState === 'loaded' ? <FramesView projectId={props.id}/> : null}
-          {mouseMode === 'drawing-frame' ? (
-            <Suspense loading={<Spinner/>}>
-              <NewFrame projectState={state}/>
-            </Suspense>
-          ) : null
-          }
-          {showMove ? <MoveItem projectState={state}/> : null}
-          {showMove ? <SizeItem projectState={state}/> : null}
-            <ErrorTrapper boundry={"editItem"}>
-              {editMode ? (
-                <Suspense fallback={<Spinner/>}>
-                  <ProjectEdit closeTrigger={() => state.do.closeEdit()} editMode={editMode} />
+      <div className={styles.container} ref={containerRef}>
+        <div className={styles.frameAnchor} style={anchorStyle}>
+          {ready ? (
+            <>
+              <ProjectGrid/>
+             <FramesView projectId={props.id}/>
+              {mouseMode === 'drawing-frame' ? (
+                <Suspense loading={<Spinner/>}>
+                  <NewFrame projectState={state}/>
                 </Suspense>
-              ) : null}
-            </ErrorTrapper>
+              ) : null
+              }
+              {showMove ? <MoveItem projectState={state}/> : null}
+              {showMove ? <SizeItem projectState={state}/> : null}
+              <ErrorTrapper boundry={"editItem"}>
+                {editMode ? (
+                  <Suspense fallback={<Spinner/>}>
+                    <ProjectEdit closeTrigger={() => state.do.closeEdit()} editMode={editMode}/>
+                  </Suspense>
+                ) : null}
+              </ErrorTrapper>
+            </>
+          ) : null}
+
         </div>
-          {loadState === 'finished' || loadState === 'loaded' ?<LoadStatePrompt state={state}/> : null}
-        </div>
+        {ready ? <LoadStatePrompt state={state}/> : null}
+      </div>
     </ProjectViewStateContext.Provider>
   );
 });

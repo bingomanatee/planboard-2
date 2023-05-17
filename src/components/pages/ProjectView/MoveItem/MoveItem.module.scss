@@ -5,8 +5,6 @@
   height: 100%;
   position: absolute;
   overflow: visible;
-  @include no-select();
-  pointer-events: none;
   z-index: 100000000;
 
   .move-widget {
@@ -15,16 +13,22 @@
     position: absolute;
     overflow: visible;
     .move-widget-icon-container {
-      pointer-events: all !important;
       position: absolute;
       width: 30px;
       height: 30px;
       img {
         position: absolute;
-        user-drag: none;
-        -webkit-user-drag: none;
         left: -15px;
         top: -15px;
+      }
+      .mouse-overlay {
+        pointer-events: all !important;
+        position: absolute;
+        background-color: rgba(200,0,0,0.25);
+        left: -15px;
+        top: -15px;
+        width: 30px;
+        height: 30px;
       }
     }
   }

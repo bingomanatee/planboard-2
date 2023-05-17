@@ -10,6 +10,7 @@ import MarkdownIcon from '~/components/icons/MarkdownIcon'
 import ImageIcon from '~/components/icons/ImageIcon'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
+import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
 
 type ContentPromptProps = {
   frameId: string,
@@ -43,10 +44,16 @@ function ContentChoiceIcon(props: ContentChoiceIconProps) {
 }
 
 export default function ContentPrompt(props: ContentPromptProps) {
+  const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
   const {dataState} = useContext<DataStateContextValue>(DataStateContext)
-  const [value, state] = useForest([stateFactory, props, dataState]);
+  const [value, state] = useForest([stateFactory, props, dataState, projectState]);
 
-  const { showOptions } = value;
+  const { showOptions, closed } = value;
+
+  if (closed){
+    setTimeout(state.do.reopen);
+    return null;
+  }
 
   return <div className={styles.container}>
     <BoxColumn align="center"

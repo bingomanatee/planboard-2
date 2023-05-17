@@ -6,20 +6,23 @@ import { useContext, useRef } from 'react'
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
 import Img from '~/components/Img'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
+import { Stack } from 'grommet'
 
 function MoveWidget({ state }: { state: leafI }) {
   return <div className={styles['move-widget-icon-container']}
               data-role="move-widget-icon-container"
               style={state.$.moveWidgetStyle()}
-              onMouseDown={(e) => {
-                console.log('moveWidget: start=====')
-                state.do.startMoveDrag(e);
-              }}
-  ><Img src="/img/icons/widget-move.svg"
-        data-role="widget-move-icon"
-        data-mouse-responder="responder"
-        width={30}
-        height={30}/></div>
+
+  >
+    <Img src="/img/icons/widget-move.svg"
+         data-role="widget-move-icon" width={30} height={30}/>
+    <div className={styles['mouse-overlay']}
+         data-mouse-responder="responder"
+         onMouseDown={(e) => {
+           state.do.startMoveDrag(e);
+         }}>
+    </div>
+  </div>
 }
 
 function Overlay({ state }: { state: leafI }) {

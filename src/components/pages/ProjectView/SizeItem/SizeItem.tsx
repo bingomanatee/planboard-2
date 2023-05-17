@@ -27,7 +27,6 @@ function SizeWidget({ state }: { state: leafI }) {
 }
 
 function Overlay({ state }: { state: leafI }) {
-  console.log('overlayStyle: ', state.$.overlayStyle());
   return <div className={styles.overlay} style={state.$.overlayStyle()}>
     <code>
       {JSON.stringify(state.$.overlayStyle(), undefined, 2)}

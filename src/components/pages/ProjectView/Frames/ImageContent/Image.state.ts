@@ -28,7 +28,8 @@ const ImageState = (props, dataStore) => {
       },
       async loadContent(store: leafI) {
         if (!content?.id) {
-          throw new Error('loadContent -- no id in content', content);
+          console.warn('loadContent -- no id in content', content);
+          return;
         }
         let imageRecord = await dataStore.child('images')!
           .do.forContent(content.id); // upsterts -- there should  be no scenario in which it doesn't exist
