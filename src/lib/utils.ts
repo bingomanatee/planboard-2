@@ -1,6 +1,7 @@
 import { generalObj } from '@wonderlandlabs/collect/lib/types'
 import { c } from '@wonderlandlabs/collect'
 import { Vector2 } from 'three'
+import { AsyncResponse } from '~/lib/store/types'
 
 export function numToPx(value: number | string): string {
   if (typeof value === 'number') {
@@ -37,4 +38,22 @@ export const isMouseResponder = (target: HTMLElement) => {
     current = current.parentElement;
   }
   return false;
+}
+
+export async function dataOrThrow(p: Promise<AsyncResponse>) {
+  const {data, error} = await p;
+  if (error) throw error;
+  return data;
+}
+
+export function clickOnId(id) {
+  const target = window.document.getElementById(id);
+  if (target) {
+    const clickEvent = new MouseEvent("click", {
+      "view": window,
+      "bubbles": true,
+      "cancelable": false
+    });
+    target.dispatchEvent(clickEvent);
+  }
 }

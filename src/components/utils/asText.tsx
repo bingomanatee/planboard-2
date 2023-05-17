@@ -1,6 +1,6 @@
 import { Text } from 'grommet'
 
-const asText = (item) => (
-  typeof item === 'string' ? <Text>{item}</Text> : item
+const asText = (item, props={}) => (
+  typeof item === 'string' ? <Text {...props}>{item}</Text> : item
 );
 export default asText

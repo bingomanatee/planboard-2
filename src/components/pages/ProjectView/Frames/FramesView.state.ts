@@ -26,7 +26,7 @@ const FramesViewState = (props, projectState) => {
         console.log('initiating move')
         projectState.do.initMove(info);
       },
-      cancelEdit(state: leafI) {
+      closeEdit(state: leafI) {
         state.do.set_editItem(null);
       },
       float(leaf: leafI, id) {

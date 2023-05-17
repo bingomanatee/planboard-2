@@ -17,14 +17,14 @@ import dynamic from 'next/dynamic'
 import { ProjectViewStateContext } from '~/components/pages/ProjectView/ProjectView'
 import { triggerFn } from '~/types'
 
-type EditFrameProps = { id: string, onCancel: triggerFn }
+type EditFrameProps = { id: string, closeTrigger: triggerFn }
 
 const DataEditor = new Map();
 
 export default function EditFrame(props: EditFrameProps) {
   const { dataState } = useContext<DataStateContextValue>(DataStateContext)
   const projectState = useContext(ProjectViewStateContext);
-  const [value, state] = useForest([stateFactory, dataState, props.onCancel],
+  const [value, state] = useForest([stateFactory, dataState, props.closeTrigger],
     (localState) => {
       localState.do.load(props.id);
     });
@@ -67,9 +67,9 @@ export default function EditFrame(props: EditFrameProps) {
           <FrameEditor frameState={state.child('frame')!}/>
           {
             DataEditorComponent && state.child('contentData') ? (
-              <Suspense fallback={<Spinner />}>
-                <DataEditorComponent frameState={state} />
-            </Suspense>) : null
+              <Suspense fallback={<Spinner/>}>
+                <DataEditorComponent frameState={state}/>
+              </Suspense>) : null
           }
         </CardBody>
         <CardFooter justify="between">
@@ -78,5 +78,6 @@ export default function EditFrame(props: EditFrameProps) {
           <GoButton onClick={state.do.commit}>Update Frame</GoButton>
         </CardFooter>
       </Card>
-    </BoxColumn>);
+    </BoxColumn>
+  );
 }

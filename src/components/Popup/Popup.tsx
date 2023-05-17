@@ -37,13 +37,13 @@ export default function Popup(props: { closed?: boolean, observer?: obsTrigger }
 
   return (
     <Layer plain full animate={false}>
-        <div className={styles.cover} onClick={state.do.hideModal}
-             onMouseDown={terminate}  onMouseUp={terminate}
-        >
-          <PopupContext.Provider value={{ popupState: state }}>
+      <div className={styles.cover} onClick={state.do.hideModal}
+           onMouseDown={terminate} onMouseUp={terminate}
+      >
+        <PopupContext.Provider value={{ popupState: state }}>
             {props.children}
-          </PopupContext.Provider>
-        </div>
+        </PopupContext.Provider>
+      </div>
     </Layer>
   )
 }

@@ -2,11 +2,13 @@ import { createStore } from '~/lib/store/data/createStore'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { Vector2 } from 'three'
 import { c } from '@wonderlandlabs/collect'
-import { StoreRecord } from '~/lib/store/types'
+import { Engine, StoreRecord } from '~/lib/store/types'
 import { Frame } from '~/types'
+import { dataOrThrow } from '~/lib/utils'
 
-const framesFactory = (store) => {
-  createStore(store, 'frames', [
+const framesFactory = (store: leafI, engine: Engine) => {
+  const NAME = 'frames';
+  createStore(store, NAME, [
     { name: 'id', type: 'string', primary: true },
     { name: 'name', type: 'string', optional: true },
     { name: 'created_at', type: 'string', optional: true },
@@ -87,6 +89,13 @@ const framesFactory = (store) => {
         const content = { ...frameRecord.content, left, top };
         state.do.add(content, frameId);
         return state.do.save(frameId);
+      },
+      async loadForProject(state: leafI, id: string) {
+        const data = await dataOrThrow(engine.query(NAME, [
+          { field: 'project_id', value: id }
+        ]));
+        state.do.addMany(data, true);
+        return frames;
       }
     }
   });

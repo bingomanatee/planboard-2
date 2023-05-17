@@ -20,9 +20,14 @@ const SizeItemState = (props: SizeItemProps, dataState: leafI) => {
       size(state: leafI) {
         const { left, top, width, height } = state.value.position;
         const { sizePosCurrent } = state.value;
-
-        const newWidth = sizePosCurrent ? sizePosCurrent.x - left : width;
-        const newHeight = sizePosCurrent ? sizePosCurrent.y - top : height;
+        if (!sizePosCurrent) {
+          return { width, height };
+        }
+        const relPos = sizePosCurrent
+          .clone()
+          .sub(projectState.value.screenOffset);
+        const newWidth = relPos.x - left;
+        const newHeight = relPos.y - top;
         return { width: newWidth, height: newHeight };
       },
 

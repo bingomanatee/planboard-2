@@ -16,6 +16,7 @@ export type Engine = {
   addStore: (collection: string, schema?: FieldDef[]) => void
   fetch: (collection: string, id: any) => Promise<AsyncResponse>
   query: (collection: string, conditions: FieldQuery[]) => Promise<AsyncResponse>
+  deleteIds: (ids: any[]) => Promise<void>;
   initialize() : void
 }
 

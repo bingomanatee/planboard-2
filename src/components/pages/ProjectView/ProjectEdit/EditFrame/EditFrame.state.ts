@@ -1,7 +1,7 @@
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import imageDataState from './ImageEditor/imageData.state';
 
-const EditFrameState = (dataState, onCancel) => {
+const EditFrameState = (dataState, closeTrigger) => {
     return {
       $value: {},
       selectors: {},
@@ -40,7 +40,7 @@ const EditFrameState = (dataState, onCancel) => {
           }
         },
         cancel(state: leafI) {
-          onCancel();
+          closeTrigger();
         },
         async commit(state: leafI) {
           const { frame, content, contentData } = state.value;
@@ -52,12 +52,12 @@ const EditFrameState = (dataState, onCancel) => {
           } else {
             console.warn('no contentData commit', contentDataState);
           }
-          onCancel();
+          closeTrigger();
         },
         delete(state: leafI) {
           if (state.child('frame')?.value.id) {
             dataState.do.deleteFrame(state.child('frame')?.value.id);
-            onCancel();
+            closeTrigger();
           }
         }
       },

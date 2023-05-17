@@ -7,6 +7,7 @@ import framesFactory from '~/lib/store/data/stores/frames.factory'
 import contentFactory from '~/lib/store/data/stores/content.factory'
 import markdownFactory from '~/lib/store/data/stores/markdown.factory'
 import imagesFactory from '~/lib/store/data/stores/images.factory'
+import settingsFactory from '~/lib/store/data/stores/settings.factory'
 
 export type FrameInfo = {
   frame: Frame,
@@ -82,39 +83,15 @@ const dataStoreFactory = (engine: Engine) => {
         }
       },
       async loadProject(leaf: leafI, id: string) {
-        const engine = leaf.getMeta('engine');
-        const { data, error } = await engine.query('projects', [
-          { field: 'id', value: id },
-          { field: 'user_id', value: leaf.$.userId() }
-        ]);
-        if (error) {
-          throw error;
-        }
+        const [project, frames, content] = await Promise.all([
+          leaf.child('projects')!.do.loadProjectRecord(id),
+          leaf.child('frames')!.do.loadForProject(id),
+          leaf.child('content')!.do.loadForProject(id),
+          leaf.child('settings')!.do.loadForProject(id),
+        ])
 
-        const [project] = data;
-        if (!project) {
-          throw new Error('cannot find project ' + id + ' for user ' + leaf.$.userId())
-        }
-        leaf.child('projects')!.do.add(project);
 
-        const { data: dataFrames, error: errorF } = await engine.query('frames', [
-          { field: 'project_id', value: id }
-        ]);
-
-        if (errorF) {
-          console.warn('frame load error', errorF)
-          throw errorF;
-        }
-        leaf.child('frames')!.do.addMany(dataFrames, true);
-
-        const { data: dataContent, error: errorC } = await engine.query('content', [
-          { field: 'project_id', value: id }
-        ]);
-        if (errorC) {
-          throw errorC;
-        }
-        leaf.child('content')!.do.addMany(dataContent, true);
-        return { project, frames: dataFrames, content: dataContent };
+        return { project, frames, content };
       },
       async updateFrame(leaf: leafI, frame: Frame, content: Content, contentData: any) {
         const frameStore = leaf.child('frames')!;
@@ -152,11 +129,12 @@ const dataStoreFactory = (engine: Engine) => {
       }
     }
   });
-  projectsFactory(dataStore);
-  framesFactory(dataStore);
-  contentFactory(dataStore);
-  markdownFactory(dataStore);
-  imagesFactory(dataStore);
+  projectsFactory(dataStore, engine);
+  framesFactory(dataStore, engine);
+  contentFactory(dataStore, engine);
+  markdownFactory(dataStore, engine);
+  imagesFactory(dataStore, engine);
+  settingsFactory(dataStore, engine);
   engine.initialize();
   return dataStore;
 }

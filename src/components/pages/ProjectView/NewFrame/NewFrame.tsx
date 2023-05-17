@@ -29,20 +29,9 @@ export default function NewFrame(props: NewFrameProps) {
       return {};
     }
 
-    const coords = [startPoint, endPoint]
-      .filter(a => !!a)
-      .reduce(
-        //@ignore-type
-        (coords: { x: number[], y: number[] }, point) => {
-          if (point) {
-            coords.x.push(point.x);
-            coords.y.push(point.y);
-          }
-          return coords
-        }, { x: [], y: [] });
 
-    const first = new Vector2(Math.min(...coords.x), Math.min(...coords.y));
-    const second = new Vector2(Math.max(...coords.x), Math.max(...coords.y));
+    const first = new Vector2(Math.min(startPoint.x, endPoint.x), Math.min(startPoint.y, endPoint.y));
+    const second = new Vector2(Math.max(startPoint.x, endPoint.x), Math.max(startPoint.y, endPoint.y));
 
     const firstPx = propsToPx(first);
     const sizePx = propsToPx(first.subVectors(second, first));
@@ -50,9 +39,8 @@ export default function NewFrame(props: NewFrameProps) {
     return { top: firstPx.y, left: firstPx.x, width: sizePx.x, height: sizePx.y };
   }, [startPoint, endPoint])
 
-  console.log('newFrame: ', style);
-
-  return (<BoxRow border={{ color: 'new-frame-border', size: '2px' }}
-                  className={styles.container} style={style}>
-  </BoxRow>);
+  return (<div className={styles.container} style={style}>
+    <BoxRow border={{ color: 'new-frame-border', size: '2px' }} fill>
+    </BoxRow>
+  </div>);
 }

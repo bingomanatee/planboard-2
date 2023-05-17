@@ -17,6 +17,7 @@ export type TargetData = { type: string, id: string };
 export type ProjectViewValue = {
   loadError: any,
   project: Project | null,
+  projectId: string,
   frames: Frame[] | null,
   keyData: KeyData | null,
   loadState: LoadState,
@@ -27,6 +28,8 @@ export type ProjectViewValue = {
   moveItem: TargetData | null;
   screenOffset: Vector2;
   screenOffsetDelta: Vector2 | null;
+  settings: Map<string, any>;
+  editMode: string | null;
 }
 
 const META_MOVE = 'handleMouseMove';
@@ -38,10 +41,11 @@ const MOUSE_UP = 'mouseup';
 
 const MODE_DRAG_SCREEN = 'dragging-screen'
 
-const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
+const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef) => {
   const initial: ProjectViewValue = {
     loadError: null,
     project: null,
+    projectId: id,
     frames: null,
     loadState: 'start',
     keyData: null,
@@ -51,7 +55,9 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
     editType: null,
     moveItem: null,
     screenOffset: new Vector2(0, 0),
-    screenOffsetDelta: null
+    screenOffsetDelta: null,
+    settings: new Map(),
+    editMode: null
   };
 
   return {
@@ -92,11 +98,27 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
       id, // id of the current project
     },
     actions: {
+      editGrid(state: typedLeaf<ProjectViewValue>) {
+        state.do.set_editMode('grid');
+      },
+      initNavMenu(state: typedLeaf<ProjectViewValue>) {
+        globalState.do.clearMenuItems();
+        const items = [
+          {
+            type: 'button', label: 'grid', props: {
+              onClick: state.do.editGrid,
+              plain: true
+            }
+          }
+        ]
+        globalState.do.addMenuItems(items);
+      },
       editItem(state: typedLeaf<ProjectViewValue>, editType) {
         state.do.set_editType(editType || null);
       },
-      cancelEdit(state: typedLeaf<ProjectViewValue>) {
+      closeEdit(state: typedLeaf<ProjectViewValue>) {
         state.do.set_editType(null);
+        state.do.set_editMode(null);
       },
       finishFrame(state: typedLeaf<ProjectViewValue>, skipCreate) {
         const { startPoint, endPoint } = state.value;
@@ -238,7 +260,21 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
       },
       load(state: leafI) {
         state.do.set_loadState('loading');
-        state.do.doLoad();
+        return state.do.doLoad();
+      },
+      async doLoad(state: leafI) {
+        try {
+          const loaded = await dataState.do.loadProject(id);
+          const { project, frames, content, settings } = loaded;
+          state.do.set_project(project);
+          await state.do.set_frames(frames);
+          state.do.set_settings(settings);
+          state.do.set_loadState('loaded');
+        } catch (err) {
+          console.warn('load error:', err);
+          state.do.set_loadError(err.message);
+          state.do.set_loadState('error');
+        }
       },
       claimProjectMode(state: leafI, token) {
         if (state.value.mouseMode || !token) {
@@ -254,19 +290,6 @@ const ProjectViewState = ({ id }, dataState: leafI, backRef) => {
           console.warn('releaseProjectMode:: mouseMode', state.value.mouseMode, ' !== ', token);
         }
       },
-      async doLoad(state: leafI) {
-        try {
-          const loaded = await dataState.do.loadProject(id);
-          const { project, frames, content } = loaded;
-          state.do.set_project(project);
-          state.do.set_frames(frames);
-          state.do.set_loadState('loaded');
-        } catch (err) {
-          console.warn('load error:', err);
-          state.do.set_loadError(err.message);
-          state.do.set_loadState('error');
-        }
-      }
     }
   };
 };

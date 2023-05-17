@@ -1,9 +1,10 @@
 import { createStore } from '~/lib/store/data/createStore'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { Content, MarkdownData } from '~/types'
+import { Engine } from '~/lib/store/types'
 
 
-const contentFactory = (dataStore) => {
+const contentFactory = (dataStore: leafI, engine: Engine) => {
   createStore(dataStore, 'markdown', [
     { name: 'id', type: 'string', primary: true },
     { name: 'title', type: 'string' },
@@ -27,7 +28,6 @@ const contentFactory = (dataStore) => {
         }
 
         // check the database
-        const engine = store.parent!.getMeta('engine');
         const { data, error } = await engine.query(
           'markdown',
           [
@@ -78,7 +78,6 @@ const contentFactory = (dataStore) => {
       async deleteForContent(store: leafI, contentId: string) {
         const items = store.do.find([{ field: 'content_id', value: contentId }]);
         if (!items.length) return;
-        const engine = dataStore.getMeta('engine');
         // delete the remote values
         for (const imageRecord of items) {
           await engine.do.deleteId('markdown', imageRecord.id);

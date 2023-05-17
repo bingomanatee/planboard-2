@@ -55,7 +55,7 @@ export default function FramesView(props: FramesViewProps) {
     <ErrorTrapper boundry={"editItem"}>
       {editItem ? (
         <Suspense fallback={<Spinner/>}>
-          <ProjectEdit onCancel={() => state.do.cancelEdit()} editItem={editItem}/>
+          <ProjectEdit closeTrigger={() => state.do.closeEdit()} editItem={editItem}/>
         </Suspense>
       ) : null}
     </ErrorTrapper>

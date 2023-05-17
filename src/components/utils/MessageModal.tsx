@@ -6,28 +6,31 @@ import { BoxColumn } from '~/components/BoxVariants'
 import styles from '~/components/Popup/Popup.module.scss'
 import PopupCardHeader from '~/components/Popup/PopupCardHeader'
 import BackButton from '~/components/ActionButton/BackButton'
+import MouseActionTerminator from '~/components/MouseActionTerminator'
 
 const pad = { horizontal: 'small', vertical: 'xsmall' };
 
-export default function MessageModal({heading, children, cancelLabel = 'Close'}) {
+export default function MessageModal({ heading, children, cancelLabel = 'Close' }) {
   const { popupState } = useContext(PopupContext);
   const size = useContext(ResponsiveContext);
   return (
     <BoxColumn fill align="center" justify="center">
-      <Card margin="large" background="background-back"
-            width={size === 'large' ? { max: '800px', min: '50vw' } : '100%'}
-            className={styles.popupCard}
-      >
-        {heading ? ( <PopupCardHeader>
-          <Heading justify="stretch" textAlign="center" color="text-reverse" level={2}>{heading}</Heading>
-        </PopupCardHeader>) : null}
-        <CardBody pad={pad} fill="horizontal">
-          {children}
-        </CardBody>
-        <CardFooter justify="center">
-          <BackButton onClick={popupState.do.hideModal}>{cancelLabel}</BackButton>
-        </CardFooter>
-      </Card>
+      <MouseActionTerminator>
+        <Card margin="large" background="background-back"
+              width={size === 'large' ? { max: '800px', min: '50vw' } : '100%'}
+              className={styles.popupCard}
+        >
+          {heading ? (<PopupCardHeader>
+            <Heading justify="stretch" textAlign="center" color="text-reverse" level={2}>{heading}</Heading>
+          </PopupCardHeader>) : null}
+          <CardBody pad={pad} fill="horizontal">
+            {children}
+          </CardBody>
+          <CardFooter justify="center">
+            <BackButton onClick={popupState.do.hideModal}>{cancelLabel}</BackButton>
+          </CardFooter>
+        </Card>
+      </MouseActionTerminator>
     </BoxColumn>
   )
 }

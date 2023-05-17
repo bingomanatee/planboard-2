@@ -3,9 +3,10 @@ import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { Content, ImageData } from '~/types'
 import { isEqual } from 'lodash'
 import { without } from '~/lib/utils'
+import { Engine } from '~/lib/store/types'
 
 
-const contentFactory = (dataStore) => {
+const contentFactory = (dataStore: leafI, engine: Engine) => {
   createStore(dataStore, 'images', [
     { name: 'id', type: 'string', primary: true },
     { name: 'name', type: 'string', optional: true },
@@ -31,7 +32,6 @@ const contentFactory = (dataStore) => {
         }
 
         // check the database
-        const engine = dataStore.getMeta('engine');
         const { data, error } = await engine.query(
           'images',
           [
@@ -95,7 +95,6 @@ const contentFactory = (dataStore) => {
       async deleteForContent(store: leafI, contentId: string) {
         const items = store.do.find([{ field: 'content_id', value: contentId }]);
         if (!items.length) return;
-        const engine = dataStore.getMeta('engine');
         // delete the remote values
         for (const imageRecord of items) {
           await engine.do.deleteId('images', imageRecord.id);

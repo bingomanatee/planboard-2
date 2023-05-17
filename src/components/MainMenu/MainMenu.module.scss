@@ -1,0 +1,12 @@
+
+.container {
+  .menuButton {
+    display: block;
+    padding: 2px 0.5em;
+    font-weight: bold;
+    &:hover {
+      background-color: lightgray;
+    }
+  }
+}
+

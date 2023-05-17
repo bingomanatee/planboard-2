@@ -24,14 +24,14 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
           return size;
         }
         const offset = new Vector2(0, 0)
-          .sub(movePosStart).add(movePosCurrent);
+          .sub(movePosStart).add(movePosCurrent).sub(projectState.value.screenOffset)
         const style = { top: offset.y, left: offset.x };
         return { ...propsToPx(style), ...size };
       },
       moveWidgetStyle(state: leafI) {
         console.log('move-widget-loaded')
         if (!state.value.loaded) {
-          return {overflow: 'auto'};
+          return { overflow: 'auto' };
         }
         const { left, top } = state.value.position;
         return propsToPx({ left, top });
@@ -40,8 +40,7 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
     children: {
       position: {
         $value: { top: 0, left: 0, width: 0, height: 0 },
-        selectors: {
-        }
+        selectors: {}
       }
     },
     actions: {
@@ -77,12 +76,15 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
         state.do.set_movePosCurrent(new Vector2(e.x, e.y));
       },
 
-      moveFrame(state: leafI){
+      moveFrame(state: leafI) {
         const { id } = state.value.target;
         const { movePosCurrent } = state.value;
-
-        const left =  movePosCurrent.x;
-        const top =  movePosCurrent.y;
+        const final = movePosCurrent
+          .clone()
+          .sub(projectState.value.screenOffset)
+          .round();
+        const left = final.x;
+        const top = final.y;
         dataState.child('frames')!.do.setFramePos(id, left, top);
       },
       init(state: leafI, div: HTMLDivElement) {

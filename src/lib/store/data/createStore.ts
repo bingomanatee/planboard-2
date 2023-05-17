@@ -5,7 +5,7 @@ import validateData from '~/lib/store/validateData'
 import { v4 } from 'uuid'
 import { isEqual } from 'lodash'
 
-export function createStore(dataStore, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
+export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
   const actions = config?.actions || {};
   const selectors = config?.selectors || {};
   const engine = dataStore.getMeta('engine');

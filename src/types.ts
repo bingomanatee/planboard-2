@@ -29,3 +29,12 @@ export type MarkdownData = {title: string, text: string, id: string};
 export type ImageData = {crop: string, scale: number, name?: string, id: string, saved: boolean, syncSize: boolean};
 export type Content = {frame_id: string, project_id: string, type: string, id: string}
 export type generalObj = Record<string, any>
+
+export type Setting = {
+  id : string,
+  name: string,
+  type: 'string' | 'number',
+  project_id: string,
+  value_s?: string | null,
+  value_n?: number | null;
+}
