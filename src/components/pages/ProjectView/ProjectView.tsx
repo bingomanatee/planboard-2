@@ -1,4 +1,4 @@
-import { memo, useContext, Suspense, useRef, createContext, useMemo } from 'react';
+import { memo, useContext, Suspense, useRef, createContext, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './ProjectView.module.scss';
 import stateFactory, { ProjectViewValue } from './ProjectView.state.ts';
@@ -13,6 +13,7 @@ import SizeItem from '~/components/pages/ProjectView/SizeItem/SizeItem'
 import { propsToPx } from '~/lib/utils'
 import ErrorTrapper from '~/components/ErrorTrapper'
 import ProjectGrid from '~/components/pages/ProjectView/ProjectGrid/ProjectGrid'
+import { once } from 'lodash'
 
 let NewFrame = null;
 type ProjectViewProps = { id: string }
@@ -28,20 +29,16 @@ export default memo(function ProjectView(props: ProjectViewProps) {
 
   const containerRef = useRef(null);
 
-  const [value, state] = useForest<ProjectViewValue>([stateFactory, props, dataState, globalState, containerRef],
-    (localState) => {
-      localState.do.load().then(() => {
-        window.addEventListener('keydown', state.do.keyDown);
-        window.addEventListener('keyup', state.do.keyUp);
-        containerRef.current.addEventListener('mousedown', localState.do.mouseDown);
-        localState.do.initNavMenu();
-      });
-      return () => {
-        window.removeEventListener('keydown', state.do.keyDown);
-        window.removeEventListener('keyup', state.do.keyUp);
-        containerRef.current?.removeEventListener('mousedown', localState.do.mouseDown);
-      }
-    });
+  const onCreate = useCallback((localState) => {
+    localState.do.initNavMenu();
+    localState.do.load(props.id);
+    localState.do.initEvents(window);
+    return localState.$.clearSubs;
+  }, [props.id])
+
+
+  const [value, state] = useForest<ProjectViewValue>([stateFactory, props.id, dataState, globalState, containerRef],
+    onCreate);
   const { mouseMode, loadState, screenOffset, screenOffsetDelta, moveItem, editMode } = value;
 
   if (mouseMode === 'drawing-frame' && !NewFrame) {
@@ -72,7 +69,7 @@ export default memo(function ProjectView(props: ProjectViewProps) {
           {ready ? (
             <>
               <ProjectGrid/>
-             <FramesView projectId={props.id}/>
+              <FramesView projectId={props.id}/>
               {mouseMode === 'drawing-frame' ? (
                 <Suspense loading={<Spinner/>}>
                   <NewFrame projectState={state}/>

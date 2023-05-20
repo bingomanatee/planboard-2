@@ -17,6 +17,7 @@ export default function ProjectGrid(props: ProjectGridProps) {
   const [value, state] = useForest([stateFactory, props, dataState, projectState.value.projectId],
     (localState) => {
       const settings = dataState.child('settings')!;
+      // every time the settings change, load the grid settings.
       const sub = settings.select((gridSetting?: Setting) => {
         try {
           localState.do.loadSetting(gridSetting);
@@ -24,7 +25,6 @@ export default function ProjectGrid(props: ProjectGridProps) {
           console.log('PGSE : ', e);
         }
       }, () => {
-        // every time the settings change, find the grid settings.
         //@TODO: leverage RxJS more efficiently
         try {
           const [gridSetting] = settings.do.find([

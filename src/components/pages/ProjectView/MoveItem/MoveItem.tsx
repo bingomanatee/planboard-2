@@ -12,16 +12,13 @@ function MoveWidget({ state }: { state: leafI }) {
   return <div className={styles['move-widget-icon-container']}
               data-role="move-widget-icon-container"
               style={state.$.moveWidgetStyle()}
-
+              data-mouse-responder="responder"
+              onMouseDown={(e) => {
+                state.do.startMoveDrag(e);
+              }}
   >
     <Img src="/img/icons/widget-move.svg"
          data-role="widget-move-icon" width={30} height={30}/>
-    <div className={styles['mouse-overlay']}
-         data-mouse-responder="responder"
-         onMouseDown={(e) => {
-           state.do.startMoveDrag(e);
-         }}>
-    </div>
   </div>
 }
 

@@ -3,6 +3,8 @@ import { isEqual } from 'lodash'
 import { Vector2 } from 'three'
 import { Frame, Project, triggerFn } from '~/types'
 import { isMouseResponder, toPoint } from '~/lib/utils'
+import EventQueue, { EQMouseEvent } from '~/lib/EventQueue'
+import { Subscriber } from 'rxjs'
 
 type KeyData = {
   key: string,
@@ -41,7 +43,7 @@ const MOUSE_UP = 'mouseup';
 
 const MODE_DRAG_SCREEN = 'dragging-screen'
 
-const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef) => {
+const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => {
   const initial: ProjectViewValue = {
     loadError: null,
     project: null,
@@ -63,6 +65,16 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
   return {
     $value: initial,
     selectors: {
+      addSub(state: leafI, sub: Subscriber<any>) {
+        let subs = state.getMeta('subs')?? [];
+        subs.push(sub);
+        state.setMeta('subs', subs, true);
+      },
+      clearSubs(state: leafI) {
+        let subs = state.getMeta('subs');
+        console.log('clearing subs:', subs);
+        subs?.forEach((sub) => sub.unsubscribe());
+      },
       // NOTE: it does NOT clear mouseMode.
       clearMouseListeners(state: leafI, ...rest) {
         const mouseUpListener = state.getMeta(META_UP);
@@ -96,6 +108,65 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
       id, // id of the current project
     },
     actions: {
+
+      updateEndPoint(state: leafI, event: EQMouseEvent) {
+        console.log('updateEndPoint:', event);
+        const ep = new Vector2(event.x, event.y);
+        console.log('end point is ', ep);
+        state.do.set_endPoint(ep);
+      },
+      initEvents(state: typedLeaf<ProjectViewValue>, window: Window) {
+        let eq;
+        if (state.getMeta('eq') ){
+          eq = state.getMeta('eq')
+        } else {
+           eq = new EventQueue(window);
+          state.setMeta('eq', eq);
+        }
+
+        let onMouseMove = null;
+        let onMouseUp = null;
+
+        const fObserver = eq.keyDownAndDragObserver('f');
+
+        const sub = fObserver.subscribe((event) => {
+          if (event) {
+            if (!(onMouseMove && state.value.mouseMode)) {
+              console.log('initializing drawing frame', event);
+              /*
+                if the mouse has not been claimed AND we don't have a mouseMove in process, point this and
+                all further events to drawFrame
+               */
+              state.do.claimProjectMode('drawing-frame');
+              state.do.set_startPoint(new Vector2(event.sx, event.sy));
+              state.do.updateEndPoint(event);
+
+              onMouseMove = state.do.updateEndPoint;
+              onMouseUp = state.do.finishFrame
+
+            } else {
+              if (onMouseMove) {
+                /*
+                two things we know for a fact:
+                1. we have claimed the current cycle
+                2. this is a secondary cycle -- we are in the process of drawing a mouse
+                 */
+                console.log('moving with ', event);
+                onMouseMove(event);
+              }
+            }
+          } else { // we are at the end of a cycle
+            if (onMouseUp) {
+              onMouseUp(event);
+            }
+            onMouseUp = null;
+            onMouseMove = null;
+          }
+        });
+
+        state.$.addSub(sub);
+      },
+
       editGrid(state: typedLeaf<ProjectViewValue>) {
         state.do.set_editMode('grid');
       },
@@ -118,17 +189,14 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
         state.do.set_editType(null);
         state.do.set_editMode(null);
       },
-      finishFrame(state: typedLeaf<ProjectViewValue>, skipCreate) {
+      finishFrame(state: typedLeaf<ProjectViewValue>) {
         const { startPoint, endPoint, screenOffset } = state.value;
         startPoint.sub(screenOffset);
         endPoint.sub(screenOffset);
-        state.$.clearMouseListeners();
         state.do.set_startPoint(null);
         state.do.set_endPoint(null);
         state.do.releaseProjectMode('drawing-frame');
-        if (!skipCreate) {
-          dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
-        }
+        dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
       },
       initMove(state: leafI, targetData: TargetData) {
         const { loadState, mouseMode, keyData } = state.value;
@@ -203,7 +271,7 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
           return state.do.startDraggingScreen(e);
         }
       },
-      startDraggingScreen(state: leafI, e: MouseEvent) {
+      startDraggingScreen(state: leafI, e: EQMouseEvent) {
         state.do.claimProjectMode(MODE_DRAG_SCREEN);
         const startPoint = toPoint(e);
         state.do.set_startPoint(startPoint);
@@ -227,27 +295,6 @@ const ProjectViewState = ({ id }, dataState: leafI, globalState: leafI, backRef)
         }
         window.addEventListener(MOUSE_MOVE, mouseMoveListener);
         window.addEventListener(MOUSE_UP, mouseUpListener);
-      },
-      startDrawingFrame(state: leafI, e: MouseEvent) {
-        state.do.claimProjectMode('drawing-frame');
-        const startPoint = toPoint(e);
-        state.do.set_startPoint(startPoint);
-
-        const mouseUpListener = (e2) => {
-          state.do.set_endPoint(toPoint(e2));
-          // if for some reason the start point is not the same one that began this cycle,
-          // do not save the frame data / add a new frame based on the points
-          state.do.finishFrame(!isEqual(startPoint, state.value.startPoint));
-        }
-
-        const mouseMoveListener = (e2) => {
-          if (isEqual(startPoint, state.value.startPoint)) {
-            state.do.set_endPoint(toPoint(e2));
-          } else { // some amodal error - stop the process.
-            state.$.clearListeners(mouseMoveListener, mouseUpListener);
-          }
-        }
-        state.$.addMouseListeners(mouseMoveListener, mouseUpListener);
       },
       keyDown(state: leafI, e: KeyboardEvent) {
         const { key, shiftKey, altKey } = e;

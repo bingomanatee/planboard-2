@@ -15,12 +15,6 @@ type NewFrameProps = {
 }
 
 export default function NewFrame(props: NewFrameProps) {
-  /*  const [state, value] = useForest([stateFactory, props],
-      (localState) => {
-      });
-
-    const {} = value;*/
-
   const { screenOffset, startPoint, endPoint }: Partial<ProjectViewValue> = useForestFiltered(props.projectState,
     ['startPoint', 'endPoint', 'projectState', 'screenOffset']);
 
@@ -36,7 +30,9 @@ export default function NewFrame(props: NewFrameProps) {
     const firstPx = propsToPx(first.clone().sub(screenOffset));
     const sizePx = propsToPx(first.subVectors(second, first));
 
-    return { top: firstPx.y, left: firstPx.x, width: sizePx.x, height: sizePx.y };
+    const style = { top: firstPx.y, left: firstPx.x, width: sizePx.x, height: sizePx.y };
+    console.log('newFrame style = ', style);
+    return style;
   }, [startPoint, endPoint])
 
   return (<div className={styles.container} style={style}>
