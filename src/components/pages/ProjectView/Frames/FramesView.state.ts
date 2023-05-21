@@ -29,12 +29,13 @@ const FramesViewState = (props, projectState) => {
         state.do.set_editItem(null);
       },
       float(leaf: leafI, id) {
+        console.log('floating ', id);
         const toggleFloat = leaf.getMeta('toggleFloat');
         if (typeof toggleFloat === 'function') {
           toggleFloat();
           leaf.setMeta('toggleFloat', null, true);
         }
-        leaf.do.set_floatId(id || null);
+        leaf.do.set_floatId(id ?? null);
       }
     }
   };

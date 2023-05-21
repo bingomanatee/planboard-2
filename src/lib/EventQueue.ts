@@ -69,7 +69,6 @@ class EventQueue {
     // console.log('EQ got keyEvent: ', ke.key)
     return this.mouseDownObs.pipe( // whenever we press mouse down
       filter((event) => {
-        console.log('mousedown with keys:', this.pressedKeys);
         return this.pressedKeys.has(key) && this.pressedKeys.size == 1 && !isMouseResponder(event.target);
       }),
       switchMap((downEvent) => {

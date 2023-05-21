@@ -1,3 +1,4 @@
+@import '~/styles/utils.scss';
 
 .container {
   position: absolute;
@@ -7,7 +8,9 @@
   padding: 4px;
   height: 26px;
   overflow: hidden;
+
   svg, svg * {
+    @include no-select();
     pointer-events: none;
   }
 }

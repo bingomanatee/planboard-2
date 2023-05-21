@@ -138,8 +138,8 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
               state.do.set_startPoint(new Vector2(event.sx, event.sy));
               state.do.updateEndPoint(event);
 
-              onMouseMove = state.do.screenMove;
-              onMouseUp = state.do.completeScreenMove;
+              onMouseMove = state.do.dragScreen;
+              onMouseUp = state.do.completeDragScreen;
 
             } else {
               if (onMouseMove) {
@@ -148,7 +148,6 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
                 1. we have claimed the current cycle
                 2. this is a secondary cycle -- we are in the process of drawing a mouse
                  */
-                console.log('moving with ', event);
                 onMouseMove(event);
               }
             }
@@ -164,12 +163,12 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         state.$.addSub(sub);
       },
 
-      screenMove(state: leafI, event: EQMouseEvent) {
+      dragScreen(state: leafI, event: EQMouseEvent) {
         state.do.updateEndPoint(event);
         const delta = state.value.endPoint.clone().sub(state.value.startPoint);
         state.do.set_screenOffsetDelta(delta);
       },
-      completeScreenMove(state: leafI) {
+      completeDragScreen(state: leafI) {
         state.do.set_screenOffset(
           state.value.screenOffset
             .clone()
@@ -208,7 +207,6 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
                 1. we have claimed the current cycle
                 2. this is a secondary cycle -- we are in the process of drawing a mouse
                  */
-                console.log('moving with ', event);
                 onMouseMove(event);
               }
             }

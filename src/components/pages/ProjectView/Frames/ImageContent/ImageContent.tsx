@@ -25,8 +25,7 @@ export default function ImageContent(props: ImageProps) {
     content = (
       <BoxColumn fill={true} align="center" justify="center">
         <Paragraph margin="medium">
-          We cannot find any image for this frame. Click the gear at the upper right to upload a new image for this
-          frame.
+         Click the gear at the upper right to choose an image.
         </Paragraph>
       </BoxColumn>
     )

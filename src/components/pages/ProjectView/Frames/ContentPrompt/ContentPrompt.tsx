@@ -11,10 +11,12 @@ import ImageIcon from '~/components/icons/ImageIcon'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
 import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
+import useForestFiltered from '~/lib/useForestFiltered'
 
 type ContentPromptProps = {
   frameId: string,
-  frame: Frame
+  frame: Frame,
+  frameState: leafI
 }
 
 const iconMap = new Map([
@@ -45,14 +47,25 @@ function ContentChoiceIcon(props: ContentChoiceIconProps) {
 
 export default function ContentPrompt(props: ContentPromptProps) {
   const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
-  const {dataState} = useContext<DataStateContextValue>(DataStateContext)
+  const { dataState } = useContext<DataStateContextValue>(DataStateContext)
   const [value, state] = useForest([stateFactory, props, dataState, projectState]);
 
-  const { showOptions, closed } = value;
+  const { show, closed } = value;
+  const { mouseMode } = useForestFiltered(projectState, ['mouseMode']);
 
-  if (closed){
+  const target = useMemo(() => {
+    return mouseMode ? null : window.document.getElementById(`frame-${props.frameId}`)
+  }, [mouseMode])
+
+  const { floatId } = useForestFiltered(props.frameState, ['floatId'])
+
+  if (closed) {
     setTimeout(state.do.reopen);
     return null;
+  }
+
+  if (floatId) {
+    console.log('floatId: ', floatId, 'frameId:', props.frameId)
   }
 
   return <div className={styles.container}>
@@ -67,7 +80,7 @@ export default function ContentPrompt(props: ContentPromptProps) {
            onClick={state.do.showOptions} width={40} height={40}/>
       <Text size="xsmall">Choose content</Text>
     </BoxColumn>
-    {showOptions && window.document.getElementById(`frame-${props.frameId}`) ?
+    {show && (!mouseMode) && (floatId === props.frameId) && target ?
       <Drop target={window.document.getElementById(`frame-${props.frameId}`)}
             align={align}
             style={{ zIndex: 100000 }}>
