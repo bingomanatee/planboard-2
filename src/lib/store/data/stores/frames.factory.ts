@@ -19,8 +19,10 @@ const framesFactory = (store: leafI, engine: Engine) => {
     { name: 'height', type: 'number' },
   ], {
     actions: {
-      createFrame(state: leafI, project_id, start: Vector2, end: Vector2) {
-        if (project_id && start && end) {
+      createFrame(state: leafI, project_id, p1: Vector2, p2: Vector2) {
+        if (project_id && p1 && p2) {
+          const start = new Vector2(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y));
+          const end = new Vector2(Math.max(p1.x, p2.x), Math.max(p1.y, p2.y));
           const order = c(state.value).getReduce((ord, store: StoreRecord<string, Frame>) => {
             if (store.content.order > ord) {
               return store.content.order;
@@ -40,7 +42,7 @@ const framesFactory = (store: leafI, engine: Engine) => {
           const record = state.do.add(newFrame);
           state.do.save(record.id);
         } else {
-          console.warn('missing data:', project_id, start, end);
+          console.warn('missing data:', project_id, p1, p2);
         }
       },
       async updateFrame(frState: leafI, frame: Frame) {
