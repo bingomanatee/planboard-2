@@ -1,6 +1,10 @@
-
+@import '~/styles/utils.scss';
 .container {
   position: absolute;
   width: 150vw;
   height: 150vh;
+  pointer-events: none;
+  img {
+    @include no-select();
+  }
 }

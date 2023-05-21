@@ -4,9 +4,10 @@ import helpText from '~/components/utils/helpText.json'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import useForestFiltered from '~/lib/useForestFiltered'
 import styles from './LoadStatePrompt.module.scss';
-import { Suspense, useContext } from 'react';
+import { Suspense, useContext, useEffect, useMemo, useState } from 'react';
 import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
 import MessageModal from '~/components/utils/MessageModal'
+import EventQueue from '~/lib/EventQueue'
 
 type LoadStatePromptProps = { state: leafI }
 
@@ -24,6 +25,24 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
   const { mouseMode, moveItem } = useForestFiltered(projectState, ['mouseMode', 'moveItem']);
 
   const { loadState, keyData } = useForestFiltered(state, ['keyData', 'loadState']);
+
+  const [currentKeys, setCC] = useState('')
+
+  const eq = useMemo<EventQueue>(() => projectState.getMeta('eq'), [projectState]);
+
+  useEffect(() => {
+      const sub = eq.keysObs.subscribe((keys) => {
+        const keyString = Array.from(keys).join('');
+        console.log('keyString:', keyString);
+          setCC(keyString);
+      });
+
+      return () => sub.unsubscribe();
+    },
+    [
+      eq
+    ]
+  );
 
   if (loadState === 'error') {
     return (
@@ -64,19 +83,17 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
     }
   }
 
-  if (keyData) {
-    switch (keyData.key) {
-      case  'f':
-        return (<FooterPrompt>
-          Mouse drag to create a Frame
-        </FooterPrompt>)
-        break;
-      case  ' ':
-        return (<FooterPrompt>
-          Mouse drag to move the diagram
-        </FooterPrompt>)
-        break;
-    }
+  switch (currentKeys) {
+    case  'f':
+      return (<FooterPrompt>
+        Mouse drag to create a Frame
+      </FooterPrompt>)
+      break;
+    case  ' ':
+      return (<FooterPrompt>
+        Mouse drag to move the diagram
+      </FooterPrompt>)
+      break;
   }
 
   switch (mouseMode) {

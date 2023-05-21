@@ -1,19 +1,15 @@
 import {
+  BehaviorSubject,
   concat,
   filter,
   fromEvent,
   map, merge,
-  mergeMap,
   Observable,
   of,
-  race,
-  switchAll,
   switchMap,
-  takeUntil,
-  tap
+  takeUntil, tap,
 } from 'rxjs'
 import { isMouseResponder } from '~/lib/utils'
-import { dispatchDOMEvent } from '@testing-library/user-event/event/dispatchEvent'
 
 type keyEventTypes = 'keyup' | 'keydown';
 type KeyEventDef = { type: keyEventTypes, event: KeyboardEvent };
@@ -28,42 +24,37 @@ export type EQMouseEvent = {
 }
 
 class EventQueue {
-  private keyUpObserver?: Observable<KeyboardEvent>
-  private keyDownObserver?: Observable<KeyboardEvent>
-  private keyObserver?: Observable<KeyEventDef>
-  private currentKeys?: Observable<Set<string>>
+  private keyEventObservable?: Observable<KeyEventDef>
   public pressedKeys = new Set();
-
+  private mouseUpObs?: Observable<MouseEvent>
+  private mouseMoveObs?: Observable<MouseEvent>
+  private mouseDownObs?: Observable<MouseEvent>
+  public keysObs: BehaviorSubject<Set<string>>
   constructor(private window: Window) {
+    this.keysObs = new BehaviorSubject(this.pressedKeys);
     this.initKeyWatching();
   }
 
   initKeyWatching() {
-    this.keyUpObserver = fromEvent<KeyboardEvent>(this.window, 'keyup')
+    const keyUpObserver = fromEvent<KeyboardEvent>(this.window, 'keyup')
       .pipe(
         map((event) => ({ type: 'keyup', event }))
       ); // listen for any keyup's
-    this.keyDownObserver = fromEvent<KeyboardEvent>(this.window, 'keydown')
+    const keyDownObserver = fromEvent<KeyboardEvent>(this.window, 'keydown')
       .pipe(
         filter((e) => !e.repeat),
         map((event) => ({ type: 'keydown', event }))
       ); // listen for any keydown's
-    this.keyObserver = merge(this.keyDownObserver, this.keyUpObserver);
-    this.currentKeys = this.keyObserver.pipe(
-      map((() => {
-        let keys = new Set();
-        return (ed: KeyEventDef) => {
-          if (ed.type === 'keydown') {
-            keys.add(ed.event.key);
-          }
-          if (ed.type === 'keyup') {
-            keys.delete(ed.event.key);
-          }
-          return keys;
-        }
-      })())
-    );
-    this.currentKeys.subscribe((keys) => this.pressedKeys = keys)
+    this.keyEventObservable = merge(keyDownObserver, keyUpObserver);
+    this.keyEventObservable.subscribe((ed) => {
+      if (ed.type === 'keydown') {
+        this.pressedKeys.add(ed.event.key);
+        this.keysObs.next(this.pressedKeys);
+      } else if (ed.type === 'keyup') {
+        this.pressedKeys.delete(ed.event.key);
+        this.keysObs.next(this.pressedKeys);
+      }
+    });
   }
 
   /**
@@ -71,28 +62,25 @@ class EventQueue {
    * _IF_ a given key is down __when__ the drag starts.
    */
   keyDownAndDragObserver(key: string) {
-
-    const mouseUpObs = fromEvent<MouseEvent>(this.window, 'mouseup');
-    const mouseMoveObs = fromEvent<MouseEvent>(this.window, 'mousemove');
-    const mouseDownObs = fromEvent<MouseEvent>(this.window, 'mousedown');
+    this.mouseUpObs ??= fromEvent<MouseEvent>(this.window, 'mouseup');
+    this.mouseMoveObs ??= fromEvent<MouseEvent>(this.window, 'mousemove');
+    this.mouseDownObs ??= fromEvent<MouseEvent>(this.window, 'mousedown');
 
     // console.log('EQ got keyEvent: ', ke.key)
-    return mouseDownObs.pipe( // whenever we press mouse down
+    return this.mouseDownObs.pipe( // whenever we press mouse down
       filter((event) => {
-        console.log('down sensed with keys', this.pressedKeys, event);
-        return this.pressedKeys.has(key) && !isMouseResponder(event.target);
+        console.log('mousedown with keys:', this.pressedKeys);
+        return this.pressedKeys.has(key) && this.pressedKeys.size == 1 && !isMouseResponder(event.target);
       }),
       switchMap((downEvent) => {
-          console.log('down sensed for ', key, downEvent);
-          return concat(mouseMoveObs
-              .pipe( // each time we move a cursor
+          return concat(this.mouseMoveObs!.pipe( // each time we move a cursor
                 map((e) => {
                   return {
                     type: 'mousemove', x: e.pageX, y: e.pageY, sx: downEvent.pageX, sy: downEvent.pageY,
-                    dx: e.pageX - downEvent.pageX,  dy: e.pageY - downEvent.pageY
+                    dx: e.pageX - downEvent.pageX, dy: e.pageY - downEvent.pageY
                   }
                 }),
-                takeUntil(mouseUpObs) // but only until we release the mouse button
+                takeUntil(this.mouseUpObs) // but only until we release the mouse button
               ),
             of(false) // after the mouse is released, return false to let the consumer know that
             // there are no more move events pending for this cycle

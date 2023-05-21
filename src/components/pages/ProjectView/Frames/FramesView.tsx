@@ -51,7 +51,9 @@ export default function FramesView(props: FramesViewProps) {
 
   // todo: move into Project View
   return (<>
-    {frames.map((frame) => <FrameItemView key={frame.id} frameState={state} id={frame.id} frame={frame}/>)}
+    {frames.map((frame) => {
+      return <FrameItemView key={frame.id} frameState={state} id={frame.id} frame={frame}/>
+    })}
     <ErrorTrapper boundry={"editItem"}>
       {editItem ? (
         <Suspense fallback={<Spinner/>}>

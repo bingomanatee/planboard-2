@@ -65,6 +65,16 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
   return {
     $value: initial,
     selectors: {
+      eq(state: leafI, window: Window) {
+        let eq;
+        if (state.getMeta('eq') ){
+          eq = state.getMeta('eq')
+        } else {
+          eq = new EventQueue(window);
+          state.setMeta('eq', eq);
+        }
+        return eq;
+      },
       addSub(state: leafI, sub: Subscriber<any>) {
         let subs = state.getMeta('subs')?? [];
         subs.push(sub);
@@ -94,21 +104,11 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
           }
         })
       },
-      addMouseListeners(state, mouseMoveListener, mouseUpListener) {
-        state.$.clearMouseListeners(mouseMoveListener, mouseUpListener);
-        // just for sanity's sake make sure the listeners are only queued once.
-        // May be done automatically by the DOM system, but it doesn't hurt to be sure.
-        window.addEventListener(MOUSE_UP, mouseUpListener);
-        window.addEventListener(MOUSE_MOVE, mouseMoveListener);
-        state.setMeta(META_UP, mouseUpListener, true);
-        state.setMeta(META_MOVE, mouseMoveListener, true);
-      }
     },
     meta: {
       id, // id of the current project
     },
     actions: {
-
       updateEndPoint(state: leafI, event: EQMouseEvent) {
         console.log('updateEndPoint:', event);
         const ep = new Vector2(event.x, event.y);
@@ -116,13 +116,81 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         state.do.set_endPoint(ep);
       },
       initEvents(state: typedLeaf<ProjectViewValue>, window: Window) {
-        let eq;
-        if (state.getMeta('eq') ){
-          eq = state.getMeta('eq')
-        } else {
-           eq = new EventQueue(window);
-          state.setMeta('eq', eq);
+        state.do.initAddFrame(window);
+        state.do.initMoveDoc(window);
+      },
+
+      initMoveDoc(state: typedLeaf<ProjectViewValue>, window){
+        const eq = state.$.eq(window);
+
+        let onMouseMove = null;
+        let onMouseUp = null;
+
+        const fObserver = eq.keyDownAndDragObserver(' ');
+
+        const sub = fObserver.subscribe((event) => {
+          if (event) {
+            if (!(onMouseMove && state.value.mouseMode)) {
+              console.log('initializing drawing frame', event);
+              /*
+                if the mouse has not been claimed AND we don't have a mouseMove in process, point this and
+                all further events to drawFrame
+               */
+              state.do.claimProjectMode('moving-item');
+              state.do.set_startPoint(new Vector2(event.sx, event.sy));
+              state.do.updateEndPoint(event);
+
+              onMouseMove = state.do.screenMove;
+              onMouseUp = state.do.completeScreenMove;
+
+            } else {
+              if (onMouseMove) {
+                /*
+                two things we know for a fact:
+                1. we have claimed the current cycle
+                2. this is a secondary cycle -- we are in the process of drawing a mouse
+                 */
+                console.log('moving with ', event);
+                onMouseMove(event);
+              }
+            }
+          } else { // we are at the end of a cycle
+            if (onMouseUp) {
+              onMouseUp(event);
+            }
+            onMouseUp = null;
+            onMouseMove = null;
+          }
+        });
+
+        state.$.addSub(sub);
+      },
+
+      initMove(state: leafI, targetData: TargetData) {
+        const { loadState, mouseMode, keyData } = state.value;
+        if ((!['loaded', 'finished'].includes(loadState)) || (mouseMode)) {
+          return;
         }
+        if (state.do.claimProjectMode('moving-item') === 'moving-item') {
+          state.do.set_moveItem(targetData);
+
+          state.do.addDownListener((e) => {
+            e.stopPropagation();
+            if (state.value.mouseMode === 'moving-item') {
+              state.do.completeMove('downListener');
+            }
+          });
+        }
+
+      },
+      screenMove(state: leafI, event: EQMouseEvent){
+        state.do.updateEndPoint(event);
+        const delta = state.value.endPoint.clone().sub(state.value.startPoint);
+        console.log('screen delta:', delta);
+        state.do.set_screenOffsetDelta(delta);
+      },
+      initAddFrame(state: typedLeaf<ProjectViewValue>, window){
+        const eq = state.$.eq(window);
 
         let onMouseMove = null;
         let onMouseUp = null;
@@ -166,7 +234,15 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
 
         state.$.addSub(sub);
       },
-
+      finishFrame(state: typedLeaf<ProjectViewValue>) {
+        const { startPoint, endPoint, screenOffset } = state.value;
+        startPoint.sub(screenOffset);
+        endPoint.sub(screenOffset);
+        state.do.set_startPoint(null);
+        state.do.set_endPoint(null);
+        state.do.releaseProjectMode('drawing-frame');
+        dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
+      },
       editGrid(state: typedLeaf<ProjectViewValue>) {
         state.do.set_editMode('grid');
       },
@@ -188,32 +264,6 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
       closeEdit(state: typedLeaf<ProjectViewValue>) {
         state.do.set_editType(null);
         state.do.set_editMode(null);
-      },
-      finishFrame(state: typedLeaf<ProjectViewValue>) {
-        const { startPoint, endPoint, screenOffset } = state.value;
-        startPoint.sub(screenOffset);
-        endPoint.sub(screenOffset);
-        state.do.set_startPoint(null);
-        state.do.set_endPoint(null);
-        state.do.releaseProjectMode('drawing-frame');
-        dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
-      },
-      initMove(state: leafI, targetData: TargetData) {
-        const { loadState, mouseMode, keyData } = state.value;
-        if ((!['loaded', 'finished'].includes(loadState)) || (mouseMode)) {
-          return;
-        }
-        if (state.do.claimProjectMode('moving-item') === 'moving-item') {
-          state.do.set_moveItem(targetData);
-
-          state.do.addDownListener((e) => {
-            e.stopPropagation();
-            if (state.value.mouseMode === 'moving-item') {
-              state.do.completeMove('downListener');
-            }
-          });
-        }
-
       },
       addDownListener(state: leafI, trigger: triggerFn) {
         setTimeout(() => {
@@ -271,6 +321,15 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
           return state.do.startDraggingScreen(e);
         }
       },
+      completeScreenMove(state: leafI) {
+        state.do.set_screenOffset(
+          state.value.screenOffset
+            .clone()
+            .add(state.value.screenOffsetDelta)
+        )
+        state.do.set_screenOffsetDelta(null);
+      },
+
       startDraggingScreen(state: leafI, e: EQMouseEvent) {
         state.do.claimProjectMode(MODE_DRAG_SCREEN);
         const startPoint = toPoint(e);
