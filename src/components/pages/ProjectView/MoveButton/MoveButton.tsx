@@ -5,6 +5,11 @@ import { INACTIVE_ALPHA } from '~/components/utils/constants'
 
 type EditButtonProps = {type: string, id:string, onClick: (item: TargetData) => null, active}
 
+/**
+ * this is the button __TO ENABLE MOUSE MOVEMENT
+ * @param props
+ * @constructor
+ */
 export default function MoveButton(props: EditButtonProps) {
   return (<div className={styles.container}
                data-mouse-responder="responder"

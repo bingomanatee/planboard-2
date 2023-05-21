@@ -4,27 +4,8 @@ import useForest from '~/lib/useForest';
 import { MoveItemProps } from '~/components/pages/ProjectView/MoveItem/types'
 import { useContext, useRef } from 'react'
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
-import Img from '~/components/Img'
-import { leafI } from '@wonderlandlabs/forest/lib/types'
-import { Stack } from 'grommet'
-
-function MoveWidget({ state }: { state: leafI }) {
-  return <div className={styles['move-widget-icon-container']}
-              data-role="move-widget-icon-container"
-              style={state.$.moveWidgetStyle()}
-              data-mouse-responder="responder"
-              onMouseDown={(e) => {
-                state.do.startMoveDrag(e);
-              }}
-  >
-    <Img src="/img/icons/widget-move.svg"
-         data-role="widget-move-icon" width={30} height={30}/>
-  </div>
-}
-
-function Overlay({ state }: { state: leafI }) {
-  return <div className={styles.overlay} style={state.$.overlayStyle()}/>
-}
+import { MoveWidget } from '~/components/pages/ProjectView/MoveItem/MoveWidget'
+import { Overlay } from '~/components/pages/ProjectView/MoveItem/Overlay'
 
 export default function MoveItem(props: MoveItemProps) {
   const containerRef = useRef(null);

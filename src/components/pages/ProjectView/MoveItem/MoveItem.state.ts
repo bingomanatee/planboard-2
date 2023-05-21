@@ -43,26 +43,24 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
       }
     },
     actions: {
+      moveListener(state: leafI, e: MouseEvent) {
+        e.stopPropagation();
+        state.do.updateMove(e);
+      },
+      completeMoveListener(state: leafI, e) {
+        state.do.moveFrame();
+        e.stopPropagation();
+        window.removeEventListener('mousemove', state.do.moveListener);
+        window.removeEventListener('mouseup', state.do.completeMoveListener);
+        state.do.set_movePosStart(null);
+        state.do.set_movePosCurrent(null);
+        projectState.do.completeMove(); // terminate the move state globally
+      },
       startMoveDrag(state: leafI, eFirst: MouseEvent) {
+        console.log('MovevItem.state.starMoveDrag')
         eFirst.stopPropagation();
-
-        const moveListener = (e: MouseEvent) => {
-          e.stopPropagation();
-          state.do.updateMove(e);
-        }
-
-        const completeMoveListener = (e) => {
-          state.do.moveFrame();
-          e.stopPropagation();
-          window.removeEventListener('mousemove', moveListener);
-          window.removeEventListener('mouseup', completeMoveListener);
-          state.do.set_movePosStart(null);
-          state.do.set_movePosCurrent(null);
-          projectState.do.completeMove(); // terminate the move state globally
-        }
-
-        window.addEventListener('mousemove', moveListener);
-        window.addEventListener('mouseup', completeMoveListener);
+        window.addEventListener('mousemove', state.do.moveListener);
+        window.addEventListener('mouseup', state.do.completeMoveListener);
 
         state.do.set_movePosStart(new Vector2(eFirst.x, eFirst.y));
         state.do.set_movePosCurrent(new Vector2(eFirst.x, eFirst.y));
@@ -71,7 +69,6 @@ const MoveItemState = (props: MoveItemProps, dataState: leafI) => {
         e.stopPropagation();
         state.do.set_movePosCurrent(toPoint(e));
       },
-
       moveFrame(state: leafI) {
         const { id } = state.value.target;
         const { movePosCurrent } = state.value;
