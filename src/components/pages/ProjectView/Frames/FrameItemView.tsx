@@ -1,4 +1,4 @@
-import { useContext, useMemo, Suspense } from 'react'
+import { useContext, useMemo, Suspense, useEffect, useState } from 'react'
 import { numToPx } from '~/lib/utils'
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
 import styles from '~/components/pages/ProjectView/Frames/FramesView.module.scss'
@@ -15,16 +15,38 @@ import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/comp
 let ContentPrompt
 
 /**
- * this is the component that displays a SINGLE Frame (Frame singular).
+ * this is the component that displays a SINGLE Frame.
  */
-export function FrameItemView({ id, frame, frameState }) {
-  const { dataState } = useContext<DataStateContextValue>(DataStateContext);
+export function FrameItemView({ id, frameState }) {
   const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
 
   const { mouseMode } = useForestFiltered(projectState, ['mouseMode']);
   const { floatId } = useForestFiltered(frameState, ['floatId']);
 
+  const [frameInfo, setFrameInfo] = useState({});
+
+  useEffect(() => {
+    const sub = frameState.$.frameObserver(id).subscribe({
+      next(value) {
+        console.log('using data ', value, 'for frame', id);
+        setFrameInfo(value);
+      },
+      error(err) {
+        console.log('sub error for ', id, err);
+      }
+    });
+
+    return () => {
+      sub.unsubscribe()
+    }
+  }, [
+    id, frameState
+  ]);
+
+  const {content, frame} = frameInfo;
+
   const style = useMemo(() => {
+    if (!frame) return {};
     return {
       left: numToPx(frame.left),
       top: numToPx(frame.top),
@@ -35,7 +57,7 @@ export function FrameItemView({ id, frame, frameState }) {
   }, [frame, floatId])
   const { hover } = useForestFiltered(frameState, ['hover'])
 
-  const content = useForestFiltered(dataState.child('content')!, (map) => {
+/*  const content = useForestFiltered(dataState.child('content')!, (map) => {
     return c(map).getReduce((list, record) => {
       const { content } = record;
       if (content.frame_id === id) {
@@ -43,12 +65,12 @@ export function FrameItemView({ id, frame, frameState }) {
       }
       return list;
     }, []);
-  });
+  });*/
 
   let inner = null;
-  if (content.length) {
-    inner = <FrameContent frame={frame} content={content[0]}/>
-  } else {
+  if (content) {
+    inner = <FrameContent frame={frame} content={content}/>
+  } else if (frame) {
     if (!ContentPrompt) {
       ContentPrompt = dynamic(() => import ( './ContentPrompt/ContentPrompt'), {
         suspense: true

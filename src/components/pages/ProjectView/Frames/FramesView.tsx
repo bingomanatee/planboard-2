@@ -24,10 +24,10 @@ type FramesViewProps = {
 
 export default function FramesView(props: FramesViewProps) {
   const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
-  const [value, state] = useForest([stateFactory, props, projectState],
+  const { dataState } = useContext<DataStateContextValue>(DataStateContext)
+  const [value, state] = useForest([stateFactory, props, projectState, dataState],
     (localState) => {
     });
-  const { dataState } = useContext<DataStateContextValue>(DataStateContext)
   const { editItem } = value;
 
   const frameStore = useMemo(() => dataState.child('frames'), [dataState]);

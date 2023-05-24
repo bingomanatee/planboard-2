@@ -247,6 +247,10 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         }
 
       },
+      completeMove(state: leafI, e) {
+        state.$.clearMouseListeners();
+        state.do.releaseProjectMode('moving-item');
+      },
       editGrid(state: typedLeaf<ProjectViewValue>) {
         state.do.set_editMode('grid');
       },
@@ -269,7 +273,7 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         state.do.set_editType(null);
         state.do.set_editMode(null);
       },
-      addDownListener(state: leafI, trigger: triggerFn) {
+      addDownListener(state: leafI, trigger: triggerFn) { // @todo: deprecate
         setTimeout(() => {
           const listeners = state.getMeta(META_DOWN_LISTENERS);
           if (!listeners) {
@@ -279,14 +283,11 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
           }
         }, 10);
       },
-      completeMove(state: leafI, e) {
-        state.$.clearMouseListeners();
-        state.do.releaseProjectMode('moving-item');
-      },
+
       // downListeners are any "extra hooks" that components may add to handle down conditions
       // typically to close opened dialogs
 
-      execDownListeners(state: leafI, e: MouseEvent) {
+      execDownListeners(state: leafI, e: MouseEvent) {// @todo: deprecate
         const listeners = state.getMeta(META_DOWN_LISTENERS);
         if (listeners) {
           listeners.forEach((fn: triggerFn) => {
@@ -362,6 +363,7 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
           await state.do.set_frames(frames);
           state.do.set_settings(settings);
           state.do.set_loadState('loaded');
+          console.log('data loaded: ', dataState.value);
         } catch (err) {
           console.warn('load error:', err);
           state.do.set_loadError(err.message);
