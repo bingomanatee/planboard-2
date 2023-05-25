@@ -66,6 +66,10 @@ const theme = deepMerge(base, {
         light: 'hsl(227,30%,15%)',
         dark: 'hsl(227,30%,85%)',
       },
+      'frame-border-over': {
+        light: 'hsla(30,100%,50%, 0.8)',
+        dark: 'hsla(30,100%, 50%, 0.8)'
+      },
       'tab-color': {
         light: 'hsl(227,90%,40%)',
         dark: 'hsl(227,90%,60%)',

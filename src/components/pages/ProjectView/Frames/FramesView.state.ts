@@ -3,7 +3,7 @@ import { TargetData } from '~/components/pages/ProjectView/ProjectView.state'
 import { StoreRecord } from '~/lib/store/types'
 import { c } from '@wonderlandlabs/collect'
 import { Content } from '~/types'
-import { concat, distinct, map, of, tap } from 'rxjs'
+import { BehaviorSubject, concat, distinct, map, of, Subject, tap } from 'rxjs'
 import { isEqual } from 'lodash'
 
 function byContentReducer(memo: Map<string, ImageData>, r: StoreRecord) {
@@ -22,13 +22,12 @@ const FramesViewState = (props, projectState, dataState: leafI) => {
     $value: { floatId: null, editItem: null, hover: null },
     selectors: {
       initFrameObserver(state: leafI) {
-        let observable = concat(
-          of(dataState.value),
-          dataState.observable
-        )
+        const dataSubj = new BehaviorSubject(dataState.value);
+        let observable = dataSubj
           .pipe(
             map(
               (dataMap: Map<string, StoreRecord>) => {
+                console.log('updating frame data from ', dataMap);
                 const markdown = dataMap.get('markdown')!;
                 const images = dataMap.get('images');
                 const content = dataMap.get('content');
@@ -74,6 +73,8 @@ const FramesViewState = (props, projectState, dataState: leafI) => {
               }), // end map
           );
 
+        const sub = dataState.subscribe((value) => dataSubj.next(value));
+        state.setMeta('frameSubscriber', sub); //@TODO: close;
         state.setMeta('frameObserver', observable, true);
         return observable;
       },

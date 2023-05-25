@@ -47,6 +47,9 @@ class EventQueue {
       ); // listen for any keydown's
     this.keyEventObservable = merge(keyDownObserver, keyUpObserver);
     this.keyEventObservable.subscribe((ed) => {
+      if (["Alt", "∆", "Meta"].includes(ed.event.key)) {
+        return;
+      }
       if (ed.type === 'keydown') {
         this.pressedKeys.add(ed.event.key);
         this.keysObs.next(this.pressedKeys);

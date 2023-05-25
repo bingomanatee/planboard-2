@@ -26,6 +26,9 @@ export function FrameItemView({ id, frameState }) {
   const [frameInfo, setFrameInfo] = useState({});
 
   useEffect(() => {
+    if (!id) {
+      return;
+    }
     const sub = frameState.$.frameObserver(id).subscribe({
       next(value) {
         console.log('using data ', value, 'for frame', id);
@@ -43,7 +46,7 @@ export function FrameItemView({ id, frameState }) {
     id, frameState
   ]);
 
-  const {content, frame} = frameInfo;
+  const {content, frame} = (frameInfo  || {});
 
   const style = useMemo(() => {
     if (!frame) return {};
@@ -56,16 +59,6 @@ export function FrameItemView({ id, frameState }) {
     }
   }, [frame, floatId])
   const { hover } = useForestFiltered(frameState, ['hover'])
-
-/*  const content = useForestFiltered(dataState.child('content')!, (map) => {
-    return c(map).getReduce((list, record) => {
-      const { content } = record;
-      if (content.frame_id === id) {
-        list.push(content);
-      }
-      return list;
-    }, []);
-  });*/
 
   let inner = null;
   if (content) {
@@ -82,7 +75,7 @@ export function FrameItemView({ id, frameState }) {
   return <div className={styles.frame} style={style} id={`frame-${id}`} onMouseEnter={() => frameState.do.hover(id)}
               onMouseLeave={frameState.do.unHover}>
     <div className={styles.frameInner}>
-      <BoxColumn fill border={{ color: 'frame-border', size: '2px' }}>
+      <BoxColumn fill border={{ color: (hover === id) ? 'frame-border-over' : 'frame-border', size: '2px' }}>
         <Suspense fallback={<Spinner/>}>
           <div className={styles['frame-clamp']}>
             {inner}

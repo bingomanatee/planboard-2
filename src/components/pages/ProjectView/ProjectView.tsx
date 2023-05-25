@@ -13,7 +13,6 @@ import SizeItem from '~/components/pages/ProjectView/SizeItem/SizeItem'
 import { propsToPx } from '~/lib/utils'
 import ErrorTrapper from '~/components/ErrorTrapper'
 import ProjectGrid from '~/components/pages/ProjectView/ProjectGrid/ProjectGrid'
-import { once } from 'lodash'
 
 let NewFrame = null;
 type ProjectViewProps = { id: string }
@@ -35,7 +34,6 @@ export default memo(function ProjectView(props: ProjectViewProps) {
     localState.do.initEvents(window);
     return localState.$.clearSubs;
   }, [props.id])
-
 
   const [value, state] = useForest<ProjectViewValue>([stateFactory, props.id, dataState, globalState, containerRef],
     onCreate);
