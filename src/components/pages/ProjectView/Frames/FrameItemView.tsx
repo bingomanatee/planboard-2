@@ -19,7 +19,6 @@ let ContentPrompt
  */
 export function FrameItemView({ id, frameState }) {
   const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
-
   const { mouseMode } = useForestFiltered(projectState, ['mouseMode']);
   const { floatId } = useForestFiltered(frameState, ['floatId']);
 
@@ -31,7 +30,6 @@ export function FrameItemView({ id, frameState }) {
     }
     const sub = frameState.$.frameObserver(id).subscribe({
       next(value) {
-        console.log('using data ', value, 'for frame', id);
         setFrameInfo(value);
       },
       error(err) {
@@ -46,6 +44,20 @@ export function FrameItemView({ id, frameState }) {
     id, frameState
   ]);
 
+  const [linking, setLinking] = useState(false);
+
+  useEffect(() => {
+    const eq = projectState.$.eq(window);
+    if (!eq) {
+        return;
+    }
+    const sub =  eq.keysObs.subscribe((keys) => {
+      const isLinking = (keys.size == 1) && (keys.has('c'));
+      setLinking(isLinking);
+    });
+    return () => sub.unsubscribe();
+  }, [projectState, setLinking])
+
   const {content, frame} = (frameInfo  || {});
 
   const style = useMemo(() => {
@@ -57,7 +69,7 @@ export function FrameItemView({ id, frameState }) {
       height: numToPx(frame.height),
       zIndex: floatId === id ? 10000000 : ((frame.order || 0) * 100 + 1)
     }
-  }, [frame, floatId])
+  }, [frame, floatId, id])
   const { hover } = useForestFiltered(frameState, ['hover'])
 
   let inner = null;
@@ -72,7 +84,10 @@ export function FrameItemView({ id, frameState }) {
     inner = <ContentPrompt frameState={frameState} frame={frame} frameId={id}/>
   }
 
-  return <div className={styles.frame} style={style} id={`frame-${id}`} onMouseEnter={() => frameState.do.hover(id)}
+  return <div className={styles.frame}
+              style={style}
+              data-frameid={id}
+              id={`frame-${id}`} onMouseEnter={() => frameState.do.hover(id)}
               onMouseLeave={frameState.do.unHover}>
     <div className={styles.frameInner}>
       <BoxColumn fill border={{ color: (hover === id) ? 'frame-border-over' : 'frame-border', size: '2px' }}>
@@ -82,7 +97,7 @@ export function FrameItemView({ id, frameState }) {
           </div>
         </Suspense>
       </BoxColumn>
-      {mouseMode ? null : (
+      {(mouseMode || linking) ? null : (
         <>
           <EditButton type="frame"
                       active={hover === id}

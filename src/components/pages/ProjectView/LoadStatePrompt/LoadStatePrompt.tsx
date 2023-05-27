@@ -24,24 +24,20 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
 
   const { mouseMode, moveItem } = useForestFiltered(projectState, ['mouseMode', 'moveItem']);
 
-  const { loadState, keyData } = useForestFiltered(state, ['keyData', 'loadState']);
+  const { loadState } = useForestFiltered(state, ['loadState']);
 
   const [currentKeys, setCC] = useState('')
 
-  const eq = useMemo<EventQueue>(() => projectState.getMeta('eq'), [projectState]);
+  const eq = useMemo<EventQueue>(() => projectState.$.eq(), [projectState]);
 
   useEffect(() => {
       const sub = eq.keysObs.subscribe((keys) => {
         const keyString = Array.from(keys).join('');
-        console.log('keyString:', keyString);
-          setCC(keyString);
+        setCC(keyString);
       });
-
       return () => sub.unsubscribe();
     },
-    [
-      eq
-    ]
+    [eq]
   );
 
   if (loadState === 'error') {
@@ -87,6 +83,11 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
     case  'f':
       return (<FooterPrompt>
         Mouse drag to create a Frame
+      </FooterPrompt>)
+      break;
+    case 'c':
+      return (<FooterPrompt>
+        Drag from one frame to another to link them
       </FooterPrompt>)
       break;
     case  ' ':

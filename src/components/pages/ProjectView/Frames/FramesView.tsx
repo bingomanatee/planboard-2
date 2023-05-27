@@ -1,4 +1,4 @@
-import { useContext, useMemo, Suspense, useEffect } from 'react';
+import { useContext, useMemo, Suspense } from 'react';
 import dynamic from 'next/dynamic'
 import { c } from '@wonderlandlabs/collect'
 import { Spinner } from 'grommet'
@@ -13,9 +13,9 @@ import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/comp
 import { FrameItemView } from '~/components/pages/ProjectView/Frames/FrameItemView'
 import ErrorTrapper from '~/components/ErrorTrapper'
 
-import styles from './FramesView.module.scss'
 import stateFactory from './FramesView.state.ts';
-import { propsToPx } from '~/lib/utils'
+import { MODE_ADD_LINK } from '~/components/pages/ProjectView/ProjectView.state'
+import DrawLink from '~/components/pages/ProjectView/Frames/DrawLink/DrawLink'
 
 let ProjectEdit;
 type FramesViewProps = {
@@ -26,9 +26,15 @@ export default function FramesView(props: FramesViewProps) {
   const projectState = useContext<ProjectViewStateContextProvider>(ProjectViewStateContext);
   const { dataState } = useContext<DataStateContextValue>(DataStateContext)
   const [value, state] = useForest([stateFactory, props, projectState, dataState],
-    (localState) => {
+    (_localState) => {
     });
-  const { editItem } = value;
+  const {
+    editItem,
+  } = value;
+
+  const {
+    linkStartId, linkEndId, mouseMode
+  } = useForestFiltered(projectState, ['mouseMode', 'linkStartId', 'linkEndId'])
 
   const frameStore = useMemo(() => dataState.child('frames'), [dataState]);
   const frames = useForestFiltered(frameStore!, (frameMap) => {
@@ -49,11 +55,19 @@ export default function FramesView(props: FramesViewProps) {
     )
   }
 
+  if (mouseMode && linkEndId) {
+    console.log(' ---- frameView project state:', linkStartId, linkEndId, mouseMode);
+  }
+
   // todo: move into Project View
   return (<>
     {frames.map((frame) => {
       return <FrameItemView key={frame.id} frameState={state} id={frame.id} frame={frame}/>
     })}
+    {(mouseMode === MODE_ADD_LINK) ? <DrawLink frameState={state}
+                linkStartId={linkStartId}
+                linkEndId={linkEndId}
+      /> : null}
     <ErrorTrapper boundry={"editItem"}>
       {editItem ? (
         <Suspense fallback={<Spinner/>}>
@@ -63,3 +77,12 @@ export default function FramesView(props: FramesViewProps) {
     </ErrorTrapper>
   </>);
 }
+
+/**
+ *     {((mouseMode === MODE_ADD_LINK) && (linkStartId && linkEndId)) ? (
+ *       <DrawLink frameState={state}
+ *                 linkStartId={linkStartId}
+ *                 linkEndId={linkEndId}
+ *       />
+ *     ) : null}
+ */

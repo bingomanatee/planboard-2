@@ -1,6 +1,5 @@
 import { createStore } from '~/lib/store/data/createStore'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
-import { Content, MarkdownData } from '~/types'
 import { c } from '@wonderlandlabs/collect'
 import { Engine } from '~/lib/store/types'
 import { dataOrThrow } from '~/lib/utils'
@@ -134,9 +133,7 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
           { field: 'project_id', value: id }
         ]));
         store.do.addMany(data, true);
-        const props = store.$.props();
-        console.log('settings: loadForProject return value:', props);
-        return props;
+        return store.$.props();
       },
     },
   });

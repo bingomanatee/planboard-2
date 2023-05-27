@@ -1,9 +1,11 @@
-import { FieldDef, FieldQuery, Filter, StoreRecord } from '~/lib/store/types'
+import { FieldDef, FieldQuery, Filter, StoreMap, StoreRecord } from '~/lib/store/types'
 import { leafConfig, leafI } from '@wonderlandlabs/forest/lib/types'
 import { c } from '@wonderlandlabs/collect'
 import validateData from '~/lib/store/validateData'
 import { v4 } from 'uuid'
 import { isEqual } from 'lodash'
+
+type ValueMutator = (records: Map<string, any>) => (StoreMap | void);
 
 export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
   const actions = config?.actions || {};
@@ -77,10 +79,10 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
         leaf.do.add(data, id);
         return leaf.value.get(id);
       },
-      mutateValue(leaf: leafI, mutator: (records: Map<string, any>) => void) {
+      mutateValue(leaf: leafI, mutator: ValueMutator) {
         const newValue: Map<string, any> = new Map(leaf.value);
-        mutator(newValue);
-        leaf.value = newValue;
+        let result = mutator(newValue);
+        leaf.value = (result instanceof Map) ? result : newValue;
       },
       add(leaf: leafI, content: any, id?: string): StoreRecord {
         let saved = true;
@@ -184,6 +186,17 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
           store.do.mutateValue((value) => {
             value.delete(id);
           });
+        }
+      },
+      async deleteIds(store: leafI, tableName: string, ids: string[]) {
+        const table = store.child(tableName);
+        if (table && ids.length) {
+          // first delete local values
+          table.do.mutateValue((map: StoreMap) => {
+            return c(map).filter((_data, id) => (!(ids.includes(id)))).value;
+          });
+          // then delete stored ids
+          await engine.deleteIds(tableName, ids);
         }
       }
     }

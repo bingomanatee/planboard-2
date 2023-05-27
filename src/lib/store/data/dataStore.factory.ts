@@ -2,12 +2,13 @@ import { Forest } from '@wonderlandlabs/forest'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { Engine } from '~/lib/store/types';
 import { Content, Frame } from '~/types'
-import projectsFactory from '~/lib/store/data/stores/projects.factory'
-import framesFactory from '~/lib/store/data/stores/frames.factory'
-import contentFactory from '~/lib/store/data/stores/content.factory'
-import markdownFactory from '~/lib/store/data/stores/markdown.factory'
-import imagesFactory from '~/lib/store/data/stores/images.factory'
-import settingsFactory from '~/lib/store/data/stores/settings.factory'
+import projectsFactory from './stores/projects.factory'
+import framesFactory from './stores/frames.factory'
+import contentFactory from './stores/content.factory'
+import markdownFactory from './stores/markdown.factory'
+import imagesFactory from './stores/images.factory'
+import settingsFactory from './stores/settings.factory'
+import linksFactory from './stores/links.factory'
 
 export type FrameInfo = {
   frame: Frame,
@@ -88,6 +89,7 @@ const dataStoreFactory = (engine: Engine) => {
           leaf.child('frames')!.do.loadForProject(id),
           leaf.child('content')!.do.loadForProject(id),
           leaf.child('settings')!.do.loadForProject(id),
+          leaf.child('links')!.do.loadForProject(id),
         ])
 
 
@@ -126,6 +128,7 @@ const dataStoreFactory = (engine: Engine) => {
       async deleteFrame(leaf: leafI, frameId: string) {
         await leaf.child('content')!.do.deleteContentForFrame(frameId);
         await leaf.child('frames')!.do.deleteId(frameId);
+        await leaf.child('links')!.do.deleteForFrame(frameId);
       }
     }
   });
@@ -135,6 +138,7 @@ const dataStoreFactory = (engine: Engine) => {
   markdownFactory(dataStore, engine);
   imagesFactory(dataStore, engine);
   settingsFactory(dataStore, engine);
+  linksFactory(dataStore, engine);
   engine.initialize();
   return dataStore;
 }

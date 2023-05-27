@@ -1,8 +1,7 @@
 import { leafI, typedLeaf } from '@wonderlandlabs/forest/lib/types'
-import { isEqual } from 'lodash'
 import { Vector2 } from 'three'
-import { Frame, Project, triggerFn } from '~/types'
-import { isMouseResponder, toPoint } from '~/lib/utils'
+import { Frame, Project } from '~/types'
+import { eventFrame } from '~/lib/utils'
 import EventQueue, { EQMouseEvent } from '~/lib/EventQueue'
 import { Subscriber } from 'rxjs'
 
@@ -28,25 +27,27 @@ export type ProjectViewValue = {
   endPoint: Vector2 | null,
   editItem: TargetData | null;
   moveItem: TargetData | null;
+  linkStartId: string | null;
+  linkEndId: string | null;
   screenOffset: Vector2;
   screenOffsetDelta: Vector2 | null;
   settings: Map<string, any>;
   editMode: string | null;
 }
 
-const META_MOVE = 'handleMouseMove';
-const META_UP = 'handleMouseUp';
-const META_DOWN_LISTENERS = 'downListeners';
+export const MODE_DRAG_SCREEN = 'dragging-screen';
 
-const MOUSE_MOVE = 'mousemove';
-const MOUSE_UP = 'mouseup';
+export const MODE_ADD_FRAME = 'drawing-frame';
 
-const MODE_DRAG_SCREEN = 'dragging-screen'
-const MODE_ADD_FRAME = 'drawing-frame';
+export const MODE_ADD_LINK = 'drawing-link';
+
+export const MODE_NO_ACTION = 'no-action'
 
 const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => {
   const initial: ProjectViewValue = {
     loadError: null,
+    linkStartId: null,
+    linkEndId: null,
     project: null,
     projectId: id,
     frames: null,
@@ -85,25 +86,6 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         let subs = state.getMeta('subs');
         subs?.forEach((sub) => sub.unsubscribe());
       },
-      // NOTE: it does NOT clear mouseMode.
-      clearMouseListeners(state: leafI, ...rest) {
-        const mouseUpListener = state.getMeta(META_UP);
-        state.setMeta(META_UP, null, true);
-        const mouseMoveListener = state.getMeta(META_MOVE);
-        state.setMeta(META_MOVE, null, true);
-        window.removeEventListener(MOUSE_UP, mouseUpListener);
-        window.removeEventListener(MOUSE_MOVE, mouseMoveListener);
-        state.$.clearListeners(mouseUpListener, mouseMoveListener, ...rest)
-      },
-      clearListeners(state: leafI, ...rest) {
-        // brute-force remove all other arguments from all possible hooks
-        rest.forEach((listener) => {
-          if (typeof listener === 'function') {
-            window.removeEventListener(MOUSE_UP, listener);
-            window.removeEventListener(MOUSE_MOVE, listener);
-          }
-        })
-      },
     },
     meta: {
       id, // id of the current project
@@ -113,9 +95,15 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         const ep = new Vector2(event.x, event.y);
         state.do.set_endPoint(ep);
       },
+      updateLink(state: leafI, event: EQMouseEvent) {
+        const targetId = eventFrame(event.moveEvent?.target);
+        state.do.set_linkEndId(targetId || null);
+        state.do.updateEndPoint(event);
+      },
       initEvents(state: typedLeaf<ProjectViewValue>, window: Window) {
         state.do.initAddFrame(window);
         state.do.initDragScreen(window);
+        state.do.initAddLink(window);
       },
 
       initDragScreen(state: typedLeaf<ProjectViewValue>, window) {
@@ -129,7 +117,6 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         const sub = fObserver.subscribe((event) => {
           if (event) {
             if (!(onMouseMove && state.value.mouseMode)) {
-              console.log('initializing drawing frame', event);
               /*
                 if the mouse has not been claimed AND we don't have a mouseMove in process, point this and
                 all further events to drawFrame
@@ -177,6 +164,57 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         state.do.set_screenOffsetDelta(null);
         state.do.releaseProjectMode()
       },
+      initAddLink(state: typedLeaf<ProjectViewValue>, window) {
+        const eq = state.$.eq(window);
+
+        let onMouseMove = null;
+        let onMouseUp = null;
+
+        const fObserver = eq.keyDownAndDragObserver('c');
+
+        const sub = fObserver.subscribe((event) => {
+          if (event) {
+            if (!(onMouseMove && state.value.mouseMode)) {
+              const targetId = eventFrame(event.downEvent.target);
+              if (!targetId) {
+                console.log('skipping link - no target id');
+                state.do.claimProjectMode(MODE_NO_ACTION);
+              } else {
+                console.log('starting link from ', targetId);
+                /*
+  if the mouse has not been claimed AND we don't have a mouseMove in process, point this and
+  all further events to drawFrame
+ */
+                state.do.set_linkStartId(targetId);
+                state.do.claimProjectMode(MODE_ADD_LINK);
+                state.do.set_startPoint(new Vector2(event.sx, event.sy));
+              }
+              state.do.updateLink(event);
+
+              onMouseMove = state.do.updateLink;
+              onMouseUp = state.do.completeLink;
+
+            } else {
+              if (onMouseMove) {
+                /*
+                two things we know for a fact:
+                1. we have claimed the current cycle
+                2. this is a secondary cycle -- we are in the process of drawing a mouse
+                 */
+                onMouseMove(event);
+              }
+            }
+          } else { // we are at the end of a cycle
+            if (onMouseUp) {
+              onMouseUp(event);
+            }
+            onMouseUp = null;
+            onMouseMove = null;
+          }
+        });
+
+        state.$.addSub(sub);
+      },
       initAddFrame(state: typedLeaf<ProjectViewValue>, window) {
         const eq = state.$.eq(window);
 
@@ -188,7 +226,6 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         const sub = fObserver.subscribe((event) => {
           if (event) {
             if (!(onMouseMove && state.value.mouseMode)) {
-              console.log('initializing drawing frame', event);
               /*
                 if the mouse has not been claimed AND we don't have a mouseMove in process, point this and
                 all further events to drawFrame
@@ -230,6 +267,22 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         state.do.releaseProjectMode();
         dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
       },
+      completeLink(state: typedLeaf<ProjectViewValue>) {
+        const { startPoint, endPoint, screenOffset, mouseMode, linkStartId, linkEndId } = state.value;
+        // the point coordinates are not really used here - its boilerplate from a cut and paste
+        if (mouseMode && linkStartId) {
+          if (screenOffset) {
+            startPoint.sub(screenOffset);
+            endPoint.sub(screenOffset);
+          }
+          console.log('--- completeLink: linking ', linkStartId, 'and', linkEndId, 'mouse mode = ', mouseMode);
+        }
+        state.do.set_startPoint(null);
+        state.do.set_endPoint(null);
+        state.do.set_linkStartId(null);
+        state.do.releaseProjectMode();
+        // dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
+      },
       initMove(state: leafI, targetData: TargetData) {
         const { loadState, mouseMode } = state.value;
         if ((!['loaded', 'finished'].includes(loadState)) || (mouseMode)) {
@@ -239,8 +292,7 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
           state.do.set_moveItem(targetData);
         }
       },
-      completeMove(state: leafI, e) {
-        state.$.clearMouseListeners();
+      completeMove(state: leafI) {
         state.do.releaseProjectMode('moving-item');
       },
       editGrid(state: typedLeaf<ProjectViewValue>) {
@@ -272,12 +324,11 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
       async doLoad(state: leafI) {
         try {
           const loaded = await dataState.do.loadProject(id);
-          const { project, frames, content, settings } = loaded;
+          const { project, frames, settings } = loaded;
           state.do.set_project(project);
           await state.do.set_frames(frames);
           state.do.set_settings(settings);
           state.do.set_loadState('loaded');
-          console.log('data loaded: ', dataState.value);
         } catch (err) {
           console.warn('load error:', err);
           state.do.set_loadError(err.message);

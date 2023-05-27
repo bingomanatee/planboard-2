@@ -7,7 +7,7 @@ import {
   Observable,
   of,
   switchMap,
-  takeUntil, tap,
+  takeUntil,
 } from 'rxjs'
 import { isMouseResponder } from '~/lib/utils'
 
@@ -21,6 +21,8 @@ export type EQMouseEvent = {
   sy: number,
   dx: number,
   dy: number,
+  downEvent: MouseEvent,
+  moveEvent: MouseEvent,
 }
 
 class EventQueue {
@@ -79,7 +81,9 @@ class EventQueue {
                 map((e) => {
                   return {
                     type: 'mousemove', x: e.pageX, y: e.pageY, sx: downEvent.pageX, sy: downEvent.pageY,
-                    dx: e.pageX - downEvent.pageX, dy: e.pageY - downEvent.pageY
+                    dx: e.pageX - downEvent.pageX, dy: e.pageY - downEvent.pageY,
+                    downEvent: downEvent,
+                    moveEvent: e,
                   }
                 }),
                 takeUntil(this.mouseUpObs) // but only until we release the mouse button

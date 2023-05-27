@@ -3,8 +3,7 @@ import { TargetData } from '~/components/pages/ProjectView/ProjectView.state'
 import { StoreRecord } from '~/lib/store/types'
 import { c } from '@wonderlandlabs/collect'
 import { Content } from '~/types'
-import { BehaviorSubject, concat, distinct, map, of, Subject, tap } from 'rxjs'
-import { isEqual } from 'lodash'
+import { BehaviorSubject, map } from 'rxjs'
 
 function byContentReducer(memo: Map<string, ImageData>, r: StoreRecord) {
   const content_id = r.content.content_id;
@@ -27,7 +26,6 @@ const FramesViewState = (props, projectState, dataState: leafI) => {
           .pipe(
             map(
               (dataMap: Map<string, StoreRecord>) => {
-                console.log('updating frame data from ', dataMap);
                 const markdown = dataMap.get('markdown')!;
                 const images = dataMap.get('images');
                 const content = dataMap.get('content');

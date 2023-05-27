@@ -23,8 +23,17 @@ export type Engine = {
 export type StoreRecord<IdType = string, ContentType = any> = {
   id: IdType,
   content: ContentType,
-  saved: boolean
+  saved?: boolean
 }
+
+export function isStoreRecord(a: unknown) : a is StoreRecord {
+  if (!(a && typeof a === 'object')) {
+    return false;
+  }
+  return 'id' in a && 'content' in a;
+}
+
+export type StoreMap = Map<any, StoreRecord>
 
 export type FieldQuery = {
   field: string,
