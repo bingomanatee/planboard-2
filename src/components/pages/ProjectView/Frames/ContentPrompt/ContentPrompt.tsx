@@ -55,17 +55,19 @@ export default function ContentPrompt(props: ContentPromptProps) {
 
   const target = useMemo(() => {
     return mouseMode ? null : window.document.getElementById(`frame-${props.frameId}`)
-  }, [mouseMode])
+  }, [mouseMode, props.frameId])
 
-  const { floatId } = useForestFiltered(props.frameState, ['floatId'])
+  const { floatId } = useForestFiltered(props.frameState, ['floatId']);
 
-  if (closed) {
-    setTimeout(state.do.reopen);
+  useEffect(() => {
+    if (show && (props.frameId !== floatId)) {
+      state.do.closeOptions();
+    }
+  }, [props.frameId, floatId, show, state]);
+
+  if (closed && show) {
+    state.do.reopen();
     return null;
-  }
-
-  if (floatId) {
-    console.log('floatId: ', floatId, 'frameId:', props.frameId)
   }
 
   return <div className={styles.container}>
@@ -81,7 +83,7 @@ export default function ContentPrompt(props: ContentPromptProps) {
       <Text size="xsmall">Choose content</Text>
     </BoxColumn>
     {show && (!mouseMode) && (floatId === props.frameId) && target ?
-      <Drop target={window.document.getElementById(`frame-${props.frameId}`)}
+      <Drop target={target}
             align={align}
             style={{ zIndex: 100000 }}>
         <BoxRow gap="small" className={styles.options}>

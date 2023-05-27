@@ -32,7 +32,11 @@ const DrawLinkState = (props, dataState, containerRef) => {
             containerRef.current.removeChild(containerRef.current.lastChild);
           }
         },
-        updateFrame(id, stored, setter) {
+
+      },
+
+      actions: {
+        updateFrame(store, id, stored, setter) {
           if (id) {
             if (!stored || (stored.id !== id)) {
               setter(frames.get(id));
@@ -40,14 +44,11 @@ const DrawLinkState = (props, dataState, containerRef) => {
           } else if (stored) {
             setter(null);
           }
-        }
-      },
-
-      actions: {
+        },
         updateFrames(state: typedLeaf<DrawLinkStateValue>) {
           const { startShadow, endShadow, startFrame, endFrame } = state.value;
-          state.$.updateFrame(startShadow, startFrame, state.do.set_startFrame);
-          state.$.updateFrame(endShadow, endFrame, state.do.set_endFrame);
+          state.do.updateFrame(startShadow, startFrame, state.do.set_startFrame);
+          state.do.updateFrame(endShadow, endFrame, state.do.set_endFrame);
         },
         immediateSync(state: typedLeaf<DrawLinkStateValue>) {
           const { start, end, startShadow, endShadow } = state.value;

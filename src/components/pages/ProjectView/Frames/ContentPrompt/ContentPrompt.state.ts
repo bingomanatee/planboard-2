@@ -1,5 +1,9 @@
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 
+/**
+ * note - 'closed' is a temporary condition to hide the drop for a quick time to
+ *        reset it to the frame's current status, such as after a move.
+ */
 const ContentPromptState = (props, dataState: leafI, projectState) => {
   const { frameState, frameId } = props;
   return {
@@ -18,21 +22,12 @@ const ContentPromptState = (props, dataState: leafI, projectState) => {
       showOptions(state: leafI, e) {
         e.stopPropagation();
         state.do.set_show(true);
-        if (frameState) {
-          frameState.do.float(frameId);
-        }
-
-        setTimeout(() => {
-          projectState.do.addDownListener(state.do.autoCloseOptions);
-        })
+          frameState?.do.float(frameId);
       },
       reopen(leaf: leafI) {
         setTimeout(() => {
           leaf.do.set_closed(false);
         })
-      },
-      autoCloseOptions(leaf: leafI) {
-        leaf.do.closeOptions();
       },
       closeOptions(leaf: leafI) {
         leaf.do.set_show(false);

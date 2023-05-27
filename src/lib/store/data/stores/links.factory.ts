@@ -2,6 +2,7 @@ import { createStore } from '~/lib/store/data/createStore'
 import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { Engine } from '~/lib/store/types'
 import { combine } from '~/lib/store/data/utils'
+import { dataOrThrow } from '~/lib/utils'
 
 export type LinkDir = 'from' | 'to';
 const NAME = 'links';
@@ -29,9 +30,9 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
     },
     actions: {
       async loadForProject(store: leafI, projectId: string) {
-        const links = engine.query(NAME, [
-          {field: 'project_id', value: projectId}
-        ]);
+        const links = await dataOrThrow(engine.query(NAME, [
+          { field: 'project_id', value: projectId }
+        ]));
         store.do.addMany(links, true);
         return links;
       },

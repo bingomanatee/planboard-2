@@ -105,6 +105,10 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
       },
       addMany(leaf: leafI, data: any[], exclusive = false) {
         let saved = true;
+        if (!Array.isArray(data)) {
+          console.warn(collectionName, 'bad addMany: ', data);
+          throw new Error(`bad AddMany : ${collectionName}`)
+        }
         data.forEach(content => validateData(content, leaf.getMeta('schema'), collectionName));
         const ids = [];
         leaf.do.mutateValue((map) => {

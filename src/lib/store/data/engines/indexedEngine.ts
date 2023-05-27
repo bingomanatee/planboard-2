@@ -64,7 +64,7 @@ const indexedEngine = (version = 1, config = {}): Engine => {
         const data = await coll.toArray();
         return { data };
       } catch (err) {
-        console.warn('query error:', err);
+        console.warn('query error:', err, 'on', collection, 'with', conditions);
         return { error: err }
       }
 
