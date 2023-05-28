@@ -22,6 +22,36 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
       size(leaf: leafI) {
         return leaf.value.size;
       },
+      find(leaf: leafI, filter: Filter, single: true) {
+        if (typeof filter === 'function') {
+          return c(leaf.value).getReduce((data: any[], record) => {
+            if (filter(record)) {
+              if (single) {
+                throw { $STOP: true, value: record }
+              }
+              data.push(record);
+            }
+            return data;
+          }, []);
+        } else {
+          const fieldSpec: FieldQuery[] = filter;
+          return c(leaf.value).getReduce((data: any[], record: StoreRecord) => {
+            const coll = c(record.content);
+            for (const q of fieldSpec) {
+              const { value, field } = q;
+              if (coll.get(field) !== value) {
+                return data;
+              }
+            }
+
+            if (single) {
+              throw { $STOP: true, value: record }
+            }
+            data.push(record);
+            return data;
+          }, []);
+        }
+      },
       primaryField(leaf: leafI) {
         const primary = leaf.getMeta('primaryField')
         if (primary !== undefined) {
@@ -132,36 +162,6 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
           return map;
         });
         return ids;
-      },
-      find(leaf: leafI, filter: Filter, single: true) {
-        if (typeof filter === 'function') {
-          return c(leaf.value).getReduce((data: any[], record) => {
-            if (filter(record)) {
-              if (single) {
-                throw { $STOP: true, value: record }
-              }
-              data.push(record);
-            }
-            return data;
-          }, []);
-        } else {
-          const fieldSpec: FieldQuery[] = filter;
-          return c(leaf.value).getReduce((data: any[], record: StoreRecord) => {
-            const coll = c(record.content);
-            for (const q of fieldSpec) {
-              const { value, field } = q;
-              if (coll.get(field) !== value) {
-                return data;
-              }
-            }
-
-            if (single) {
-              throw { $STOP: true, value: record }
-            }
-            data.push(record);
-            return data;
-          }, []);
-        }
       },
       async save(store: leafI, id: string) {
         const engine = dataStore.getMeta('engine');

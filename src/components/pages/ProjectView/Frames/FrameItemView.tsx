@@ -75,7 +75,7 @@ export function FrameItemView({ id, frameState }) {
   let inner = null;
   if (content) {
     inner = <FrameContent frame={frame} content={content}/>
-  } else if (frame) {
+  } else if (frame && !linking) {
     if (!ContentPrompt) {
       ContentPrompt = dynamic(() => import ( './ContentPrompt/ContentPrompt'), {
         suspense: true

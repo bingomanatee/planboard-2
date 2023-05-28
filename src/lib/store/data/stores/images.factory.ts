@@ -24,7 +24,7 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
         }
 
         // see if it's in the local store
-        const [markdown] = store.do.find([
+        const [markdown] = store.$.find([
           { field: 'content_id', value: contentId }
         ]);
         if (markdown) {
@@ -93,7 +93,7 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
         return store.do.save(id);
       },
       async deleteForContent(store: leafI, contentId: string) {
-        const items = store.do.find([{ field: 'content_id', value: contentId }]);
+        const items = store.$.find([{ field: 'content_id', value: contentId }]);
         if (!items.length) return;
         // delete the remote values
         for (const imageRecord of items) {

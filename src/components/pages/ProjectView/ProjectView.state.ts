@@ -43,13 +43,13 @@ export const MODE_ADD_LINK = 'drawing-link';
 
 export const MODE_NO_ACTION = 'no-action'
 
-const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => {
+const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backRef) => {
   const initial: ProjectViewValue = {
     loadError: null,
     linkStartId: null,
     linkEndId: null,
     project: null,
-    projectId: id,
+    projectId,
     frames: null,
     loadState: 'start',
     keyData: null,
@@ -88,7 +88,7 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
       },
     },
     meta: {
-      id, // id of the current project
+      id: projectId, // id of the current project; redundant
     },
     actions: {
       updateEndPoint(state: leafI, event: EQMouseEvent) {
@@ -176,24 +176,28 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
           if (event) {
             if (!(onMouseMove && state.value.mouseMode)) {
               const targetId = eventFrame(event.downEvent.target);
+              onMouseMove = state.do.updateLink;
+              // regardless of whether wwe STARTED on a frame
+              // keep checking to see if we dragged OVER a frame.
+              state.do.set_startPoint(new Vector2(event.sx, event.sy));
+
               if (!targetId) {
-                console.log('skipping link - no target id');
-                state.do.claimProjectMode(MODE_NO_ACTION);
+                console.log('skipping link - user did not start dragging over frame');
+                state.do.claimProjectMode(MODE_NO_ACTION); // setting this "non-action"
+                // prevents this branch from being hit repeatedly
               } else {
                 console.log('starting link from ', targetId);
                 /*
-  if the mouse has not been claimed AND we don't have a mouseMove in process, point this and
-  all further events to drawFrame
- */
+                  if the mouse has not been claimed AND we don't have a mouseMove in process,
+                   AND we started over a frame,
+                    enable the link-adding mouseup event
+                   and preserve the starting frame ID
+                 */
                 state.do.set_linkStartId(targetId);
                 state.do.claimProjectMode(MODE_ADD_LINK);
-                state.do.set_startPoint(new Vector2(event.sx, event.sy));
+                onMouseUp = state.do.completeLink;
               }
               state.do.updateLink(event);
-
-              onMouseMove = state.do.updateLink;
-              onMouseUp = state.do.completeLink;
-
             } else {
               if (onMouseMove) {
                 /*
@@ -268,20 +272,36 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
         dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
       },
       completeLink(state: typedLeaf<ProjectViewValue>) {
-        const { startPoint, endPoint, screenOffset, mouseMode, linkStartId, linkEndId } = state.value;
-        // the point coordinates are not really used here - its boilerplate from a cut and paste
-        if (mouseMode && linkStartId) {
-          if (screenOffset) {
-            startPoint.sub(screenOffset);
-            endPoint.sub(screenOffset);
+        const {
+          startPoint,
+          endPoint,
+          projectId,
+          screenOffset,
+          mouseMode,
+          linkStartId, linkEndId
+        } = state.value;
+        // the point coordinates are not used here (yet) - its boilerplate from a cut and paste
+
+
+        console.log('--- completeLink: linking ', linkStartId, 'and', linkEndId, 'mouse mode = ', mouseMode);
+        if (linkStartId && linkEndId) {
+          dataState.child('links')!.do.linkFrames(projectId, linkStartId, linkEndId);
+          // this is technically an async but as the local data is saved sync, we are ignoring any
+          // problems with the link saving for now.
+        } else {
+          if (mouseMode && linkStartId) {
+            if (screenOffset) {
+              startPoint.sub(screenOffset);
+              endPoint.sub(screenOffset);
+            }
+            // otherwise prompt for new target @TODO
           }
-          console.log('--- completeLink: linking ', linkStartId, 'and', linkEndId, 'mouse mode = ', mouseMode);
         }
+
         state.do.set_startPoint(null);
         state.do.set_endPoint(null);
         state.do.set_linkStartId(null);
         state.do.releaseProjectMode();
-        // dataState.child('frames')!.do.createFrame(state.value.project?.id, startPoint, endPoint);
       },
       initMove(state: leafI, targetData: TargetData) {
         const { loadState, mouseMode } = state.value;
@@ -323,7 +343,7 @@ const ProjectViewState = (id, dataState: leafI, globalState: leafI, backRef) => 
       },
       async doLoad(state: leafI) {
         try {
-          const loaded = await dataState.do.loadProject(id);
+          const loaded = await dataState.do.loadProject(projectId);
           const { project, frames, settings } = loaded;
           state.do.set_project(project);
           await state.do.set_frames(frames);

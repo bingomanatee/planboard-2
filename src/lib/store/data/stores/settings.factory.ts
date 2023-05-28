@@ -108,7 +108,7 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
           type: newType
         }
 
-        const [existingRecord] = store.do.find([
+        const [existingRecord] = store.$.find([
           { field: 'project_id', value: projectId },
           { field: 'name', value: name },
         ]);

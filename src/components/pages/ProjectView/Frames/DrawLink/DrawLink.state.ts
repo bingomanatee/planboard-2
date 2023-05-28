@@ -12,6 +12,11 @@ export type DrawLinkStateValue = {
   endFrame: StoreRecord<Frame> | null,
 };
 
+/**
+ * note -- this is a transient system; its assumed that for the
+ * lifetime of this state(and its enclosing component) the frame's
+ * parameters are not going to change.
+ */
 const DrawLinkState = (props, dataState, containerRef) => {
     const frames = dataState.value.get('frames')!;
     const $value: DrawLinkStateValue = {
@@ -25,23 +30,23 @@ const DrawLinkState = (props, dataState, containerRef) => {
 
     return {
       $value,
-
       selectors: {
         clearRef() {
           while (containerRef.current?.firstChild) {
             containerRef.current.removeChild(containerRef.current.lastChild);
           }
         },
-
       },
 
       actions: {
         updateFrame(store, id, stored, setter) {
           if (id) {
-            if (!stored || (stored.id !== id)) {
+            // if the current value is absent or the wrong frame, attach the new one.
+            if (stored?.id !== id) {
               setter(frames.get(id));
             }
           } else if (stored) {
+            // if there is no ID, remove the stored frame.
             setter(null);
           }
         },

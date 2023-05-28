@@ -47,7 +47,7 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
       forFrame(store: leafI, frameId: string) {
        // assumes content has been loaded
         // AND that there is only one.
-        return store.do.find([{field: 'frame_id', value: frameId}], true)
+        return store.$.find([{field: 'frame_id', value: frameId}], true)
       }
     }
   });

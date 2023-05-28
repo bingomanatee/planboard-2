@@ -3,9 +3,9 @@
 .container {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow: visible;
   @include no-select();
   pointer-events: none;
   position: absolute;
-  z-index: 1000000;
+  z-index: 1;
 }

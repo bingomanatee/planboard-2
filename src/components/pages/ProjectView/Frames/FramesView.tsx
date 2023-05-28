@@ -16,6 +16,7 @@ import ErrorTrapper from '~/components/ErrorTrapper'
 import stateFactory from './FramesView.state.ts';
 import { MODE_ADD_LINK } from '~/components/pages/ProjectView/ProjectView.state'
 import DrawLink from '~/components/pages/ProjectView/Frames/DrawLink/DrawLink'
+import FrameLinks from '~/components/pages/ProjectView/Frames/FrameLinks/FrameLinks'
 
 let ProjectEdit;
 type FramesViewProps = {
@@ -61,6 +62,7 @@ export default function FramesView(props: FramesViewProps) {
 
   // todo: move into Project View
   return (<>
+    <FrameLinks />
     {frames.map((frame) => {
       return <FrameItemView key={frame.id} frameState={state} id={frame.id} frame={frame}/>
     })}

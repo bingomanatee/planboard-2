@@ -19,10 +19,10 @@ const ContentPromptState = (props, dataState: leafI, projectState) => {
       hover(state: leafI, hover: string | null) {
         state.do.set_hover(hover);
       },
-      showOptions(state: leafI, e) {
+      showOptions(state: leafI, e) { // actually toggles
         e.stopPropagation();
-        state.do.set_show(true);
-          frameState?.do.float(frameId);
+        state.do.set_show(!state.value.show);
+          frameState?.do.float(state.value.show ? frameId : null);
       },
       reopen(leaf: leafI) {
         setTimeout(() => {

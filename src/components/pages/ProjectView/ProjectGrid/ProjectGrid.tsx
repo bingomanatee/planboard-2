@@ -27,7 +27,7 @@ export default function ProjectGrid(props: ProjectGridProps) {
       }, () => {
         //@TODO: leverage RxJS more efficiently
         try {
-          const [gridSetting] = settings.do.find([
+          const [gridSetting] = settings.$.find([
             { field: 'project_id', value: projectState.value.projectId },
             { field: 'name', value: 'grid' }
           ]);

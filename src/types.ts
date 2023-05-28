@@ -23,11 +23,21 @@ export type NameId = {
   id: string
 }
 
+// ------ Data templates
 export type Project = {} & NameId;
 export type Frame = {project_id: string, order: number } & NameId;
 export type MarkdownData = {title: string, text: string, id: string};
 export type ImageData = {crop: string, scale: number, name?: string, id: string, saved: boolean, syncSize: boolean};
 export type Content = {frame_id: string, project_id: string, type: string, id: string}
+export type Link = {
+  id: string,
+  label?: string,
+  style?: string,
+  from_frame_id: string,
+  to_frame_id: string,
+  project_id: string
+}
+
 export type generalObj = Record<string, any>
 
 export type Setting = {
