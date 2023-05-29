@@ -5,7 +5,8 @@ export type FieldDef = {
   indexed?: boolean,
   default?: any,
   test?: (value: any) => boolean,
-  primary?: boolean
+  primary?: boolean,
+  version?: number,
 }
 
 export type GoodAsync = { data: any };
@@ -16,7 +17,12 @@ export type Engine = {
   addStore: (collection: string, schema?: FieldDef[]) => void
   fetch: (collection: string, id: any) => Promise<AsyncResponse>
   query: (collection: string, conditions: FieldQuery[]) => Promise<AsyncResponse>
-  deleteIds: (ids: any[]) => Promise<void>;
+  deleteIds: (ids: any[]) => Promise<void>,
+  tables: () =>  Map<number, IndexDbTables>,
+  schema(string): FieldDef[],
+  schemas: Record<string, Map<number, FieldDef[]>>
+  // an object of tables, indexed by name,
+  // whose values are a map of version number to FieldDef array
   initialize() : void
 }
 
@@ -41,3 +47,4 @@ export type FieldQuery = {
 }
 
 export type Filter = ((value: StoreRecord) => boolean) | FieldQuery[]
+export type IndexDbTables = Record<string, string>

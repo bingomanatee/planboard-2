@@ -12,9 +12,11 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
     { name: 'id', type: 'string', primary: true },
     { name: 'label', type: 'string', optional: true },
     { name: 'style', type: 'string', optional: true }, // JSON format describer
-    { name: 'from_frame_id', type: 'string' },
-    { name: 'to_frame_id', type: 'string' },
-    { name: 'project_id', type: 'string' }
+    { name: 'from_frame_id', type: 'string', version: 2 },
+    { name: 'to_frame_id', type: 'string', version: 2 },
+    { name: 'project_id', type: 'string' },
+    { name: 'from_detail', type: 'json', optional: true},
+    { name: 'to_detail', type: 'json', optional: true}
   ], {
     selectors: {
       // note -- at this point we are ignoring the project id in frame searches

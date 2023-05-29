@@ -1,4 +1,4 @@
-import { memo, useContext, Suspense, useRef, createContext, useMemo, useCallback } from 'react';
+import { createContext, memo, Suspense, useCallback, useContext, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './ProjectView.module.scss';
 import stateFactory, { ProjectViewValue } from './ProjectView.state.ts';

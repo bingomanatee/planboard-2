@@ -4,7 +4,6 @@ import indexedEngine from '~/lib/store/data/engines/indexedEngine'
 import { v4 } from 'uuid'
 
 describe('dataStoreFactory', () => {
-
   describe('basic i/o', () => {
 
     describe('addition', () => {
@@ -34,7 +33,7 @@ describe('dataStoreFactory', () => {
           });
 
           it('should let you add existing projects', () => {
-            const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
+            const store = dataStoreFactory(indexedEngine( { indexedDB: new IDBFactory(), IDBKeyRange }));
             const projects = store.child('projects')!;
             const id = v4();
 
@@ -47,7 +46,7 @@ describe('dataStoreFactory', () => {
           });
 
           it('should let you save new projects', async () => {
-            const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
+            const store = dataStoreFactory(indexedEngine( { indexedDB: new IDBFactory(), IDBKeyRange }));
             const projects = store.child('projects')!;
 
             const { id } = projects.do.add({ name: "test-project" });
@@ -58,7 +57,7 @@ describe('dataStoreFactory', () => {
           });
 
           it('should let you save (over) existing projects', async () => {
-            const engine = indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange });
+            const engine = indexedEngine( { indexedDB: new IDBFactory(), IDBKeyRange });
             const store = dataStoreFactory(engine);
             const projects = store.child('projects')!;
             const id = v4();
@@ -75,7 +74,7 @@ describe('dataStoreFactory', () => {
         });
         describe('fetch', () => {
           it('should fetch existing projects', async () => {
-            const engine = indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange });
+            const engine = indexedEngine({ indexedDB: new IDBFactory(), IDBKeyRange });
             const store = dataStoreFactory(engine);
             const projects = store.child('projects')!;
             const id = v4();
@@ -91,7 +90,7 @@ describe('dataStoreFactory', () => {
         describe('query', () => {
           it('should pull users with no id ', async () => {
 
-            const engine = indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange });
+            const engine = indexedEngine( { indexedDB: new IDBFactory(), IDBKeyRange });
             const store = dataStoreFactory(engine);
             const projects = store.child('projects')!;
 
@@ -155,7 +154,7 @@ describe('dataStoreFactory', () => {
           });
 
           it('should let you add existing frames', async () => {
-            const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
+            const store = dataStoreFactory(indexedEngine( { indexedDB: new IDBFactory(), IDBKeyRange }));
             const frames = store.child('frames')!;
             const id = v4();
 
@@ -179,7 +178,7 @@ describe('dataStoreFactory', () => {
           });
 
           it('should let you save new frames', async () => {
-            const store = dataStoreFactory(indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange }));
+            const store = dataStoreFactory(indexedEngine({ indexedDB: new IDBFactory(), IDBKeyRange }));
             const frames = store.child('frames')!;
 
             const { id } = frames.do.add({
@@ -202,7 +201,7 @@ describe('dataStoreFactory', () => {
           });
 
           it('should let you save (over) existing frames', async () => {
-            const engine = indexedEngine(1, {
+            const engine = indexedEngine( {
               indexedDB: new IDBFactory(),
               IDBKeyRange
             });
@@ -237,7 +236,7 @@ describe('dataStoreFactory', () => {
         });
         describe('fetch', () => {
           it('should fetch existing frames', async () => {
-            const engine = indexedEngine(1, { indexedDB: new IDBFactory(), IDBKeyRange });
+            const engine = indexedEngine( { indexedDB: new IDBFactory(), IDBKeyRange });
             const store = dataStoreFactory(engine);
             const frames = store.child('frames')!;
             const id = v4();

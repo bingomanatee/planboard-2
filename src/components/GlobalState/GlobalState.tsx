@@ -17,7 +17,7 @@ export const DataStateContext = createContext<DataProvided>(null);
 export type DataStateContextValue = {dataState: typedLeaf<DataStateValue>, dataValue: DataStateValue}
 export default function GlobalState({ children }: GenericProps) {
   const { globalState, dataState } = useMemo(() => {
-    const engine = indexedEngine(1, {});
+    const engine = indexedEngine( {});
     const data = dataStoreFactory(engine);
     const global = globalFactory(data);
     return {globalState: global, dataState: data}
