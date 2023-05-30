@@ -54,6 +54,20 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
         }
         return targetFieldName;
       },
+      grid(store: leafI) {
+        const content = store.$.query(
+          [{ field: 'name', value: 'grid' }],
+          true)(store.value)?.content;
+        if (content) {
+          try {
+            const info = JSON.parse(content.value_s);
+            if (!info.active) return null;
+            return info;
+          } catch (err) {
+            return null;
+          }
+        }
+      }
     },
     actions: {
       /**

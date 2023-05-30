@@ -4,6 +4,7 @@ import { Frame, Project } from '~/types'
 import { eventFrame } from '~/lib/utils'
 import EventQueue, { EQMouseEvent } from '~/lib/EventQueue'
 import { Subscriber } from 'rxjs'
+import { roundPoint } from '~/components/utils/pointUtils'
 
 type KeyData = {
   key: string,
@@ -263,9 +264,16 @@ const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backR
         state.$.addSub(sub);
       },
       completeAddFrame(state: typedLeaf<ProjectViewValue>) {
-        const { startPoint, endPoint, screenOffset } = state.value;
+        let { startPoint, endPoint, screenOffset } = state.value;
         startPoint.sub(screenOffset);
         endPoint.sub(screenOffset);
+
+        const grid = dataState.child('settings')!.$.grid();
+        if (grid?.resolution >= 8) {
+          startPoint = roundPoint(startPoint, grid.resolution);
+          endPoint = roundPoint(endPoint, grid.resolution, true);
+        }
+
         state.do.set_startPoint(null);
         state.do.set_endPoint(null);
         state.do.releaseProjectMode();
@@ -282,8 +290,6 @@ const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backR
         } = state.value;
         // the point coordinates are not used here (yet) - its boilerplate from a cut and paste
 
-
-        console.log('--- completeLink: linking ', linkStartId, 'and', linkEndId, 'mouse mode = ', mouseMode);
         if (linkStartId && linkEndId) {
           dataState.child('links')!.do.linkFrames(projectId, linkStartId, linkEndId);
           // this is technically an async but as the local data is saved sync, we are ignoring any

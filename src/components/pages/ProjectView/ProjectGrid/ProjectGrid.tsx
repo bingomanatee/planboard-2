@@ -1,14 +1,10 @@
-import { useState, useEffect, useContext } from 'react';
-import { Text, Box } from 'grommet';
+import { useContext } from 'react';
 import styles from './ProjectGrid.module.scss';
 import stateFactory from './ProjectGrid.state.ts';
 import useForest from '~/lib/useForest';
 import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/components/pages/ProjectView/ProjectView'
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
-import { Setting } from '~/types'
 import DrawGrid from '~/components/DrawGrid/DrawGrid'
-import { distinctUntilChanged, map } from 'rxjs'
-import { c } from '@wonderlandlabs/collect'
 
 type ProjectGridProps = {}
 
