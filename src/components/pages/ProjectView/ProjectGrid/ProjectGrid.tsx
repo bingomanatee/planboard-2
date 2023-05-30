@@ -7,6 +7,8 @@ import { ProjectViewStateContext, ProjectViewStateContextProvider } from '~/comp
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
 import { Setting } from '~/types'
 import DrawGrid from '~/components/DrawGrid/DrawGrid'
+import { distinctUntilChanged, map } from 'rxjs'
+import { c } from '@wonderlandlabs/collect'
 
 type ProjectGridProps = {}
 
@@ -16,34 +18,20 @@ export default function ProjectGrid(props: ProjectGridProps) {
 
   const [value, state] = useForest([stateFactory, props, dataState, projectState.value.projectId],
     (localState) => {
-      const settings = dataState.child('settings')!;
-      // every time the settings change, load the grid settings.
-      const sub = settings.select((gridSetting?: Setting) => {
-        try {
-          localState.do.loadSetting(gridSetting);
-        } catch (e) {
-          console.log('PGSE : ', e);
-        }
-      }, () => {
-        //@TODO: leverage RxJS more efficiently
-        try {
-          const [gridSetting] = settings.$.find([
-            { field: 'project_id', value: projectState.value.projectId },
-            { field: 'name', value: 'grid' }
-          ]);
-          return gridSetting?.content || null;
-        } catch (error) {
-          console.log('ProjectGrid state error: ', error);
-        }
-        return null;
-      });
-
-      return sub.unsubscribe();
+      const sub = dataState.child('settings')!
+        .$.watchQuery(
+          (record) => {
+            return localState.do.loadSetting(record?.content)
+          },
+          [{ field: 'name', value: 'grid' }],
+          true
+        );
+      return () => sub.unsubscribe();
     });
 
   const {} = value;
 
   return (<div className={styles.container}>
-      <DrawGrid {...value} />
+    <DrawGrid {...value} />
   </div>);
 }

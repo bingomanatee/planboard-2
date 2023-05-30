@@ -28,6 +28,7 @@ const EditGridState = (props: EditGridProps, dataState, projectId) => {
     actions: {
       async load(store: typedLeaf<GridStateValue>) {
         const props = await dataState.child('settings')!.do.loadForProject(projectId);
+
         const config = props.get('grid');
         if (config) {
           try {
@@ -39,8 +40,8 @@ const EditGridState = (props: EditGridProps, dataState, projectId) => {
           } catch (err) {
             console.warn('error parsing grid config:', err);
           }
-          store.do.set_loaded(true);
         }
+        store.do.set_loaded(true);
       },
       setRes(store: typedLeaf<GridStateValue>, value) {
         store.do.set_resolution(value ? Math.max(0, Number(value)) : null);

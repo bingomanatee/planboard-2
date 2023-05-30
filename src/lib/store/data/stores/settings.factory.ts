@@ -119,13 +119,14 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
             ...sharedFields,
             [targetFieldName]: value
           }
-          console.log('addSetting - data = ', data, 'tfn:', targetFieldName);
+          console.log('addSetting - data = ', data, 'tfn:', targetFieldName, 'to settings ', store.id);
         }
         if (existingRecord) {
           record = store.do.add(data, existingRecord.id);
         } else {
           record = store.do.add(data);
         }
+        console.log('added record', record, 'to store', store.value);
         return await store.do.save(record.id);
       },
       async loadForProject(store: leafI, id: string) {

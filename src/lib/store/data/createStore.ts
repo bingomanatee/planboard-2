@@ -6,6 +6,7 @@ import { v4 } from 'uuid'
 import { isEqual } from 'lodash'
 
 type ValueMutator = (records: Map<string, any>) => (StoreMap | void);
+type WatchFn = (value: StoreRecord<any> | StoreRecord<any>[]) => void;
 
 export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[], config?: Partial<leafConfig>) {
   const actions = config?.actions || {};
@@ -14,30 +15,34 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
 
   engine.addStore(collectionName, schema || []);
   dataStore.addChild({
-    id: collectionName,
+    name: collectionName,
     $value: new Map(),
     meta: { schema: schema || [] },
+    fast: true,
     selectors: {
       ...selectors,
       size(leaf: leafI) {
         return leaf.value.size;
       },
-      find(leaf: leafI, filter: Filter, single: true) {
+      query(leaf: leafI, filter: Filter, single: boolean) {
+        // returns a function for reducing a dataset based on field criteria
         if (typeof filter === 'function') {
-          return c(leaf.value).getReduce((data: any[], record) => {
-            if (filter(record)) {
-              if (single) {
-                throw { $STOP: true, value: record }
+          return (value) => {
+            return c(value).getReduce((data: any[], record) => {
+              if (filter(record)) {
+                if (single) {
+                  throw { $STOP: true, value: record }
+                }
+                data.push(record);
               }
-              data.push(record);
-            }
-            return data;
-          }, []);
-        } else {
-          const fieldSpec: FieldQuery[] = filter;
-          return c(leaf.value).getReduce((data: any[], record: StoreRecord) => {
+              return data;
+            }, []);
+          }
+        }
+        return (value) => {
+          return c(value).getReduce((data: any[], record: StoreRecord) => {
             const coll = c(record.content);
-            for (const q of fieldSpec) {
+            for (const q of filter) {
               const { value, field } = q;
               if (coll.get(field) !== value) {
                 return data;
@@ -51,6 +56,9 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
             return data;
           }, []);
         }
+      },
+      find(leaf: leafI, filter: Filter, single: boolean) {
+        return leaf.$.query(filter, single)(leaf.value);
       },
       primaryField(leaf: leafI) {
         const primary = leaf.getMeta('primaryField')
@@ -80,7 +88,7 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
         }
         return c(value).get(field);
       },
-      watchId(leaf: leafI, id: string, onChange, skipCurrent = false) {
+      watchId(leaf: leafI, id: string, onChange: WatchFn, skipCurrent = false) {
         let lastRecord = leaf.value.get(id);
         if (!skipCurrent) {
           onChange(lastRecord);
@@ -91,6 +99,10 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
           }
           lastRecord = record;
         }, (value: Map<string, StoreRecord>) => value.get(id));
+      },
+      watchQuery(leaf: leafI, onChange: WatchFn, filter: Filter, single: boolean) {
+        const query = leaf.$.query(filter, single);
+        return leaf.select(onChange, query);
       }
     },
     actions: {
