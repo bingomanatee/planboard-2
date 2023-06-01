@@ -40,7 +40,11 @@ export const MODE_DRAG_SCREEN = 'dragging-screen';
 
 export const MODE_ADD_FRAME = 'drawing-frame';
 
+export const MODE_EDIT_GRID = 'grid';
+
 export const MODE_ADD_LINK = 'drawing-link';
+
+export const MODE_FRAMES_LIST = 'frames-list';
 
 export const MODE_NO_ACTION = 'no-action'
 
@@ -106,7 +110,6 @@ const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backR
         state.do.initDragScreen(window);
         state.do.initAddLink(window);
       },
-
       initDragScreen(state: typedLeaf<ProjectViewValue>, window) {
         const eq = state.$.eq(window);
 
@@ -150,7 +153,6 @@ const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backR
 
         state.$.addSub(sub);
       },
-
       dragScreen(state: leafI, event: EQMouseEvent) {
         state.do.updateEndPoint(event);
         const delta = state.value.endPoint.clone().sub(state.value.startPoint);
@@ -322,14 +324,23 @@ const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backR
         state.do.releaseProjectMode('moving-item');
       },
       editGrid(state: typedLeaf<ProjectViewValue>) {
-        state.do.set_editMode('grid');
+        state.do.set_editMode(MODE_EDIT_GRID);
+      },
+      framesList(state: typedLeaf<ProjectViewValue>) {
+        state.do.set_editMode(MODE_FRAMES_LIST);
       },
       initNavMenu(state: typedLeaf<ProjectViewValue>) {
         globalState.do.clearMenuItems();
         const items = [
           {
-            type: 'button', label: 'grid', props: {
+            type: 'button', label: 'Edit Grid', props: {
               onClick: state.do.editGrid,
+              plain: true
+            }
+          },
+          {
+            type: 'button', label: 'Frames List', props: {
+              onClick: state.do.framesList,
               plain: true
             }
           }

@@ -40,7 +40,6 @@ export default function EditGrid(props: EditGridProps) {
   useEffect(() => state.do.setRes(resText), [resText, state])
   return (
     <BoxColumn fill align="center" justify="center">
-      Grid Editor
       <Card margin="large" background="background-back" id="edit-frame"
             width={size === 'large' ? { max: '800px', min: '50vw' } : '100%'}
             className={styles.container}

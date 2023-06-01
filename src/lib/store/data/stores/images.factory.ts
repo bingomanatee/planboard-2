@@ -10,6 +10,7 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
   createStore(dataStore, 'images', [
     { name: 'id', type: 'string', primary: true },
     { name: 'name', type: 'string', optional: true },
+    { name: 'filename', type: 'string', optional: true, version: 3 },
     { name: 'crop', type: 'string', optional: true },
     { name: 'scale', type: 'number', optional: true },
     { name: 'syncSize', type: 'boolean', optional: true },

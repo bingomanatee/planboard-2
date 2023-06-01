@@ -8,6 +8,15 @@ function matchingVersion(fieldDef: FieldDef, version: number) {
   return fieldVersion(fieldDef) === version;
 }
 
+function assertVersion(tableSchema, version) {
+
+}
+
+const byVersion = (r1, r2) => {
+  const diff = fieldVersion(r1) - fieldVersion(r2);
+  return diff ? diff / Math.abs(diff) : 0;
+}
+
 const fieldVersion = (fieldDef: FieldDef) => 'version' in fieldDef ? fieldDef.version : 1
 
 const indexedEngine = (config = {}): Engine => {
@@ -30,7 +39,6 @@ const indexedEngine = (config = {}): Engine => {
       }
       const tables = engine.tables();
       tables.forEach((versionTables, ver) => {
-        // console.log('initializing version', ver, 'with tables:', versionTables);
         db.version(ver).stores(versionTables);
       })
 
@@ -38,11 +46,16 @@ const indexedEngine = (config = {}): Engine => {
 
       engine.init = true;
     },
+    // the schema for a collection
     schema(collectionName: string) {
       const map = engine.schemas[collectionName];
-      if (!map) throw new Error('no schema for ' + collectionName);
+      if (!map) {
+        throw new Error('no schema for ' + collectionName);
+      }
       return c(map).getReduce((memo, schema, version) => {
-        if (!memo || (version > memo.version))  return {version, schema};
+        if (!memo || (version > memo.version)) {
+          return { version, schema };
+        }
         return memo;
       }, null).schema;
     },
@@ -63,18 +76,22 @@ const indexedEngine = (config = {}): Engine => {
     tables(): Map<number, IndexDbTables> {
       // refactors the schema (table(object) name -> Map<version,fields>) to
       // Map<version,IndexedDbTables>
-      const tableMap = new Map();
+      let tableMap = new Map();
       const tableNames = Object.keys(engine.schemas);
+
       tableNames.forEach((tableName) => {
-        const tableSchemas = engine.schemas[tableName]
-        tableSchemas.forEach((fieldList, version) => {
-          if (!tableMap.has(version)) {
-            tableMap.set(version, {});
+        const tableSchema = engine.schemas[tableName]
+        tableSchema.forEach((fieldList, version) => {
+          let tableVersion = tableMap.get(version);
+          if (!tableVersion) {
+            tableVersion = {};
+            tableMap.set(version, tableVersion);
           }
-          tableMap.get(version)[tableName] = sortBy(fieldList, 'primary')
+          tableVersion[tableName] = sortBy(fieldList, 'primary')
             .map((field) => field.name).join(',');
         });
       });
+
       // roll forward versions of tables that don't have definitions as high as other ones.
       tableMap.forEach((tableDef, version) => {
         let next = version + 1;
@@ -135,23 +152,23 @@ const indexedEngine = (config = {}): Engine => {
     },
     distribute(schema: FieldDef[]) {
       // sorted collection of fields ordered by versions;
-      const coll = c(schema).sort((r1, r2) => {
-        const diff = fieldVersion(r1) - fieldVersion(r2);
-        return diff ? diff / Math.abs(diff) : diff;
-      });
+      const coll = c(schema).sort(byVersion);
 
       const versions = Array.from(coll.getReduce((memo, fieldDef) => {
         memo.add(fieldVersion(fieldDef));
         return memo;
       }, new Set())); // array of numbers.
 
+      let min = Math.min(...versions);
+      let max = Math.max(...versions);
+
       const versionedFields = new Map();
-      versions.forEach((version) => {
-        const c2 = coll.getFilter((fieldDef) => {
-          return fieldVersion(fieldDef) === version
+      for(let version = min; version <= max; ++version) {
+        const fields = coll.getFilter((fieldDef) => {
+          return fieldVersion(fieldDef) <= version
         });
-        versionedFields.set(version, c2);
-      })
+        versionedFields.set(version, fields);
+      }
       return [versions, versionedFields];
     },
     addStore(collection: string, schema: FieldDef[] | undefined): void {

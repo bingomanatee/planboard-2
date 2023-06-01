@@ -1,0 +1,13 @@
+@import "~/styles/utils.scss";
+
+.container {
+  overflow: hidden;
+  .image-preview {
+    height: 100%;
+    width: 100%;
+    overflow: scroll;
+    img {
+      @include no-select();
+    }
+  }
+}

@@ -1,6 +1,6 @@
 const ImageEditorState = (props) => {
   return {
-    $value: {},
+    $value: {editImage: false},
     selectors: {},
     actions: {}
   };

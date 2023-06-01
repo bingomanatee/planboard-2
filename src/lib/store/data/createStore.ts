@@ -145,6 +145,7 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
         leaf.do.mutateValue((map) => map.set(id, record));
         return record;
       },
+      // upserts several content at once. data is an array of content items
       addMany(leaf: leafI, data: any[], exclusive = false) {
         let saved = true;
         if (!Array.isArray(data)) {

@@ -4,14 +4,7 @@ import { StoreRecord } from '~/lib/store/types'
 import { c } from '@wonderlandlabs/collect'
 import { Content } from '~/types'
 import { BehaviorSubject, map } from 'rxjs'
-
-function byContentReducer(memo: Map<string, ImageData>, r: StoreRecord) {
-  const content_id = r.content.content_id;
-  if (content_id) {
-    memo.set(content_id, r);
-  }
-  return memo;
-}
+import { byContentReducer } from '~/lib/store/data/utils'
 
 /*
 this is the compoent that shows ALL the frames (Frames plural).

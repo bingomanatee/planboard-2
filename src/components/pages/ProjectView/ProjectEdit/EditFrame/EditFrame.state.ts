@@ -15,11 +15,7 @@ const EditFrameState = (dataState, closeTrigger) => {
           if (content) {
             state.child('content')!.value = content;
           }
-          /*  console.log('EditFrameState: result = ', result);
-            console.log('EditFrameState: frame = ', frame);
-            console.log('EditFrameState: content = ', content);
-            console.log('EditFrameState: contentData = ', contentData);
-*/
+
           let $value;
           switch (content?.type) {
             case 'markdown':

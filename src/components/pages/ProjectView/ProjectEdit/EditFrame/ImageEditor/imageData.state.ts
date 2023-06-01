@@ -1,8 +1,12 @@
-import { leafI } from '@wonderlandlabs/forest/lib/types'
+import { leafI, typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import { RefObject } from 'react'
 import { Content, ImageData } from '~/types'
 import axios from 'axios'
 import getImageUrl from '~/components/utils/getImageUrl'
+import { propsToPx } from '~/lib/utils'
+import {
+  CropScaleStateValue
+} from '~/components/pages/ProjectView/ProjectEdit/EditFrame/ImageEditor/CropScale/CropScale.state'
 
 const EXTENSION_MAP = new Map([
     ['gif', 'image/gif'],
@@ -46,9 +50,9 @@ const imageDataState = (
     width: 0,
     height: 0,
     filename: '',
-    zoom: 1,
+    scale: 1,
     syncSize: !!contentData.syncSize,
-    saved: contentData.saved,
+    saved: !!contentData.saved,
     uploaded: false,
     ...(contentData || {}), // will override most of these values
     content_id: content.id,
@@ -102,6 +106,7 @@ const imageDataState = (
           imageState.setMeta('fileReader', reader, true);
         },
         async commitFile(imageState: leafI) {
+          // saves the file image to the backend (supabase)
           const formData = new FormData();
           const { project_id, id } = imageState.value;
 
@@ -143,7 +148,7 @@ const imageDataState = (
           if (imageState.value.uploaded) {
             await imageState.do.commitFile();
           }
-          const { width, height, content_id, project_id, id, syncSize, uploaded, saved } = imageState.value;
+          const { width, height, content_id, project_id, id, syncSize, filename, saved, scale } = imageState.value;
 
           const newImageContent = {
             ...contentData,
@@ -153,17 +158,26 @@ const imageDataState = (
             project_id,
             id,
             syncSize,
+            filename,
+            scale,
             saved
           };
           const imageStore = dataState.child('images')!;
           imageStore.do.add(newImageContent, id);
           await imageStore.do.save(id);
-          if (syncSize && width && height && saved) {
-            dataState.do.setFrameSize(content.frame_id, width, height);
+          if (syncSize && width && height && saved && scale) {
+            dataState.do.setFrameSize(content.frame_id, Math.round(width * scale), Math.round(height * scale));
           }
         }
       },
       selectors: {
+        imageStyle(state: typedLeaf<CropScaleStateValue>) {
+          const { width, height, scale } = state.value;
+          if (width && height && scale) {
+            return propsToPx({ width : width * scale, height: height * scale })
+          }
+          return {};
+        },
         extension(leaf: leafI) {
           const { filename } = leaf.value;
           if (!filename) {

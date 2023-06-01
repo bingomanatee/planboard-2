@@ -1,0 +1,40 @@
+@import "~/styles/utils.scss";
+
+.container {
+
+}
+
+.detail-head {
+  position: relative;
+}
+
+.frame-item {
+  position: relative;
+  @include no-select();
+
+  &:hover {
+    border: 1px solid var(--hover-color);
+    background-color: var(--hover-color-fill);
+  }
+}
+.active-frame {
+  border: 1px solid var(--selected-color);
+  background-color: var(--selected-color-fill) !important;
+}
+
+.locked-frame .frame-item:hover {
+  background-color: transparent !important;
+}
+
+.order {
+  position: absolute;
+  right: 3px;
+  top: 10px;
+}
+
+.move-button button svg {
+  color: hsl(185, 73%, 23%);
+  &:hover {
+    color: var(--hover-color)
+  }
+}

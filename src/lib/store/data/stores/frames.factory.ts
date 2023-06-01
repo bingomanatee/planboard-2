@@ -92,6 +92,16 @@ const framesFactory = (store: leafI, engine: Engine) => {
         state.do.add(content, frameId);
         return state.do.save(frameId);
       },
+      reorder(state: leafI, orderMap: Map<string, number>) {
+        const newData = [];
+        orderMap.forEach((order, id) => {
+          const item = state.value.get(id);
+          if (item && item.content.order !== order) {
+            newData.push({...item.content, order});
+          }
+        });
+        if (newData.length) state.do.addMany(newData);
+      },
       async loadForProject(state: leafI, id: string) {
         const data = await dataOrThrow(engine.query(NAME, [
           { field: 'project_id', value: id }

@@ -10,3 +10,11 @@ export function combine(...itemLists: StoreRecord[][]) {
 
   return Array.from(map.values());
 }
+
+export function byContentReducer(memo: Map<string, ImageData>, r: StoreRecord) {
+  const content_id = r.content.content_id;
+  if (content_id) {
+    memo.set(content_id, r);
+  }
+  return memo;
+}

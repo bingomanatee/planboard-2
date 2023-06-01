@@ -1,6 +1,10 @@
-import { leafI } from '@wonderlandlabs/forest/lib/types'
+import { leafI, typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import axios from 'axios'
 import checkImageUrl from '~/components/utils/getImageUrl'
+import { propsToPx } from '~/lib/utils'
+import {
+  CropScaleStateValue
+} from '~/components/pages/ProjectView/ProjectEdit/EditFrame/ImageEditor/CropScale/CropScale.state'
 
 const ImageState = (props, dataStore) => {
   const content = props.content
@@ -17,7 +21,18 @@ const ImageState = (props, dataStore) => {
       checkedImageUrl: 0,
       imageUrlLoadError: null
     },
-    selectors: {},
+    selectors: {
+      imageStyle(state: typedLeaf<CropScaleStateValue>) {
+        if (!state.value.image) {
+          return {};
+        }
+        const { width, height, scale } = state.value.image;
+        if (width && height) {
+          return propsToPx({ width : width * scale, height: height * scale })
+        }
+        return {};
+      }
+    },
     actions: {
       async checkImageUrl(store: leafI) {
         const { id, checkedImageUrl } = store.value;

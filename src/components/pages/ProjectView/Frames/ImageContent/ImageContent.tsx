@@ -12,9 +12,16 @@ type ImageProps = {}
 export default function ImageContent(props: ImageProps) {
   const { dataState } = useContext<DataProvided>(DataStateContext)
   const [value, state] = useForest([stateFactory, props, dataState],
-    (localState) => {
-      state.do.loadContent();
-      //@TODO: watch for changes
+    async (localState) => {
+      await state.do.loadContent();
+      const {id, stored} = localState.value;
+      if (!(id && stored)) return;
+
+      const sub = dataState.child('images')!.$.watchId(id, (record) => {
+        localState.do.set_image(record.content);
+      });
+
+      return () => sub.unsubscribe();
     });
 
   const { imageUrlLoadError, imageUrl, id } = value;
@@ -30,7 +37,7 @@ export default function ImageContent(props: ImageProps) {
       </BoxColumn>
     )
   } else if (imageUrl) {
-    content = <img src={imageUrl} alt={id}/>
+    content = <img src={imageUrl} alt={id} style={state.$.imageStyle() }/>
   } else {
     content = <Spinner/>
   }

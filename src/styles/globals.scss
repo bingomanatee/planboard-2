@@ -1,5 +1,10 @@
 @import './utils.scss';
 :root {
+  --hover-color: hsla(30,100%,50%, 1);
+  --hover-color-fill: hsla(30,100%,50%, 0.15);
+  --selected-color: hsl(55, 100%, 50%);
+  --selected-color-fill: hsla(55,100%,50%, 0.15);
+
   --shadow-color: 0deg 0% 56%;
   --shadow-color-green: 110deg 50% 36%;
 
