@@ -6,16 +6,18 @@ type ufiConfig = {
   filter?: (update: unknown) => unknown,
   targetField?: string
 }
-export default function useForestInput<InputElement = HTMLInputElement>(
+const identity = (n) => n;
+
+export default function useForestInput<InputType = HTMLInputElement>(
   leaf: leafI,
   fieldName: string,
   config?: ufiConfig):
-  [value: any, handler: (e: FormEvent<InputElement>) => void] {
+  [value: any, handler: (e: FormEvent<InputType>) => void] {
   const setter = useMemo(() => `set_${fieldName}`, [fieldName]);
 
-  const {filter, targetField} = {filter: null, targetField: 'value', ...(config || {})}
+  const {filter, targetField, inFilter = identity} = {filter: null, targetField: 'value', ...(config || {})}
 
-  const handler = useCallback((e: FormEvent<InputElement  >) => {
+  const handler = useCallback((e: FormEvent<InputType>) => {
 
     const target =  e.target as generalObj;
     const next  = target[targetField];
@@ -37,7 +39,7 @@ export default function useForestInput<InputElement = HTMLInputElement>(
     }
   }, [setter, leaf]);
 
-  return [leaf.get(fieldName), handler]
+  return [inFilter(leaf.get(fieldName)), handler]
 }
 
 

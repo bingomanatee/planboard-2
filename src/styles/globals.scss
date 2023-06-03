@@ -1,5 +1,6 @@
 @import './utils.scss';
 :root {
+  --light-grey: hsl(0,0%,80%);
   --hover-color: hsla(30,100%,50%, 1);
   --hover-color-fill: hsla(30,100%,50%, 0.15);
   --selected-color: hsl(55, 100%, 50%);

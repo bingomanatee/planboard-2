@@ -22,19 +22,16 @@
   background-color: var(--selected-color-fill) !important;
 }
 
+.active-frame-locked, .active-frame-locked:hover {
+  border: 3px solid var(--selected-color);
+  background-color: var(--hover-color-fill);
+}
+
 .locked-frame .frame-item:hover {
-  background-color: transparent !important;
 }
 
 .order {
   position: absolute;
   right: 3px;
   top: 10px;
-}
-
-.move-button button svg {
-  color: hsl(185, 73%, 23%);
-  &:hover {
-    color: var(--hover-color)
-  }
 }

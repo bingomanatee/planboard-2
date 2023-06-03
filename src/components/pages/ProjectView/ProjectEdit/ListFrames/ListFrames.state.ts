@@ -1,22 +1,23 @@
 import { BehaviorSubject, map, Observable } from 'rxjs'
 import { StoreRecord } from '~/lib/store/types'
 import { c } from '@wonderlandlabs/collect'
-import { Content, Frame } from '~/types'
+import { Content } from '~/types'
 import { leafI, typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import { byContentReducer } from '~/lib/store/data/utils'
 import { sortBy } from 'lodash'
-
-type FrameInfo = { id: string, frame: Frame, content: Content | null, contentData: any };
+import { FrameInfo } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/types'
 
 export type ListFramesStateValue = { selected: string | null, frames: StoreRecord<FrameInfo>[] };
 
+type leafType = typedLeaf<ListFramesStateValue>;
+
 const ListFramesState = (props, dataState) => {
-  const $value: ListFramesStateValue = { frames: [], selected: null };
+  const $value: ListFramesStateValue = { frames: [], selected: null, lockSelected: null };
   return {
     $value,
 
     selectors: {
-      initFrameObserver(state: leafI): Observable<any> {
+      initFrameObserver(state: leafType): Observable<any> {
         const dataSubj = new BehaviorSubject(dataState.value);
         let observable = dataSubj
           .pipe(
@@ -73,7 +74,7 @@ const ListFramesState = (props, dataState) => {
         state.setMeta('sub', sub);
         return observable;
       },
-      currentFrame(state: typedLeaf<ListFramesStateValue>) {
+      currentFrame(state: leafType) {
         const { selected, frames } = state.value;
         if (!selected) {
           return null;
@@ -83,14 +84,18 @@ const ListFramesState = (props, dataState) => {
     },
 
     actions: {
-      toggleSelectFrame(state: leafI, frameId) {
-        if (frameId === state.value.selected) {
-          state.do.set_selected(null);
-        } else {
+      clickFrame(state: leafType, frameId) {
+        const { lockSelected } = state.value;
+        state.do.set_selected(frameId);
+        state.do.set_lockSelected(frameId === lockSelected ? null : frameId)
+      },
+      overFrame(state: leafType, frameId) {
+        const { lockSelected } = state.value;
+        if (!lockSelected) {
           state.do.set_selected(frameId);
         }
       },
-      watchFrames(state: leafI) {
+      watchFrames(state: leafType) {
         let observable = state.getMeta('observable');
         if (!observable) {
           observable = state.$.initFrameObserver();
@@ -99,7 +104,7 @@ const ListFramesState = (props, dataState) => {
           return sortBy(Array.from(frames.values()), 'frame.order');
         })).subscribe(state.do.set_frames);
       },
-      moveFrames(state: typedLeaf<ListFramesStateValue>, reorder) {
+      moveFrames(state: leafType, reorder) {
         const { selected } = state.value;
         if (!selected) {
           return;
@@ -118,7 +123,7 @@ const ListFramesState = (props, dataState) => {
         });
         dataState.child('frames')!.do.reorder(map);
       },
-      moveTop(state: typedLeaf<ListFramesStateValue>) {
+      moveTop(state: leafType) {
         const { selected, frames } = state.value;
         const current: FrameInfo | null = state.$.currentFrame();
         state.do.moveFrames(function* reorder() {
@@ -130,7 +135,7 @@ const ListFramesState = (props, dataState) => {
           }
         });
       },
-      moveDown(state: leafI) {
+      moveDown(state: leafType) {
         const { selected, frames } = state.value;
         const current: FrameInfo | null = state.$.currentFrame();
         const next = frames.reduce((memo, fi, index) => {
@@ -159,7 +164,7 @@ const ListFramesState = (props, dataState) => {
           }
         });
       },
-      moveUp(state: leafI) {
+      moveUp(state: leafType) {
         console.log('move up');
         const { selected, frames } = state.value;
         const current: FrameInfo | null = state.$.currentFrame();
@@ -190,7 +195,7 @@ const ListFramesState = (props, dataState) => {
           }
         });
       },
-      moveBottom(state: leafI) {
+      moveBottom(state: leafType) {
         const { selected, frames } = state.value;
         const current: FrameInfo | null = state.$.currentFrame();
         state.do.moveFrames(function* reorder() {
