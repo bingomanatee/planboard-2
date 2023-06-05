@@ -1,7 +1,5 @@
 import { leafI, typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import { FrameInfo } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/types'
-import { delay } from 'rxjs'
-import { debounce, isEqual } from 'lodash'
 import { Frame } from '~/types'
 
 export type DetailStateValue = FrameInfo & {
@@ -13,7 +11,8 @@ export type DetailStateValue = FrameInfo & {
   savingFrame: Frame | null;
 };
 
-const DetailState = (dataState, projectId) => {
+const DetailState = (dataState, lfState: leafI) => {
+
   const $value: DetailStateValue = {
     selected: '',
     loaded: false,
@@ -106,7 +105,6 @@ const DetailState = (dataState, projectId) => {
       async update(state: typedLeaf<DetailStateValue>, frame) {
         try {
           const { loaded } = state.value;
-          console.log('updating ', frame, loaded);
           if (frame && loaded) {
             const frameStore = dataState.child('frames')!;
             frameStore.do.add({ ...frame }, frame.id);
@@ -117,6 +115,9 @@ const DetailState = (dataState, projectId) => {
         }
 
       },
+      onFrameDetailChange(state, id, label) {
+        lfState.do.onFrameDetailChange(label);
+      }
     },
   };
 };

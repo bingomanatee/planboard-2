@@ -1,7 +1,10 @@
 import { Content, Frame } from '~/types'
+import { linkVector } from '~/lib/store/data/stores/links.factory'
 
-export type FrameInfo = { id: string,
+export type FrameInfo = {
+  id: string,
   frame: Frame,
   content: Content | null,
-  contentData: any
+  contentData: any,
+  links: Map<string, linkVector[]>
 };

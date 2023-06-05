@@ -1,18 +1,54 @@
 import { BehaviorSubject, map, Observable } from 'rxjs'
 import { StoreRecord } from '~/lib/store/types'
 import { c } from '@wonderlandlabs/collect'
-import { Content } from '~/types'
+import { Content, Frame, Link } from '~/types'
 import { leafI, typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import { byContentReducer } from '~/lib/store/data/utils'
 import { sortBy } from 'lodash'
 import { FrameInfo } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/types'
+import { collectObj } from '@wonderlandlabs/collect/lib/types'
+import { LinkDir, linkVector } from '~/lib/store/data/stores/links.factory'
 
-export type ListFramesStateValue = { selected: string | null, frames: StoreRecord<FrameInfo>[] };
+export type ListFramesStateValue = {
+  selected: string | null,
+  frames: StoreRecord<FrameInfo>[],
+  mode: string
+};
+
+type FrameData = {
+  id: string,
+    frame: Frame,
+  content?: Content | null,
+  contentData?: any | null,
+  links:  Map<string, linkVector[]>
+}
 
 type leafType = typedLeaf<ListFramesStateValue>;
 
+function addLink(frameRecords: collectObj, link: Link) {
+  const {to_frame_id, from_frame_id} = link;
+  if (frameRecords.hasKey(from_frame_id)) {
+    const fd = frameRecords.get(from_frame_id);
+    const vector: linkVector = {to: to_frame_id, from: from_frame_id,linkId: link.id, dir: 'to' }
+    if (!fd.links.has(to_frame_id)) {
+      fd.links.set(to_frame_id, [vector])
+    } else {
+      fd.links.get(to_frame_id).push(vector);
+    }
+  }
+  if (frameRecords.hasKey(to_frame_id)) {
+    const fd = frameRecords.get(to_frame_id);
+    const vector: linkVector = {to: from_frame_id, from: to_frame_id, linkId: link.id, dir: 'from' }
+    if (!fd.links.has(from_frame_id)) {
+      fd.links.set(from_frame_id, [vector])
+    } else {
+      fd.links.get(from_frame_id).push(vector);
+    }
+  }
+}
+
 const ListFramesState = (props, dataState) => {
-  const $value: ListFramesStateValue = { frames: [], selected: null, lockSelected: null };
+  const $value: ListFramesStateValue = { frames: [], selected: null, lockSelected: null, mode: 'standard', };
   return {
     $value,
 
@@ -25,7 +61,8 @@ const ListFramesState = (props, dataState) => {
               (dataMap: Map<string, StoreRecord>) => {
                 const markdown = dataMap.get('markdown')!;
                 const images = dataMap.get('images');
-                const content = dataMap.get('content');
+                const content: Map<string, StoreRecord<string, Content>> = dataMap.get('content')!;
+                const links: Map<string, StoreRecord<string, Link>> = dataMap.get('links')!;
 
                 const imagesByContent = c(images).getReduce(byContentReducer, new Map());
                 const markdownByContent = c(markdown).getReduce(byContentReducer, new Map());
@@ -36,10 +73,10 @@ const ListFramesState = (props, dataState) => {
                       frame: r.content,
                       content: null,
                       contentData: null,
+                      links: new Map()
                     }));
                   // update frameRecords with content
-                  c(content!)
-                    .forEach((r: StoreRecord) => {
+                  content.forEach((r: StoreRecord<string, Content>) => {
                       const content: Content = r.content;
                       if (frameRecords.hasKey(content.frame_id)) {
                         const frameData = frameRecords.get(content.frame_id);
@@ -59,6 +96,11 @@ const ListFramesState = (props, dataState) => {
                         }
                       }
                     });
+
+                  links.forEach((r: StoreRecord<string, Link>) => {
+                    const link: Link = r.content;
+                    addLink(frameRecords, link);
+                  });
 
                   return frameRecords.value;
                 } catch (error) {
@@ -206,6 +248,9 @@ const ListFramesState = (props, dataState) => {
           }
           yield current;
         });
+      },
+      onFrameDetailChange(state: leafType, mode: string) {
+        state.do.set_mode((mode === 'Links') ? 'links' : 'standard');
       }
     }
   };

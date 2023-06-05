@@ -3,9 +3,11 @@ import { leafI } from '@wonderlandlabs/forest/lib/types'
 import { Engine } from '~/lib/store/types'
 import { combine } from '~/lib/store/data/utils'
 import { dataOrThrow } from '~/lib/utils'
+import { Link } from '~/types'
 
 export type LinkDir = 'from' | 'to';
 const NAME = 'links';
+export type linkVector = {from? : string, to: string, dir: LinkDir, link? : Link, linkId? : string};
 
 const contentFactory = (dataStore: leafI, engine: Engine) => {
   createStore(dataStore, NAME, [

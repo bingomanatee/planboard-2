@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { Card, CardBody, Grid, Heading } from 'grommet';
 import styles from './ListFrames.module.scss';
 import stateFactory from './ListFrames.state.ts';
@@ -9,6 +9,7 @@ import { pad } from '~/components/utils/constants'
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
 import Detail from '~/components/pages/ProjectView/ProjectEdit/ListFrames/Detail/Detail'
 import { FrameItem } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/FrameItem'
+import { FrameInfo } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/types'
 
 type ListFramesProps = {}
 
@@ -30,7 +31,19 @@ export default function ListFrames(props: ListFramesProps) {
       localState.do.watchFrames();
     });
 
-  const { selected, frames , lockSelected } = value;
+  const { selected, frames , lockSelected, mode } = value;
+
+  const activeFrames = useMemo(() => {
+    if (mode === 'links' && selected) {
+      return frames.filter((fd: FrameInfo) => {
+        if (fd.id === selected) {
+          return true;
+        }
+        return fd.links.has(selected);
+      })
+    }
+    return frames;
+  }, [frames, mode, selected])
 
   return (
     <BoxColumn fill align="center" justify="center" pad="large">
@@ -50,7 +63,7 @@ export default function ListFrames(props: ListFramesProps) {
               overflow={{ vertical: 'scroll' }}
               className={selected ? styles['locked-frame'] : ''}
               gridArea="list">
-              {frames.map(frame => <FrameItem state={state} selected={selected} lock={lockSelected} key={frame.id} frame={frame}/>)}
+              {activeFrames.map(frameInfo => <FrameItem state={state} selected={selected} lock={lockSelected} key={frameInfo.id} frameInfo={frameInfo}/>)}
             </BoxColumn>
             <BoxColumn border={border} gridArea="detail">
               <Detail state={state} selected={selected}/>
