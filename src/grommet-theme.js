@@ -70,6 +70,10 @@ const theme = deepMerge(base, {
         light: 'hsla(30,100%,50%, 0.8)',
         dark: 'hsla(30,100%, 50%, 0.8)'
       },
+      'focus': {
+        light: 'hsla(30,100%,50%, 0.4)',
+        dark: 'hsla(30,100%, 50%, 0.4)'
+      },
       'tab-color': {
         light: 'hsl(227,90%,40%)',
         dark: 'hsl(227,90%,60%)',
@@ -209,6 +213,24 @@ const theme = deepMerge(base, {
       background: 'selected-background',
       color: 'selected-text',
     },
+    focus: {
+      border: {
+        color: 'focus',
+      },
+      shadow: {
+        color: 'focus',
+        size: '3px'
+      }
+    },
+    input: {
+      font: {
+        size: '14px'
+      },
+      padding: {
+        horizontal: 'small',
+        vertical: 'xsmall'
+      }
+    }
   },
   button: {
     padding: { horizontal: '1em', vertical: '2px' },

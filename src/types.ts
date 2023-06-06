@@ -34,13 +34,25 @@ export type Content = {
   type: string,
   id: string
 }
+
+export type LinkDetail = {
+  label?: string,
+  mode?: string,
+  x?: number,
+  y?: number,
+  lat?: number,
+  lon?: number
+}
+
 export type Link = {
   id: string,
   label?: string,
   style?: string,
   from_frame_id: string,
   to_frame_id: string,
-  project_id: string
+  project_id: string,
+  from_detail?: LinkDetail | null,
+  to_detail?: LinkDetail | null
 }
 
 export type generalObj = Record<string, any>

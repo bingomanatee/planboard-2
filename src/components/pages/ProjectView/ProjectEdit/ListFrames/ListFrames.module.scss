@@ -17,23 +17,26 @@
     background-color: var(--hover-color-fill);
   }
 }
+
 .active-frame {
-  border: 1px solid var(--selected-color);
+  border: 1px solid var(--selected-color)!important;
+  background-color: var(--selected-color-fill) !important;
+}
+.inactive-under-lock:hover {
   background-color: var(--selected-color-fill) !important;
 }
 
-.active-frame-locked, .active-frame-locked:hover {
-  border: 3px solid var(--selected-color);
-  background-color: var(--hover-color-fill);
-}
-
-.locked-frame .frame-item:hover {
+.active-frame-locked {
+  border: 3px solid var(--hover-color)!important;
+  background-color: var(--hover-color-fill)!important;
 }
 
 .order {
   position: absolute;
   right: 3px;
   top: 10px;
+  z-index: 10;
+  background-color: red;
 }
 
 .from-to-button{

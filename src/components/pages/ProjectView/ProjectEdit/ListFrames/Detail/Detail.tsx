@@ -1,5 +1,5 @@
-import { useContext, useEffect } from 'react';
-import { Button, Grid, Header, Heading, Paragraph, Spinner, Text, TextInput } from 'grommet';
+import { useContext, useEffect, useMemo } from 'react';
+import { Button, DataTable, Grid, Header, Heading, Spinner, Text, TextInput } from 'grommet';
 import styles from './Detail.module.scss';
 import stateFactory from './Detail.state.ts';
 import useForest from '~/lib/useForest';
@@ -9,8 +9,8 @@ import useForestInput from '~/lib/useForestInput'
 import { DataStateContext, DataStateContextValue } from '~/components/GlobalState/GlobalState'
 import Tabs from '~/components/Tabs/Tabs'
 import { DetailProps, numField, toString } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/Detail/types'
-import MoveButtonDown from '~/components/icons/MoveButtonDown'
-import MoveButtonUp from '~/components/icons/MoveButtonUp'
+import { LinkDetail } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/Detail/LinkDetail'
+import DetailHeader from '~/components/pages/ProjectView/ProjectEdit/ListFrames/Detail/DetailHeader'
 
 const POSITION_GRID_AREAS = [
   { name: 'top-label', start: [0, 0], end: [0, 0] },
@@ -28,7 +28,9 @@ const POSITION_GRID_ROWS = ['auto', 'auto'];
 
 export default function Detail(props: DetailProps) {
   const { selected, state: lfState } = props;
-  const { dataState } = useContext<DataStateContextValue>(DataStateContext)
+  const { dataState } = useContext<DataStateContextValue>(DataStateContext);
+
+  console.log('lfState.value', lfState.value);
 
   const [value, state] = useForest([stateFactory, dataState, lfState],
     (localState) => {
@@ -42,8 +44,8 @@ export default function Detail(props: DetailProps) {
     state?.do.load(selected);
   }, [selected, state])
 
-  const { frame, content, loaded } = value;
-  const {mode} = lfState.value;
+  const { frame, content, loaded, links, currentLink } = value;
+  const { mode } = lfState.value;
 
   const frameState = state.child('frame')!;
   const [name, handleName] = useForestInput(frameState, 'name', {
@@ -55,6 +57,14 @@ export default function Detail(props: DetailProps) {
   const [height, handleHeight] = useForestInput(frameState, 'height', numField);
   const [width, handleWidth] = useForestInput(frameState, 'width', numField);
 
+  const linksLabel = useMemo(() => {
+    if (!links) {
+      return 'Links';
+    }
+
+    return <Text>Links&nbsp;(&nbsp;<span className={styles.count}>{links.length}</span>&nbsp;)</Text>
+  }, [links, selected])
+
   // loaded is null if there is nothing to load (!selected);
   // false if it is loading;
   // true after it loads;
@@ -64,37 +74,10 @@ export default function Detail(props: DetailProps) {
     </BoxColumn>
   }
 
+
   return <BoxColumn pad={{ horizontal: 'medium', vertical: 'small' }}>
-    <Header>
-      {(mode === 'links') ? null : (<BoxRow gap="small" className={styles['move-button']}>
-        <Button plain onClick={props.state.do.moveTop}>
-          <MoveButtonUp top/>
-        </Button>
-        <Button plain onClick={props.state.do.moveUp}>
-          <MoveButtonUp/>
-        </Button>
-      </BoxRow>)}
-      <BoxColumn fill="horizontal" className={styles['detail-head']}>
-        <Heading level={2} textAlign="center"
-                 weight="bold">{frame.name || '(unnamed) '}{(content?.type) ? ': ' : ''}{content?.type || '(no content)'}</Heading>
-        <Text weight="bold" as="div" textAlign="center"
-              size="large"
-        >{frame.id}</Text>
-        <span className={styles.order}>
-          <Text size="small">
-            {frame.order}</Text>
-          </span>
-      </BoxColumn>
-      {(mode === 'links') ? null : (<BoxRow gap="small" plain className={styles['move-button']}>
-        <Button plain onClick={props.state.do.moveDown}>
-          <MoveButtonDown/>
-        </Button>
-        <Button plain onClick={props.state.do.moveBottom}>
-          <MoveButtonDown bottom/>
-        </Button>
-      </BoxRow>)}
-    </Header>
-    <Tabs headers={['Frame', 'Links']} onChange={state.do.onFrameDetailChange}>
+    <DetailHeader  content={content} frame={frame} mode={mode} props={props}/>
+    <Tabs headers={['Frame', linksLabel]} onChange={state.do.onFrameDetailChange}>
       <BoxColumn>
         <FormEntry label="Name">
           <TextInput value={name} onChange={handleName}/>
@@ -162,10 +145,25 @@ export default function Detail(props: DetailProps) {
       <BoxColumn>
         <Heading level={3} textAlign="center"
                  weight="bold">Links</Heading>
-        <Paragraph>
-          Select a Link button at the left to edit the relationship
-        </Paragraph>
+        {links?.map((link) => {
+          if (!(link && (typeof link === 'object'))) {
+            return '---';
+          }
+          return (
+            <LinkDetail key={link.id} {...link}
+                        selected={selected}
+                        currentLink={currentLink}
+                        frames={lfState.value.frames}
+                        onClick={(e) => state.do.handleLinkClick(e, link)}/>
+          )
+        })}
       </BoxColumn>
     </Tabs>
   </BoxColumn>
 }
+/**
+ *     <DataTable data={links} columns={[{ property: 'id', header: 'id' },
+ *           { property: 'from_frame_id', header: 'from' },
+ *           { property: 'to_frame_id', header: 'to' }
+ *         ]}/>
+ */

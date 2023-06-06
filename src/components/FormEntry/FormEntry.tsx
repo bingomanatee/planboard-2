@@ -36,14 +36,14 @@ function Tip({ children }: GenericProps) {
 
 export default function FormEntry(props: FormEntryProps & GenericProps) {
   const [_value, state] = useForest([stateFactory, props]); //@TODO: remove state in place of rows function
-  const { label, tip } = props;
+  const { label, tip, ...rest } = props;
 
-  return (<BoxRow fill="horizontal" className={styles.container} as="section" data-id="form-entry">
+  return (<BoxRow fill="horizontal" className={styles.container} as="section" data-id="form-entry" {...rest} >
     <Grid areas={state.$.grid()} columns={['50px', 'flex']} rows={state.$.rows()} fill="horizontal">
       <BoxRow pad="xsmall" gridArea="label" gap="small">
         {tip ? <Tip>{tip}</Tip> : ''}
         {asText(label)}</BoxRow>
-      <Box pad="xsmall" gridArea="input">{props.children}</Box>
+      <Box pad="xsmall" gridArea="input" className={styles['input-container']}>{props.children}</Box>
     </Grid>
   </BoxRow>);
 }

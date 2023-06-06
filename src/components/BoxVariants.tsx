@@ -5,9 +5,9 @@ import { DirectionType } from 'grommet/utils'
 import { generalObj } from '@wonderlandlabs/collect/lib/types'
 
 
-export const BoxRow = ({ children, ...rest }: generalObj & GenericProps) => (<Box direction="row" {...rest}>{children}</Box>)
+export const BoxRow = ({ children, ...rest }: generalObj & GenericProps) => (<Box direction="row" focusIndicator={false}  {...rest}>{children}</Box>)
 export const BoxColumn = ({ children, ...rest }: generalObj & GenericProps) => (
-  <Box direction="column" {...rest}>{children}</Box>)
+  <Box direction="column" focusIndicator={false}  {...rest}>{children}</Box>)
 
 const sizes = ['small', 'medium', 'large']
 export const BoxFlip = ({ direction, flip='medium', children, ...rest }: {
@@ -25,7 +25,7 @@ export const BoxFlip = ({ direction, flip='medium', children, ...rest }: {
     return direction;
   }, [size, direction, flip]);
   return (
-    <Box direction={realDirection} {...rest}>
+    <Box direction={realDirection} focusIndicator={false} {...rest}>
       {children}
     </Box>
   )

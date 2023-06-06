@@ -1,6 +1,8 @@
 import { leafI, typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import { FrameInfo } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/types'
-import { Frame } from '~/types'
+import { Frame, Link } from '~/types'
+import { linkVector } from '~/lib/store/data/stores/links.factory'
+import reactToString from '~/components/utils/reactToString'
 
 export type DetailStateValue = FrameInfo & {
   selected: string,
@@ -9,6 +11,8 @@ export type DetailStateValue = FrameInfo & {
   hasContentData: boolean,
   contentData: any | null,
   savingFrame: Frame | null;
+  links: Link[] | null;
+  currentLink: string | null;
 };
 
 const DetailState = (dataState, lfState: leafI) => {
@@ -18,7 +22,9 @@ const DetailState = (dataState, lfState: leafI) => {
     loaded: false,
     hasContent: false,
     hasContentData: false,
-    contentData: null
+    contentData: null,
+    links: null,
+    currentLink: null
   };
   return {
     $value,
@@ -48,24 +54,41 @@ const DetailState = (dataState, lfState: leafI) => {
       }
     },
     actions: {
+      handleLinkClick(state: typedLeaf<DetailStateValue>, e: MouseEvent, link: Link) {
+        e.stopPropagation();
+        console.log('link click:', link);
+        if (state.value.currentLink === link.id) {
+          return state.do.set_currentLink(null);
+        }
+        state.do.set_currentLink(link.id);
+      },
+      loadLinks(state: typedLeaf<DetailStateValue>) {
+        if (!state.value.selected) return state.do.set_links(null);
+        const links = dataState.child('links')!.$.forFrame(state.value.selected);
+
+        state.do.set_links(links.map(({content}) => content));
+      },
       load(state: typedLeaf<DetailStateValue>, selected) {
         const { loaded } = state.value;
+        if (!selected) {
+          state.do.set_links(null);
+        }
         if (selected && loaded && state.value.selected === selected) {
           return;
         }
         state.do.set_selected(selected);
         if (selected) {
           state.do.set_loaded(false);
-          return state.do.loadFrame()
+          return state.do.loadFrame(selected);
         } else {
           state.do.set_loaded(null);
         }
       },
-      async loadFrame(state: leafI) {
-        const { selected } = state.value;
+      async loadFrame(state: leafI, selected) {
         if (selected) {
           state.do.set_selected(selected);
-          const { frame, content, contentData } = await dataState.do.frameInfo(selected);
+          const data = await dataState.do.frameInfo(selected);
+          const { frame, content, contentData, links} = data;
           state.child('frame')!.value = frame;
           state.do.set_loaded(true);
 
@@ -86,6 +109,9 @@ const DetailState = (dataState, lfState: leafI) => {
             state.do.set_contentData({});
             state.do.set_hasContentData(false);
           }
+          state.do.loadLinks(selected);
+        } else {
+          state.do.set_links(null);
         }
       },
 
@@ -116,7 +142,12 @@ const DetailState = (dataState, lfState: leafI) => {
 
       },
       onFrameDetailChange(state, id, label) {
-        lfState.do.onFrameDetailChange(label);
+        const labelString = reactToString(label);
+        if (/Links/.test(labelString)) {
+          lfState.do.onFrameDetailChange('Links');
+        } else {
+          lfState.do.onFrameDetailChange(labelString)
+        }
       }
     },
   };

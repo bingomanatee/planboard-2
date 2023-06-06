@@ -68,7 +68,7 @@ export default function EditGrid(props: EditGridProps) {
             <BoxColumn basis="50%">
               <div>
                 <Heading level={3}>Color</Heading>
-                <RgbaColorPicker color={gridColor | {r: 0,g: 0, b: 0, a: 0.5}} onChange={(color) => state.do.set_gridColor(color)} />
+                <RgbaColorPicker color={gridColor || {r: 0,g: 0, b: 0, a: 0.5}} onChange={(color) => state.do.set_gridColor(color)} />
                 <GridPreview {...value} />
               </div>
             </BoxColumn>

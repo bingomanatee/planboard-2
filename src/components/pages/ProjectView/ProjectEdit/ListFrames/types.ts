@@ -1,4 +1,4 @@
-import { Content, Frame } from '~/types'
+import { Content, Frame, Link } from '~/types'
 import { linkVector } from '~/lib/store/data/stores/links.factory'
 
 export type FrameInfo = {
@@ -6,5 +6,5 @@ export type FrameInfo = {
   frame: Frame,
   content: Content | null,
   contentData: any,
-  links: Map<string, linkVector[]>
+  links: Link[]
 };

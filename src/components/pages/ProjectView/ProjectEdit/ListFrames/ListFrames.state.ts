@@ -11,8 +11,10 @@ import { LinkDir, linkVector } from '~/lib/store/data/stores/links.factory'
 
 export type ListFramesStateValue = {
   selected: string | null,
+  lockSelected: string | null,
   frames: StoreRecord<FrameInfo>[],
-  mode: string
+  mode: string,
+  linksFor: string | null
 };
 
 type FrameData = {
@@ -25,37 +27,15 @@ type FrameData = {
 
 type leafType = typedLeaf<ListFramesStateValue>;
 
-function addLink(frameRecords: collectObj, link: Link) {
-  const {to_frame_id, from_frame_id} = link;
-  if (frameRecords.hasKey(from_frame_id)) {
-    const fd = frameRecords.get(from_frame_id);
-    const vector: linkVector = {to: to_frame_id, from: from_frame_id,linkId: link.id, dir: 'to' }
-    if (!fd.links.has(to_frame_id)) {
-      fd.links.set(to_frame_id, [vector])
-    } else {
-      fd.links.get(to_frame_id).push(vector);
-    }
-  }
-  if (frameRecords.hasKey(to_frame_id)) {
-    const fd = frameRecords.get(to_frame_id);
-    const vector: linkVector = {to: from_frame_id, from: to_frame_id, linkId: link.id, dir: 'from' }
-    if (!fd.links.has(from_frame_id)) {
-      fd.links.set(from_frame_id, [vector])
-    } else {
-      fd.links.get(from_frame_id).push(vector);
-    }
-  }
-}
-
 const ListFramesState = (props, dataState) => {
-  const $value: ListFramesStateValue = { frames: [], selected: null, lockSelected: null, mode: 'standard', };
+  const $value: ListFramesStateValue = { frames: [], linksFor: null, selected: null, lockSelected: null, mode: 'standard', };
   return {
     $value,
 
     selectors: {
       initFrameObserver(state: leafType): Observable<any> {
         const dataSubj = new BehaviorSubject(dataState.value);
-        let observable = dataSubj
+        let observable = dataSubj // @todo: watch and update only changed properties;
           .pipe(
             map(
               (dataMap: Map<string, StoreRecord>) => {
@@ -73,7 +53,7 @@ const ListFramesState = (props, dataState) => {
                       frame: r.content,
                       content: null,
                       contentData: null,
-                      links: new Map()
+                      links: []
                     }));
                   // update frameRecords with content
                   content.forEach((r: StoreRecord<string, Content>) => {
@@ -99,7 +79,9 @@ const ListFramesState = (props, dataState) => {
 
                   links.forEach((r: StoreRecord<string, Link>) => {
                     const link: Link = r.content;
-                    addLink(frameRecords, link);
+                    const {to_frame_id, from_frame_id} = link;
+                    frameRecords.get(to_frame_id)?.links.push(link);
+                    frameRecords.get(from_frame_id)?.links.push(link);
                   });
 
                   return frameRecords.value;
@@ -126,6 +108,14 @@ const ListFramesState = (props, dataState) => {
     },
 
     actions: {
+      viewAll(state: leafType) {
+        state.do.set_mode('links-all');
+      },
+      unlock(state: leafType) {
+        state.do.set_lockSelected(null);
+        state.do.set_mode('standard');
+        state.do.set_selected(null);
+      },
       clickFrame(state: leafType, frameId) {
         const { lockSelected } = state.value;
         state.do.set_selected(frameId);
@@ -136,6 +126,9 @@ const ListFramesState = (props, dataState) => {
         if (!lockSelected) {
           state.do.set_selected(frameId);
         }
+      },
+      showLinks(state: leafType, id: string) {
+        state.do.set_linksFor(id);
       },
       watchFrames(state: leafType) {
         let observable = state.getMeta('observable');
@@ -251,6 +244,7 @@ const ListFramesState = (props, dataState) => {
       },
       onFrameDetailChange(state: leafType, mode: string) {
         state.do.set_mode((mode === 'Links') ? 'links' : 'standard');
+        state.do.set_linksFor(null);
       }
     }
   };

@@ -17,6 +17,8 @@ const framesFactory = (store: leafI, engine: Engine) => {
     { name: 'left', type: 'number' },
     { name: 'width', type: 'number' },
     { name: 'height', type: 'number' },
+    {name: 'style', type: 'json', version: 4, optional: true},
+    {name: 'label', type: 'string', version: 4, optional: true}
   ], {
     actions: {
       createFrame(state: leafI, project_id, p1: Vector2, p2: Vector2) {

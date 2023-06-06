@@ -1,6 +1,5 @@
 import { typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import { RgbaColor } from 'react-colorful'
-import { dataOrThrow } from '~/lib/utils'
 import { EditGridProps } from '~/components/pages/ProjectView/ProjectEdit/EditGrid/types'
 
 export type GridStateValue = {
