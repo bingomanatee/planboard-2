@@ -22,7 +22,6 @@ const ProjectGridState = (props) => {
 
     actions: {
       loadSetting(store: typedLeaf<ProjectGridStateValue>, setting?: Setting) {
-        console.log("PGS: got grid setting", setting);
         if (!setting) {
           return store.do.setDefault();
         }

@@ -29,6 +29,7 @@ const EditGridState = (props: EditGridProps, dataState, projectId) => {
         const props = await dataState.child('settings')!.do.loadForProject(projectId);
 
         const config = props.get('grid');
+
         if (config) {
           try {
             const { resolution, active, gridColor } = JSON.parse(config);

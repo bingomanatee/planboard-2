@@ -71,13 +71,18 @@ export function clickOnId(id) {
   }
 }
 
-export function extent(f: Frame): Record<string, Vector2> {
+export type extentPoints = 'lt' | 'lm' | 'lb' |
+  'ct' | 'cm' | 'cb' |
+  'rt' | 'rm' | 'rb'
+export type extents = Record<extentPoints, Vector2>;
+
+export function extent(f: Frame): extents {
 
   const {left, top, width, height} = f;
   const dir = {};
   const widthC = Math.round(width/2);
   const heightC = Math.round(height/2);
-  'lct'.split('').forEach((horiz) =>{
+  'lcr'.split('').forEach((horiz) =>{
     'tmb'.split('').forEach(vert => {
       let x = left;
       let y = top;

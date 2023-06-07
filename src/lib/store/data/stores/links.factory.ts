@@ -13,7 +13,7 @@ const contentFactory = (dataStore: leafI, engine: Engine) => {
   createStore(dataStore, NAME, [
     { name: 'id', type: 'string', primary: true },
     { name: 'label', type: 'string', optional: true },
-    { name: 'style', type: 'string', optional: true }, // JSON format describer
+    { name: 'style', type: 'json', optional: true, version: 5}, // JSON format describer
     { name: 'from_frame_id', type: 'string', version: 2 },
     { name: 'to_frame_id', type: 'string', version: 2 },
     { name: 'project_id', type: 'string' },

@@ -8,8 +8,29 @@ function matchingVersion(fieldDef: FieldDef, version: number) {
   return fieldVersion(fieldDef) === version;
 }
 
-function assertVersion(tableSchema, version) {
-
+function filterIndexedItem(item: any, schema: FieldDef[]) {
+  const coll = c(item);
+  schema.forEach((f) => {
+    if (!coll.hasKey(f.name)) {
+      return;
+    }
+    if (f.type === 'json') {
+      const value = coll.get(f.name);
+      if (value === null) {
+        return;
+      }
+      if (typeof value === 'string') {
+        try {
+          coll.set(f.name, JSON.parse(value))
+        } catch (err) {
+          console.warn('cannot parse json for value ', item, f);
+        }
+      }
+    } else if (f.type === 'number') {
+      coll.set(f.name, Number(coll.get(f.name)))
+    }
+  });
+  return coll.value;
 }
 
 const byVersion = (r1, r2) => {
@@ -140,7 +161,7 @@ const indexedEngine = (config = {}): Engine => {
           }
         }, table)
         const data = await coll.toArray();
-        return { data };
+        return { data: data.map(item => filterIndexedItem(item, engine.schema(collection))) };
       } catch (err) {
         console.warn('query error:', err, 'on', collection, 'with', conditions);
         return { error: err }
@@ -163,7 +184,7 @@ const indexedEngine = (config = {}): Engine => {
       let max = Math.max(...versions);
 
       const versionedFields = new Map();
-      for(let version = min; version <= max; ++version) {
+      for (let version = min; version <= max; ++version) {
         const fields = coll.getFilter((fieldDef) => {
           return fieldVersion(fieldDef) <= version
         });

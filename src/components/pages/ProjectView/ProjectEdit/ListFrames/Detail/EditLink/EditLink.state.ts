@@ -51,6 +51,7 @@ const EditLinkState = (props: {id: string}, dataStore: leafI) => {
   const $value: EditLinkStateValue = {
     id: props.id,
     style: '',
+    label: '',
     from_frame_id: '',
     to_frame_id: '',
   ...linkData

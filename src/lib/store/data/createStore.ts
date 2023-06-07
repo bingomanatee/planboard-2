@@ -21,6 +21,31 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
     fast: true,
     selectors: {
       ...selectors,
+      recordToSave(leaf: leafI, id: string) {
+        const record = leaf.value.get(id);
+        if (!record) {
+          return null;
+        }
+
+        const coll = c(record.content);
+        schema?.forEach((def) => {
+          if (coll.hasKey(def.name) && def.type === 'json') {
+            try {
+              const base = coll.get(def.name);
+              if ((base !== null) && (typeof base !== 'string')) {
+                coll.set(def.name, JSON.stringify(base));
+              }
+            } catch (err) {
+              console.warn('cannot stringify ', def.name, 'of', record.context);
+            }
+          }
+        });
+        return {
+          id: record.id,
+          content: coll.value,
+          saved: record.saved
+        }
+      },
       size(leaf: leafI) {
         return leaf.value.size;
       },
@@ -126,8 +151,7 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
         let result = mutator(newValue);
         leaf.value = (result instanceof Map) ? result : newValue;
       },
-      add(leaf: leafI, content: any, id?: string): StoreRecord {
-        let saved = true;
+      add(leaf: leafI, content: any, id?: string, saved = false): StoreRecord {
         validateData(content, leaf.getMeta('schema'), collectionName);
 
         if (!id) {
@@ -179,7 +203,7 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
       async save(store: leafI, id: string) {
         const engine = dataStore.getMeta('engine');
         if (store.value.has(id)) {
-          const { content, saved } = store.value.get(id);
+          const { content, saved } = store.$.recordToSave(id);
           const coll = c(content);
           const pk = store.$.primaryField();
           if (!coll.hasKey(pk)) {
@@ -189,7 +213,8 @@ export function createStore(dataStore: leafI, collectionName, schema?: FieldDef[
           if (error) {
             throw error;
           }
-          return store.do.add(data, id);
+
+          return store.do.add(data, id, true);
         } else {
           throw new Error(`no record found for ${id}`);
         }

@@ -8,6 +8,7 @@ import { BoxColumn, BoxFlip, BoxRow } from '~/components/BoxVariants'
 import FormEntry from '~/components/FormEntry/FormEntry'
 import useForestInput from '~/lib/useForestInput'
 import { RgbaColorPicker } from 'react-colorful'
+import { debounce } from 'lodash'
 
 type EditLinkProps = {
   id: string
@@ -30,6 +31,13 @@ export default function EditLink(props: EditLinkProps) {
 
   const [value, state] = useForest([stateFactory, props, dataState],
     (localState) => {
+    const linksStore = dataState.child('links')!;
+    const debouncedSaver = debounce((value) => {
+      linksStore.do.add(value, value.id);
+      console.log('--- saving value', value);
+      linksStore.do.save(value.id);
+    }, 500);
+    const sub = localState.subscribe(debouncedSaver);
     });
 
   const { style: linkStyle } = value;
@@ -43,7 +51,7 @@ export default function EditLink(props: EditLinkProps) {
     <Heading level={4}>Stroke</Heading>
     <BoxFlip direction="column" fill="horizontal">
       <FormEntry label="Width" basis="33%">
-        <TextInput type="number" min={0} step={1} value={width} update={handleWidth}/>
+        <TextInput type="number" min={0} max={10} step={1} value={width} onChange={handleWidth}/>
       </FormEntry>
       <FormEntry label="Color">
         <RgbaColorPicker color={linkStyle.color || { r: 0, g: 0, b: 0, a: 0.5 }}

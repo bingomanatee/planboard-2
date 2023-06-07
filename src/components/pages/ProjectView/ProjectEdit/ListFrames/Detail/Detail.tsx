@@ -11,6 +11,7 @@ import Tabs from '~/components/Tabs/Tabs'
 import { DetailProps, numField, toString } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/Detail/types'
 import { LinkDetail } from '~/components/pages/ProjectView/ProjectEdit/ListFrames/Detail/LinkDetail'
 import DetailHeader from '~/components/pages/ProjectView/ProjectEdit/ListFrames/Detail/DetailHeader'
+import FrameEditor from '~/components/pages/ProjectView/ProjectEdit/ListFrames/Detail/FrameEditor'
 
 const POSITION_GRID_AREAS = [
   { name: 'top-label', start: [0, 0], end: [0, 0] },
@@ -30,8 +31,6 @@ export default function Detail(props: DetailProps) {
   const { selected, state: lfState } = props;
   const { dataState } = useContext<DataStateContextValue>(DataStateContext);
 
-  console.log('lfState.value', lfState.value);
-
   const [value, state] = useForest([stateFactory, dataState, lfState],
     (localState) => {
       const sub = localState.do.watch();
@@ -48,14 +47,6 @@ export default function Detail(props: DetailProps) {
   const { mode } = lfState.value;
 
   const frameState = state.child('frame')!;
-  const [name, handleName] = useForestInput(frameState, 'name', {
-    filter: toString,
-    inFilter: toString
-  });
-  const [left, handleLeft] = useForestInput(frameState, 'left', numField);
-  const [top, handleTop] = useForestInput(frameState, 'top', numField);
-  const [height, handleHeight] = useForestInput(frameState, 'height', numField);
-  const [width, handleWidth] = useForestInput(frameState, 'width', numField);
 
   const linksLabel = useMemo(() => {
     if (!links) {
@@ -74,74 +65,10 @@ export default function Detail(props: DetailProps) {
     </BoxColumn>
   }
 
-
   return <BoxColumn pad={{ horizontal: 'medium', vertical: 'small' }}>
     <DetailHeader  content={content} frame={frame} mode={mode} props={props}/>
     <Tabs headers={['Frame', linksLabel]} onChange={state.do.onFrameDetailChange}>
-      <BoxColumn>
-        <FormEntry label="Name">
-          <TextInput value={name} onChange={handleName}/>
-        </FormEntry>
-        <FormEntry label="Position">
-          <Grid areas={POSITION_GRID_AREAS} rows={POSITION_GRID_ROWS} columns={POSITION_GRID_COLUMNS}>
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="left-label">
-              <Text>left</Text>
-            </BoxRow>
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="left-input">
-              <TextInput type="number"
-                         value={left} onChange={handleLeft}/>
-            </BoxRow>
-
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="top-label">
-              <Text>Top</Text>
-            </BoxRow>
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="top-input">
-              <TextInput type="number"
-                         value={top} onChange={handleTop}/>
-            </BoxRow>
-
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="width-label">
-              <Text>Width</Text>
-            </BoxRow>
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="width-input">
-              <TextInput type="number"
-                         value={width} onChange={handleWidth}/>
-            </BoxRow>
-
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="top-input">
-              <TextInput type="number"
-                         value={top} onChange={handleTop}/>
-            </BoxRow>
-
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="height-label">
-              <Text>Height</Text>
-            </BoxRow>
-
-            <BoxRow pad={{ horizontal: 'small', vertical: 'xsmall' }}
-                    align="center"
-                    gridArea="height-input">
-              <TextInput type="number"
-                         value={height} onChange={handleHeight}/>
-            </BoxRow>
-          </Grid>
-        </FormEntry>
-      </BoxColumn>
+      <FrameEditor frameState={frameState} />
       <BoxColumn>
         <Heading level={3} textAlign="center"
                  weight="bold">Links</Heading>

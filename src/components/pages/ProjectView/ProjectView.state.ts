@@ -364,6 +364,7 @@ const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backR
           const { project, frames, settings } = loaded;
           state.do.set_project(project);
           await state.do.set_frames(frames);
+
           state.do.set_settings(settings);
           state.do.set_loadState('loaded');
         } catch (err) {

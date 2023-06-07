@@ -13,11 +13,6 @@ function label(frames: FrameInfo[], id) {
   return frame?.frame.name ? `"${frame?.frame.name}"` : <code>{id}</code>;
 }
 
-const ACTIVE_BORDER = {
-  size: '1px',
-  color: 'frame-border-over'
-}
-
 export function LinkDetail(props: linkVector & { currentLink: string, frames: FrameInfo[], onClick: MouseEventHandler, selected: string }) {
   const { selected, id, from_frame_id, to_frame_id, onClick, currentLink, frames } = props;
   if (from_frame_id === selected || to_frame_id === selected) {

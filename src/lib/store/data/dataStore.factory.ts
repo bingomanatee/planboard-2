@@ -92,7 +92,6 @@ const dataStoreFactory = (engine: Engine) => {
           leaf.child('links')!.do.loadForProject(id),
         ])
 
-
         return { project, frames, content };
       },
       async updateFrame(leaf: leafI, frame: Frame, content: Content, contentData: any) {

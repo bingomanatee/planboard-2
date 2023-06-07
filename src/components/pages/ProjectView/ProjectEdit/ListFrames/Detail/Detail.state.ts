@@ -48,7 +48,14 @@ const DetailState = (dataState, lfState: leafI) => {
           top: 0,
           left: 0,
           width: 0,
-          height: 0
+          height: 0,
+        },
+        children: {
+          style: {
+            $value: {
+              mode: 'straight line'
+            }
+          }
         },
         fixedSetters: ['name', 'top', 'left', 'width', 'height', 'id', 'order']
       }
@@ -56,7 +63,6 @@ const DetailState = (dataState, lfState: leafI) => {
     actions: {
       handleLinkClick(state: typedLeaf<DetailStateValue>, e: MouseEvent, link: Link) {
         e.stopPropagation();
-        console.log('link click:', link);
         if (state.value.currentLink === link.id) {
           return state.do.set_currentLink(null);
         }
@@ -89,7 +95,18 @@ const DetailState = (dataState, lfState: leafI) => {
           state.do.set_selected(selected);
           const data = await dataState.do.frameInfo(selected);
           const { frame, content, contentData, links} = data;
-          state.child('frame')!.value = frame;
+          const frameStore = state.child('frame')!;
+          frameStore.value = frame;
+          if (frame.style) {
+            if (typeof frame.style === 'string') {
+              console.log('---- parsing style', frame.style);
+              try {
+                frameStore.child('style')!.value = JSON.parse(frame.style);
+              } catch (err) {
+                console.log('error parsing style:', err);
+              }
+            }
+          }
           state.do.set_loaded(true);
 
           if (content) {
@@ -133,6 +150,7 @@ const DetailState = (dataState, lfState: leafI) => {
           const { loaded } = state.value;
           if (frame && loaded) {
             const frameStore = dataState.child('frames')!;
+            console.log('updating frame based on ', frame);
             frameStore.do.add({ ...frame }, frame.id);
             await frameStore.do.save(frame.id);
           }

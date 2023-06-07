@@ -24,7 +24,6 @@ export default function CropScale(props: CropScaleProps) {
   console.log('contentDataState value:', contentDataState);
   const [scale, handleScale] = useForestInput(contentDataState,  'scale',
     {filter:   (value) => {
-        console.log('scale value:', value);
         return Number(value)
       }}
   )

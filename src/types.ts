@@ -2,7 +2,9 @@ import { ChangeEvent, ReactNode } from 'react'
 import { ReactNodeLike } from 'prop-types'
 import { Vector2 } from 'three'
 
-export interface ReactNodeArray extends Iterable<ReactNodeLike> {}
+export interface ReactNodeArray extends Iterable<ReactNodeLike> {
+}
+
 export type GenericProps = { children: ReactNode | ReactNodeArray | null };
 
 // ------ general utility
@@ -10,12 +12,10 @@ export type GenericProps = { children: ReactNode | ReactNodeArray | null };
 export type triggerFn = () => void
 
 export function isVector2(arg: unknown): arg is Vector2 {
-
   return !!(arg && typeof arg === 'object' &&
     'x' in arg && 'y' in arg &&
     typeof arg.x === 'number' && typeof arg.y === 'number'
   )
-
 }
 
 export type NameId = {
@@ -25,9 +25,18 @@ export type NameId = {
 
 // ------ Data templates
 export type Project = {} & NameId;
-export type Frame = {project_id: string, order: number } & NameId;
-export type MarkdownData = {title: string, text: string, id: string};
-export type ImageData = {crop: string, scale: number, name?: string, id: string, saved: boolean, syncSize: boolean};
+
+export const linkModeOptions = ['straight line', 'corner', 'side', 'corner or side'];
+export type LinkModes = 'straight line'| 'corner'| 'side'| 'corner or side'
+
+export type Frame = {
+  project_id: string, order: number, style?: {
+    mode: LinkModes
+  }
+} & NameId;
+
+export type MarkdownData = { title: string, text: string, id: string };
+export type ImageData = { crop: string, scale: number, name?: string, id: string, saved: boolean, syncSize: boolean };
 export type Content = {
   frame_id: string,
   project_id: string,
@@ -58,7 +67,7 @@ export type Link = {
 export type generalObj = Record<string, any>
 
 export type Setting = {
-  id : string,
+  id: string,
   name: string,
   type: 'string' | 'number',
   project_id: string,

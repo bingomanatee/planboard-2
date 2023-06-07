@@ -22,6 +22,10 @@ export default function useForestInput<InputType = HTMLInputElement>(
     const target =  e.target as generalObj;
     const next  = target[targetField];
 
+    if (fieldName === 'width') {
+      console.log('next value for width is ', next);
+    }
+
     if (!(setter in leaf.do)) {
       console.warn('bad field spec for leaf: ', fieldName, leaf);
       return;
