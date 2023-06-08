@@ -14,7 +14,6 @@ import { DataStateContext, DataStateContextValue } from '~/components/GlobalStat
 import FrameEditor from '~/components/pages/ProjectView/ProjectEdit/EditFrame/FrameEditor/FrameEditor'
 import DeleteButton from '~/components/ActionButton/DeelteButton'
 import dynamic from 'next/dynamic'
-import { ProjectViewStateContext } from '~/components/pages/ProjectView/ProjectView'
 import { triggerFn } from '~/types'
 
 type EditFrameProps = { id: string, closeTrigger: triggerFn }
@@ -23,7 +22,7 @@ const DataEditor = new Map();
 
 export default function EditFrame(props: EditFrameProps) {
   const { dataState } = useContext<DataStateContextValue>(DataStateContext)
-  const projectState = useContext(ProjectViewStateContext);
+
   const [value, state] = useForest([stateFactory, dataState, props.closeTrigger],
     (localState) => {
       localState.do.load(props.id);
@@ -53,6 +52,7 @@ export default function EditFrame(props: EditFrameProps) {
       break;
   }
 
+  console.log('rendering frame for type', content.type);
   return (
     <BoxColumn fill align="center" justify="center">
       <Card margin="large" background="background-back" id="edit-frame"

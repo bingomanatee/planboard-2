@@ -14,11 +14,16 @@ export default function ImageContent(props: ImageProps) {
   const [value, state] = useForest([stateFactory, props, dataState],
     async (localState) => {
       await state.do.loadContent();
-      const {id, stored} = localState.value;
-      if (!(id && stored)) return;
+      const {id, savedDate} = localState.value;
+      if (!id) return;
 
+
+      let lastDate = savedDate;
       const sub = dataState.child('images')!.$.watchId(id, (record) => {
         localState.do.set_image(record.content);
+        if (record.content.savedDate !== lastDate) {
+          state.do.checkImageUrl();
+        }
       });
 
       return () => sub.unsubscribe();

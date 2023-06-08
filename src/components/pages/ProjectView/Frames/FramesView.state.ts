@@ -7,7 +7,7 @@ import { BehaviorSubject, map } from 'rxjs'
 import { byContentReducer } from '~/lib/store/data/utils'
 
 /*
-this is the compoent that shows ALL the frames (Frames plural).
+this is the component that shows ALL the frames (Frames plural).
  */
 const FramesViewState = (props, projectState, dataState: leafI) => {
   return {
@@ -85,10 +85,9 @@ const FramesViewState = (props, projectState, dataState: leafI) => {
       },
       edit(state: leafI, info: TargetData | null) {
         if (projectState.value.mouseMode) {
-          console.warn('ignoring edit click - project mode is ', projectState.value.mouseMode);
           return;
         }
-        state.do.set_editItem(info || null);
+        projectState.do.set_editItem(info || null);
       },
       move(state: leafI, info: TargetData | null) {
         projectState.do.initMove(info);

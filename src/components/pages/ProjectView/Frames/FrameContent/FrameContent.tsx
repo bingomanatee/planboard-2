@@ -21,6 +21,7 @@ export default memo(function FrameContent(props: FrameContentProps) {
 
   const {} = value;
 
+  // @TODO: use suspension
   const InnerComponent = useMemo(() => {
     switch (content.type) {
       case 'markdown':

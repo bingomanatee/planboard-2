@@ -12,7 +12,6 @@ const COLOR = 'rgba(51,51,51,0.75)';
 function candidates(frame: Frame, extent: extents) {
   let points = [extent.cm];
 
-  console.log('candidates for frame', frame);
   switch (frame.style?.mode) {
     case 'corner':
       points.push(extent.lt, extent.rt, extent.lb, extent.rb);

@@ -1,7 +1,7 @@
 import { createContext, memo, Suspense, useCallback, useContext, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './ProjectView.module.scss';
-import stateFactory, { ProjectViewValue } from './ProjectView.state.ts';
+import stateFactory, { MODE_ADD_FRAME, ProjectViewValue } from './ProjectView.state.ts';
 import useForest from '~/lib/useForest';
 import { DataStateContext, GlobalStateContext } from '~/components/GlobalState/GlobalState'
 import LoadStatePrompt from '~/components/pages/ProjectView/LoadStatePrompt/LoadStatePrompt'
@@ -37,9 +37,9 @@ export default memo(function ProjectView(props: ProjectViewProps) {
 
   const [value, state] = useForest<ProjectViewValue>([stateFactory, props.id, dataState, globalState, containerRef],
     onCreate);
-  const { mouseMode, loadState, screenOffset, screenOffsetDelta, moveItem, editMode } = value;
+  const { mouseMode, loadState, screenOffset, screenOffsetDelta, moveItem, editMode, editItem, } = value;
 
-  if (mouseMode === 'drawing-frame' && !NewFrame) {
+  if (mouseMode === MODE_ADD_FRAME && !NewFrame) {
     NewFrame = dynamic(() => import('./NewFrame/NewFrame'), { suspense: true })
   }
   const anchorStyle = useMemo(() => {
@@ -53,7 +53,7 @@ export default memo(function ProjectView(props: ProjectViewProps) {
 
   const showMove = !!((mouseMode === 'moving-item') && moveItem);
 
-  if (editMode && !ProjectEdit) {
+  if ((editMode || editItem) && !ProjectEdit) {
     ProjectEdit = dynamic(() => import ('~/components/pages/ProjectView/ProjectEdit/ProjectEdit'),
       { suspense: true }
     )
@@ -68,7 +68,7 @@ export default memo(function ProjectView(props: ProjectViewProps) {
             <>
               <ProjectGrid/>
               <FramesView projectId={props.id}/>
-              {mouseMode === 'drawing-frame' ? (
+              {mouseMode === MODE_ADD_FRAME ? (
                 <Suspense loading={<Spinner/>}>
                   <NewFrame projectState={state}/>
                 </Suspense>
@@ -76,10 +76,10 @@ export default memo(function ProjectView(props: ProjectViewProps) {
               }
               {showMove ? <MoveItem projectState={state}/> : null}
               {showMove ? <SizeItem projectState={state}/> : null}
-              <ErrorTrapper boundry={"editItem"}>
-                {editMode ? (
+              <ErrorTrapper boundry={"ProjectEdit"}>
+                {editMode || editItem ? (
                   <Suspense fallback={<Spinner/>}>
-                    <ProjectEdit closeTrigger={() => state.do.closeEdit()} editMode={editMode}/>
+                    <ProjectEdit closeTrigger={() => state.do.closeEdit()} editMode={editMode} editItem={editItem} />
                   </Suspense>
                 ) : null}
               </ErrorTrapper>

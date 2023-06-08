@@ -56,10 +56,6 @@ export default function FramesView(props: FramesViewProps) {
     )
   }
 
-  if (mouseMode && linkEndId) {
-    console.log(' ---- frameView project state:', linkStartId, linkEndId, mouseMode);
-  }
-
   // todo: move into Project View
   return (<>
     <FrameLinks />
@@ -70,13 +66,6 @@ export default function FramesView(props: FramesViewProps) {
                 linkStartId={linkStartId}
                 linkEndId={linkEndId}
       /> : null}
-    <ErrorTrapper boundry={"editItem"}>
-      {editItem ? (
-        <Suspense fallback={<Spinner/>}>
-          <ProjectEdit closeTrigger={() => state.do.closeEdit()} editItem={editItem}/>
-        </Suspense>
-      ) : null}
-    </ErrorTrapper>
   </>);
 }
 

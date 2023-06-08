@@ -53,6 +53,7 @@ const imageDataState = (
     scale: 1,
     syncSize: !!contentData.syncSize,
     saved: !!contentData.saved,
+    savedDate: '',
     uploaded: false,
     ...(contentData || {}), // will override most of these values
     content_id: content.id,
@@ -65,10 +66,9 @@ const imageDataState = (
         reUpload(imageState: leafI) { // upload again button clicked
           imageState.do.set_saved(false);
           imageState.do.set_uploaded(false);
-
           imageState.do.set_width(0);
           imageState.do.set_height(0);
-          imageState.do.set_zoom(1);
+          imageState.do.set_scale(1);
           imageState.do.set_filename('');
 
           imageState.setMeta('fileObj', null, true);
@@ -129,6 +129,7 @@ const imageDataState = (
 
           await axios(props);
           imageState.do.set_saved(true);
+          imageState.do.set_savedDate(new Date().toISOString());
         },
         async load(imageState: leafI) {
           const { id, project_id } = imageState.value;
@@ -148,19 +149,31 @@ const imageDataState = (
           if (imageState.value.uploaded) {
             await imageState.do.commitFile();
           }
-          const { width, height, content_id, project_id, id, syncSize, filename, saved, scale } = imageState.value;
+          const {
+            id,
+            project_id,
+            content_id,
+            width,
+            height,
+            syncSize,
+            filename,
+            saved,
+            scale,
+            savedDate
+          } = imageState.value;
 
           const newImageContent = {
             ...contentData,
+            id,
+            project_id,
+            content_id,
             width,
             height,
-            content_id,
-            project_id,
-            id,
             syncSize,
             filename,
             scale,
-            saved
+            saved,
+            savedDate
           };
           const imageStore = dataState.child('images')!;
           imageStore.do.add(newImageContent, id);
@@ -174,7 +187,7 @@ const imageDataState = (
         imageStyle(state: typedLeaf<CropScaleStateValue>) {
           const { width, height, scale } = state.value;
           if (width && height && scale) {
-            return propsToPx({ width : width * scale, height: height * scale })
+            return propsToPx({ width: width * scale, height: height * scale })
           }
           return {};
         },

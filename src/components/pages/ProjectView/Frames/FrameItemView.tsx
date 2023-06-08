@@ -101,11 +101,11 @@ export function FrameItemView({ id, frameState }) {
         <>
           <EditButton type="frame"
                       active={hover === id}
-                      onClick={(data) => frameState.do.edit(data)}
+                      onClick={ frameState.do.edit}
                       id={id}/>
           <MoveButton type="frame"
                       active={hover === id}
-                      onClick={(data) => frameState.do.move(data)}
+                      onClick={frameState.do.move}
                       id={id}
           />
         </>

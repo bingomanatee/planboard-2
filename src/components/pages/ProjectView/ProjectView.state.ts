@@ -1,6 +1,6 @@
 import { leafI, typedLeaf } from '@wonderlandlabs/forest/lib/types'
 import { Vector2 } from 'three'
-import { Frame, Project } from '~/types'
+import { EditItem, Frame, Project, TargetData } from '~/types'
 import { eventFrame } from '~/lib/utils'
 import EventQueue, { EQMouseEvent } from '~/lib/EventQueue'
 import { Subscriber } from 'rxjs'
@@ -14,7 +14,6 @@ type KeyData = {
 
 type LoadState = '' | 'loading' | 'error' | 'finished';
 type ProjectMode = '' | 'drawing-frame' | 'moving-item';
-export type TargetData = { type: string, id: string };
 
 export type ProjectViewValue = {
   loadError: any,
@@ -48,7 +47,7 @@ export const MODE_FRAMES_LIST = 'frames-list';
 
 export const MODE_NO_ACTION = 'no-action'
 
-const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backRef) => {
+const ProjectViewState = (projectId, dataState: leafI, globalState: leafI) => {
   const initial: ProjectViewValue = {
     loadError: null,
     linkStartId: null,
@@ -66,7 +65,8 @@ const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backR
     screenOffset: new Vector2(0, 0),
     screenOffsetDelta: null,
     settings: new Map(),
-    editMode: null
+    editMode: null,
+    editItem: null,
   };
 
   return {
@@ -353,6 +353,7 @@ const ProjectViewState = (projectId, dataState: leafI, globalState: leafI, backR
       closeEdit(state: typedLeaf<ProjectViewValue>) {
         state.do.set_editType(null);
         state.do.set_editMode(null);
+        state.do.set_editItem(null);
       },
       load(state: leafI) {
         state.do.set_loadState('loading');

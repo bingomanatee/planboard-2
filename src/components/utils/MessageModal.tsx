@@ -7,6 +7,7 @@ import styles from '~/components/Popup/Popup.module.scss'
 import PopupCardHeader from '~/components/Popup/PopupCardHeader'
 import BackButton from '~/components/ActionButton/BackButton'
 import MouseActionTerminator from '~/components/MouseActionTerminator'
+import GoButton from '~/components/ActionButton/GoButton'
 
 const pad = { horizontal: 'small', vertical: 'xsmall' };
 
@@ -27,7 +28,7 @@ export default function MessageModal({ heading, children, cancelLabel = 'Close' 
             {children}
           </CardBody>
           <CardFooter justify="center">
-            <BackButton onClick={popupState.do.hideModal}>{cancelLabel}</BackButton>
+            <GoButton onClick={popupState.do.hideModal}>{cancelLabel || 'Close'}</GoButton>
           </CardFooter>
         </Card>
       </MouseActionTerminator>

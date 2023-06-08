@@ -18,6 +18,8 @@ export function isVector2(arg: unknown): arg is Vector2 {
   )
 }
 
+export type TargetData = { type: string, id: string };
+
 export type NameId = {
   name: string,
   id: string
@@ -36,7 +38,13 @@ export type Frame = {
 } & NameId;
 
 export type MarkdownData = { title: string, text: string, id: string };
-export type ImageData = { crop: string, scale: number, name?: string, id: string, saved: boolean, syncSize: boolean };
+export type ImageData = { crop: string,
+  scale: number,
+  savedDate: string,
+  name?: string, id: string,
+  saved: boolean,
+  syncSize: boolean
+};
 export type Content = {
   frame_id: string,
   project_id: string,

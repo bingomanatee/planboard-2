@@ -66,7 +66,7 @@ export default function LoadStatePrompt({ state }: LoadStatePromptProps) {
           }
         }}>
           <Suspense fallback={<Spinner/>}>
-            <MessageModal heading="Loaded Project" cancelLabel="Proceed">
+            <MessageModal heading="Loaded Project" cancelLabel="Proceed" cancelIcon="/img/icons/">
               <article>
                 <Markdown>
                   {helpText.startProjectText}

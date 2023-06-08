@@ -6,10 +6,9 @@ import {
   MODE_ADD_FRAME,
   MODE_EDIT_GRID,
   MODE_FRAMES_LIST,
-  TargetData
 } from '~/components/pages/ProjectView/ProjectView.state'
 import MouseActionTerminator from '~/components/MouseActionTerminator'
-import { triggerFn } from '~/types'
+import { TargetData, triggerFn } from '~/types'
 
 /**
  * ProjectEdit is a "generic" portal for displaying ANY edit popup -- ensuring they are displayed one at a time.
@@ -20,25 +19,27 @@ type ProjectEditProps = {
   editMode?: string | null
 }
 
-// this is a storage for compoennts used to edit various types of data, indexed by type,
+// this is a storage for components used to edit various types of data, indexed by type,
 const projectEditorsMap = new Map();
 
 export default function ProjectEdit(props: ProjectEditProps) {
 
+  const {editMode, editItem} = props;
   const Editor = useMemo(() => {
-    let editType = null;
+    let editType = editMode;
     if (props.editItem) {
-
-      editType = props.editItem.type;
-    } else if (props.editMode) {
-      editType = props.editMode
-    } else {
-      return null;
+      editType = editItem?.type;
     }
+    if (!editType) return null;
+
     if (!projectEditorsMap.has(editType)) {
       switch (editType) {
         case MODE_ADD_FRAME:
           projectEditorsMap.set(MODE_ADD_FRAME, dynamic(() => import('./EditFrame/EditFrame'),
+            { suspense: true }));
+          break;
+        case 'frame':
+          projectEditorsMap.set('frame', dynamic(() => import('./EditFrame/EditFrame'),
             { suspense: true }));
           break;
         case MODE_EDIT_GRID:
@@ -54,7 +55,7 @@ export default function ProjectEdit(props: ProjectEditProps) {
     }
     return projectEditorsMap.get(editType);
 
-  }, [props.editItem?.type, props.editItem?.id, props.editMode]);
+  }, [editItem, editMode]);
 
   return (
     <Popup>

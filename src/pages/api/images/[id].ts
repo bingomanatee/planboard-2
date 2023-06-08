@@ -80,10 +80,10 @@ export async function save(
       // @TODO: validate project
 
       // @ts-ignore
-      const { error } = await suabaseAnon.storage.from('images')
+      const { error, data } = await suabaseAnon.storage.from('images')
         .upload(`${project_id}/${id}`, image, { contentType, upsert: true });
       if (error) throw error;
-      res.send({ fields });
+      res.send({ fields, data });
     });
     req.pipe(bb);
 
